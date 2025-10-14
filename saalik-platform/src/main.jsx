@@ -1,23 +1,30 @@
+// App.jsx
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import StoriesPreview from "./components/StoriesPreview";
+// import StoryDetailPage from "./pages/";
+// import GuideBookingPage from "./pages/GuideBookingPage";
+// import ContactPage from "./pages/ContactPage";
+
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [selectedStory, setSelectedStory] = useState(null);
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'home': return <HomePage setCurrentPage={setCurrentPage} setSelectedStory={setSelectedStory} />;
-      case 'stories': return <StoriesPage setCurrentPage={setCurrentPage} setSelectedStory={setSelectedStory} />;
-      case 'story-detail': return <StoryDetailPage storyId={selectedStory} setCurrentPage={setCurrentPage} setSelectedStory={setSelectedStory} />;
-      case 'guide-booking': return <GuideBookingPage />;
-      case 'contact': return <ContactPage />;
-      default: return <HomePage setCurrentPage={setCurrentPage} setSelectedStory={setSelectedStory} />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-black">
-      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <main>{renderPage()}</main>
-      <Footer />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-black text-white">
+        <Navbar />
+        <main className="pt-20">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/stories" element={<StoriesPreview />} />
+            {/* <Route path="/story/:id" element={<StoryDetailPage />} />
+            <Route path="/guide-booking" element={<GuideBookingPage />} />
+            <Route path="/contact" element={<ContactPage />} /> */}
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
   );
 }

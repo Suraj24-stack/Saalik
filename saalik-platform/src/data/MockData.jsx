@@ -1,4 +1,4 @@
-const mockData = {
+export const mockData = {
   heroSlides: [
     {
       id: 1,
