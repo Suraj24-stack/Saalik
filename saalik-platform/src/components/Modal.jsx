@@ -1,17 +1,22 @@
 import React from 'react';
-import { X } from 'lucide-react';
 
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-lg max-w-md w-full p-6 relative border border-green-500">
-        <button 
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
+      <div 
+        className="absolute inset-0 bg-black/90 backdrop-blur-md"
+        onClick={onClose}
+      ></div>
+      <div className="relative bg-gray-900 rounded-2xl p-8 max-w-md w-full border-2 border-green-500 shadow-2xl shadow-green-500/30 animate-slideUp">
+        <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white"
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
         >
-          <X size={24} />
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
         {children}
       </div>

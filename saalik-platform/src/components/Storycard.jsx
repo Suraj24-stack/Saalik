@@ -4,18 +4,19 @@ const StoryCard = ({ story, onClick }) => {
   return (
     <div 
       onClick={() => onClick(story)}
-      className="bg-black border-2 border-green-500 rounded-lg overflow-hidden cursor-pointer transform transition-all hover:scale-105 hover:border-green-400 hover:shadow-lg hover:shadow-green-500/50"
+      className="cursor-pointer group transition-all duration-300"
     >
-      <div className="aspect-square overflow-hidden">
+      <div className="relative overflow-hidden rounded-2xl border-2 border-green-500 transition-all duration-300 group-hover:border-green-400 group-hover:shadow-xl group-hover:shadow-green-500/50 group-hover:scale-105">
         <img 
           src={story.image} 
           alt={story.title}
-          className="w-full h-full object-cover"
+          className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
       </div>
-      <div className="p-4">
-        <h3 className="text-white font-medium text-sm text-center">{story.title}</h3>
-      </div>
+      <h3 className="text-white text-sm mt-3 text-center font-normal">
+        {story.title}
+      </h3>
     </div>
   );
 };
