@@ -13,21 +13,21 @@ const Navbar = ({ currentPage, setCurrentPage, setShowMenu, showMenu }) => {
             <span className="text-white text-xl font-bold tracking-wider">SAALIK</span>
           </div>
           
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center justify-center gap-10">
             {['HOME', 'STORIES', 'GUIDE BOOKING', 'CONTACT'].map((item) => (
-              <button
-                key={item}
-                onClick={() => setCurrentPage(item.toLowerCase().replace(' ', '-'))}
-                className={`text-sm font-medium tracking-wide transition-colors ${
-                  currentPage === item.toLowerCase().replace(' ', '-')
-                    ? 'text-green-400'
-                    : 'text-white hover:text-green-400'
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+         <button
+          key={item}
+           onClick={() => setCurrentPage(item.toLowerCase().replace(' ', '-'))}
+           className={`text-sm font-medium tracking-wide px-3 py-1 transition-colors duration-200 ${
+           currentPage === item.toLowerCase().replace(' ', '-')
+           ? 'text-green-400 border-b-2 border-green-400'
+           : 'text-white hover:text-green-400'
+          }`}
+         >
+          {item}
+         </button>
+      ))}
+     </div>
           
           <button 
             className="md:hidden text-white"
