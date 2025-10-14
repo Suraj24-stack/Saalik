@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import HeroCarousel from '../components/HeroCarousel';
 import AboutSection from '../components/AboutSection';
 import StoriesPreview from '../components/StoriesPreview';
-import GuideBookingSection from '../pages/GuideBookingSection';
+import GuideBookingSection from './GuideBookingSection';
 import PartnersSection from '../components/PartnersSection';
 import InitiativesCarousel from '../components/InitiativesCarousel';
 import Modal from '../components/Modal';
