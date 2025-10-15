@@ -1,7 +1,10 @@
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
 import StoryCard from '../components/Storycard';
-import { MockData } from '../data/MockData';
+// Do this in every file:
+import mockData, { mockData as mockDataNamed } from "../data/mockData"; // choose default OR named (see below)
+
+
 
 const StoryDetailPage = ({ storyId, setCurrentPage, setSelectedStory }) => {
   const story = mockData.stories.find(s => s.id === storyId) || mockData.stories[0];

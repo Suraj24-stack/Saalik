@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import StoryCard from '../components/Storycard';
 import Modal from '../components/Modal';
-import { mockData } from '../data/MockData';
+// Do this in every file:
+import mockData, { mockData as mockDataNamed } from "../data/mockData"; // choose default OR named (see below)
+
 
 const StoriesPage = ({ setCurrentPage, setSelectedStory }) => {
   const [searchQuery, setSearchQuery] = useState('');

@@ -1,25 +1,23 @@
-import React, { useState } from 'react';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import GuideBookingPage from './pages/GuideBookingSection';
-
+import React, { useState } from "react";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import GuideBookingPage from "./pages/GuideBookingSection"; // file must exist & export default
+import ContactPage from "./pages/ContactPage";              // <-- add this file/import
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [selectedStory, setSelectedStory] = useState(null);
+  const [currentPage, setCurrentPage] = useState("home");
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home':
-        return <HomePage setCurrentPage={setCurrentPage} setSelectedStory={setSelectedStory} />;
-      
-      case 'guide-booking':
+      case "home":
+        return <HomePage setCurrentPage={setCurrentPage} />;
+      case "guide-booking":
         return <GuideBookingPage />;
-      case 'contact':
+      case "contact":
         return <ContactPage />;
       default:
-        return <HomePage setCurrentPage={setCurrentPage} setSelectedStory={setSelectedStory} />;
+        return <HomePage setCurrentPage={setCurrentPage} />;
     }
   };
 

@@ -74,3 +74,6 @@ export const mockData = {
     { id: 6, name: "Cultural Archive", description: "Digital cultural repository" }
   ]
 };
+
+// ✅ Default export (optional for convenience)
+export default mockData;
