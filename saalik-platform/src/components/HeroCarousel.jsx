@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { mockData } from "../data/mockData"; // adjust path
+import { mockData } from "../data/MockData"; // adjust path
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);

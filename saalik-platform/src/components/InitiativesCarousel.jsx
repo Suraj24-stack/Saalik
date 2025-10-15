@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { mockData } from "../data/mockData"; // adjust path if needed
+import { mockData } from "../data/MockData"; // adjust path if needed
 
 const InitiativesCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
