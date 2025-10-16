@@ -2,7 +2,7 @@
 class API {
   constructor() {
     // Update this to your actual backend URL
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL;
+   this.baseURL = import.meta.env.VITE_API_URL;
     this.token = null;
   }
 

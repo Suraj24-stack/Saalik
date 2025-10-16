@@ -1,9 +1,8 @@
-"use client";
-
+// src/auth/Login.jsx
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+
 import {
   loginUser,
   clearError,
@@ -11,7 +10,8 @@ import {
   selectIsLoading,
   selectAuthError,
   selectUser,
-} from "../../store/slices/authSlice"; // ✅ fixed relative path
+} from "../../store/slices/authSlice";
+
 import {
   Mail,
   Lock,
@@ -24,7 +24,6 @@ import {
   Loader2,
   Shield,
   BookOpen,
-  RefreshCw,
   User,
   Crown,
   Settings,
@@ -38,52 +37,58 @@ export default function Login() {
   const [showDemoCredentials, setShowDemoCredentials] = useState(false);
 
   const dispatch = useDispatch();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
 
   const isLoading = useSelector(selectIsLoading);
   const error = useSelector(selectAuthError);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
 
-  const successMessage = searchParams?.get("message");
-  const verificationSuccess = searchParams?.get("verified") === "true";
-  const resetSuccess = searchParams?.get("reset") === "true";
-  const redirectPath = searchParams?.get("redirect") || "/dashboard";
+  const successMessage = searchParams.get("message");
+  const verificationSuccess = searchParams.get("verified") === "true";
+  const resetSuccess = searchParams.get("reset") === "true";
+  const redirectPath = searchParams.get("redirect") || "/dashboard";
 
   const isEmailVerificationError =
-    error &&
+    !!error &&
     (error.toLowerCase().includes("verify") ||
       error.toLowerCase().includes("verification"));
 
   const isAccountStatusError =
-    error &&
+    !!error &&
     (error.toLowerCase().includes("inactive") ||
       error.toLowerCase().includes("suspended") ||
       error.toLowerCase().includes("locked"));
 
+  // Auto-clear banners after success flows
   useEffect(() => {
     if (successMessage || verificationSuccess || resetSuccess) {
       const timer = setTimeout(() => {
-        router.replace("/login");
+        // Replace current url params with clean /login
+        navigate("/login", { replace: true });
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [successMessage, verificationSuccess, resetSuccess, router]);
+  }, [successMessage, verificationSuccess, resetSuccess, navigate]);
 
+  // Redirect when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
       const targetPath = user.role === "admin" ? "/admin_dashboard" : redirectPath;
-      router.push(targetPath);
+      navigate(targetPath);
     }
-  }, [isAuthenticated, user, router, redirectPath]);
+  }, [isAuthenticated, user, navigate, redirectPath]);
 
+  // Clear any lingering error on unmount
   useEffect(() => {
     return () => {
       dispatch(clearError());
     };
   }, [dispatch]);
 
+  // Simple form validation
   useEffect(() => {
     const emailValid =
       formData.email.length > 0 &&
@@ -115,7 +120,7 @@ export default function Login() {
         let targetPath = redirectPath;
         if (userData.role === "admin") targetPath = "/admin_dashboard";
         else if (userData.role === "moderator") targetPath = "/user_hostdashboard";
-        router.push(targetPath);
+        navigate(targetPath);
       }
     } catch (err) {
       console.error("Login failed:", err);
@@ -169,7 +174,7 @@ export default function Login() {
         <div className="max-w-md mx-auto">
           {/* Back Link */}
           <Link
-            href="/"
+            to="/"
             className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-8 transition-all duration-200 hover:translate-x-1 group"
           >
             <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
@@ -309,7 +314,7 @@ export default function Login() {
                   <span className="ml-3 text-sm text-gray-600 font-medium">Remember me</span>
                 </label>
                 <Link
-                  href="/forgot-password"
+                  to="/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Forgot password?
@@ -355,7 +360,7 @@ export default function Login() {
             {/* Sign Up */}
             <div className="space-y-4">
               <Link
-                href="/register"
+                to="/register"
                 className="inline-flex items-center justify-center w-full py-4 px-6 border-2 border-blue-600 text-blue-600 font-semibold rounded-xl hover:bg-blue-600 hover:text-white transition-all"
               >
                 <BookOpen className="w-5 h-5" />
@@ -415,21 +420,9 @@ export default function Login() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
+   
+       
+ 
     </main>
   );
 }

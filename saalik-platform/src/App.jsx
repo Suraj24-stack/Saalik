@@ -5,7 +5,7 @@ import StoriesPage from "./pages/StoriesPage.jsx";
 import GuideBookingPage from "./pages/GuideBookingPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import Footer from "./components/Footer.jsx";
-
+import Login from "./components/Login.jsx";
 
 
 
@@ -31,7 +31,7 @@ function App() {
       {currentPage === "contact" && <ContactPage />}
       
       {currentPage === "Login" && <Login/>}
-      {currentPage === "register" && <Register />}
+      
 
       <Footer />
     </>
