@@ -1,5 +1,5 @@
 import React from "react";
-import { mockData } from "../data/MockData"; // adjust path if needed
+import { mockData } from "../data/MockData"; 
 
 const PartnersSection = () => (
   <section className="bg-black py-16 px-4">
