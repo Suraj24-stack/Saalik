@@ -1,32 +1,27 @@
-import React, { useState } from "react";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import HomePage from "./pages/HomePage";
-import GuideBookingPage from "./pages/GuideBookingSection"; // file must exist & export default
-import ContactPage from "./pages/ContactPage";              // <-- add this file/import
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import StoriesPage from "./pages/StoriesPage.jsx";
+import GuideBookingPage from "./pages/GuideBookingPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import Footer from "./components/Footer.jsx"
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("home");
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case "home":
-        return <HomePage setCurrentPage={setCurrentPage} />;
-      case "guide-booking":
-        return <GuideBookingPage />;
-      case "contact":
-        return <ContactPage />;
-      default:
-        return <HomePage setCurrentPage={setCurrentPage} />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-black">
-      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <main>{renderPage()}</main>
+    <>
+      <Navbar />
+
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/stories" element={<StoriesPage />} />
+        <Route path="/guide-booking" element={<GuideBookingPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+
       <Footer />
-    </div>
+    </>
   );
 }
 
