@@ -1,24 +1,31 @@
-import { Routes, Route } from "react-router-dom";
+import { useState } from "react";
 import Navbar from "./components/Navbar.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import StoriesPage from "./pages/StoriesPage.jsx";
 import GuideBookingPage from "./pages/GuideBookingPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
-import Footer from "./components/Footer.jsx"
+import Footer from "./components/Footer.jsx";
 
 function App() {
+  const [currentPage, setCurrentPage] = useState("home");
+
   return (
     <>
-      <Navbar />
+      <Navbar
+        onHome={() => setCurrentPage("home")}
+        onStories={() => setCurrentPage("stories")}
+        onGuideBooking={() => setCurrentPage("guide-booking")}
+        onContact={() => setCurrentPage("contact")}
+        onLogin={() => setCurrentPage("login")}
+      />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/stories" element={<StoriesPage />} />
-        <Route path="/guide-booking" element={<GuideBookingPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
+      {/* Conditionally render content on the same page */}
+      {currentPage === "home" && <HomePage />}
+      {currentPage === "stories" && <StoriesPage />}
+      {currentPage === "guide-booking" && <GuideBookingPage />}
+      {currentPage === "contact" && <ContactPage />}
+      {currentPage === "login" && <LoginPage />}
 
       <Footer />
     </>
@@ -26,4 +33,3 @@ function App() {
 }
 
 export default App;
-
