@@ -1,6 +1,6 @@
 // src/pages/GuideBookingPage.jsx
 import React from "react";
-import GuideBookingSection from "../pages/GuideBookingSection";
+import GuideBookingSection from "./GuideBookingSection";
 
 export default function GuideBookingPage() {
   const handleJoinWaitlist = () => {

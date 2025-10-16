@@ -71,7 +71,11 @@ app.get('/', (req, res) => {
     message: 'Welcome to the Saalik API 🌿',
     docs: '/api/v1',
     endpoints: {
-      auth: '/api/v1/auth',
+      users:"api/users",
+      auth:{
+        login: "POST/api/users/login",
+        register: "POST /api/users",
+      },
       admin: '/api/v1/admin',
       stories: '/api/v1/stories',
       partners: '/api/v1/partners',
@@ -82,6 +86,14 @@ app.get('/', (req, res) => {
     },
   });
 });
+
+ /// Import Routes //
+const userRoute = require("./routes/userRoute");
+
+
+
+// Mout user /api prefixer
+app.use("api/users", userRoute);
 
 // -------------------------------
 // ❌ 404 Handler
