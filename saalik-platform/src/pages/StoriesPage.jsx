@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import StoryCard from '../components/Storycard';
 import Modal from '../components/Modal';
 // Do this in every file:
-import mockData, { mockData as mockDataNamed } from "../data/mockData"; // choose default OR named (see below)
+import mockData, { mockData as mockDataNamed } from "../data/MockData"; // choose default OR named (see below)
 
 
 const StoriesPage = ({ setCurrentPage, setSelectedStory }) => {
