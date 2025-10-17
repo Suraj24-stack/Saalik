@@ -6,6 +6,14 @@ export const mockData = {
     brandName: "SAALIK"
   },
 
+ // SAALIK Group Logos
+  saalikGroup: {
+    mainLogo: "/saaliklogo.png", // Circular logo with dancing figure
+    designsLogo: "/logo.png", // SAALIK DESIGNS logo
+  },
+
+
+
   // Hero Carousel Slides
   heroSlides: [
     {

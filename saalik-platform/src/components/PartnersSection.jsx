@@ -73,18 +73,19 @@ const PartnersSection = () => (
             {/* Logos */}
             <div className="flex items-center gap-6 md:gap-8">
               
-              {/* SAALIK Logo */}
+              {/* SAALIK Main Logo */}
               <div className="flex flex-col items-center gap-2">
                 <div className="relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 group">
                   {/* Glow */}
                   <div className="absolute inset-0 bg-green-400/30 rounded-full blur-xl scale-110" />
                   
-                  {/* Circle with Gear Icon */}
-                  <div className="relative w-full h-full rounded-full bg-green-500 flex items-center justify-center shadow-xl shadow-green-500/50 hover:scale-110 transition-transform duration-300">
-                    <svg className="w-16 h-16 md:w-20 md:h-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <circle cx="12" cy="12" r="3" fill="currentColor" />
-                      <path d="M12 1v6m0 6v6m6-11h-6m-6 0h6m5.196-3.464L13.5 10.5m-3 3l-3.696 3.696M21 12h-6m-6 0H3m16.196 4.464L15.5 13.5m-3-3l-3.696-3.696" stroke="currentColor" strokeLinecap="round" />
-                    </svg>
+                  {/* Logo Image */}
+                  <div className="relative w-full h-full rounded-full bg-transparent flex items-center justify-center hover:scale-110 transition-transform duration-300">
+                    <img 
+                      src={mockData.saalikGroup.mainLogo} 
+                      alt="SAALIK Logo" 
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 </div>
                 <p className="text-green-400 text-xs md:text-sm font-semibold tracking-wider">SAALIK</p>
@@ -94,12 +95,15 @@ const PartnersSection = () => (
               <div className="flex flex-col items-center gap-2">
                 <div className="relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 group">
                   {/* Glow */}
-                  <div className="absolute inset-0 bg-green-400/20 rounded-full blur-xl scale-110 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-green-400/20 rounded-lg blur-xl scale-110 opacity-0 group-hover:opacity-100 transition-opacity" />
                   
-                  {/* Circle with Text */}
-                  <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-emerald-900 to-black border-2 border-green-500 flex flex-col items-center justify-center shadow-xl hover:shadow-green-500/30 hover:scale-110 transition-all duration-300">
-                    <span className="text-green-400 font-bold text-xl md:text-2xl">SAALIK</span>
-                    <span className="text-green-400 font-bold text-xs md:text-sm -mt-1">DESIGNS</span>
+                  {/* Logo Image */}
+                  <div className="relative w-full h-full rounded-2xl bg-transparent flex items-center justify-center hover:scale-110 transition-all duration-300">
+                    <img 
+                      src={mockData.saalikGroup.designsLogo} 
+                      alt="SAALIK DESIGNS Logo" 
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 </div>
               </div>
