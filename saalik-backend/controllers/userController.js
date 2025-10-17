@@ -94,7 +94,7 @@ exports.createUser = async (req, res) => {
 };
 
 // POST /users/login - User login
-exports.login = async (req, res) => {
+exports.Login = async (req, res) => {
   try {
     const { email, password } = req.body;
 

@@ -77,7 +77,7 @@ router.post('/register', [
 // @route   POST /api/v1/auth/login
 // @desc    Login admin
 // @access  Public
-router.post('/login', [
+router.post('/Login', [
   body('email').isEmail().withMessage('Please provide a valid email'),
   body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {

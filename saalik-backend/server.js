@@ -51,7 +51,8 @@ app.use('/api/v1/initiatives', require('./routes/initiativeRoutes'));
 app.use('/api/v1/waitlist', require('./routes/waitlistRoutes'));
 app.use('/api/v1/contact', require('./routes/contactRoutes'));
 app.use('/api/v1/suggestions', require('./routes/suggestionRoutes'));
-app.use('/api/v1/userRoutes', require('./routes/userRoute'));
+app.use('/api/v1/users',require('./routes/userRoute'));
+
 // -------------------------------
 // 🩺 Health & Root Routes
 // -------------------------------
@@ -71,11 +72,7 @@ app.get('/', (req, res) => {
     message: 'Welcome to the Saalik API 🌿',
     docs: '/api/v1',
     endpoints: {
-      users:"api/users",
-      auth:{
-        login: "POST/api/users/Login",
-        register: "POST /api/users",
-      },
+      auth: '/api/v1/auth',
       admin: '/api/v1/admin',
       stories: '/api/v1/stories',
       partners: '/api/v1/partners',
@@ -83,13 +80,10 @@ app.get('/', (req, res) => {
       waitlist: '/api/v1/waitlist',
       contact: '/api/v1/contact',
       suggestions: '/api/v1/suggestions',
-      Login: '/api/v1/login',
+      users: '/api/v1/users',
     },
   });
 });
-
- 
-
 
 // -------------------------------
 // ❌ 404 Handler

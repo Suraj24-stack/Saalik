@@ -3,7 +3,7 @@ const express = require('express');
 const { protect, authorize } = require('../middleware/auth'); // ← Fixed import
 const {
   createUser,
-  login,
+  Login,
   getUsers,
   getUserById,
   getProfile,
@@ -18,7 +18,7 @@ const {
 const router = express.Router();
 
 // PUBLIC ROUTES
-router.post('/Login', login);
+router.post('/Login', Login);
 router.post('/', createUser);
 
 // USER-SPECIFIC ROUTES
