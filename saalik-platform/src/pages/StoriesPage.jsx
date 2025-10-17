@@ -1,139 +1,191 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
-import StoryCard from '../components/Storycard';
-import Modal from '../components/Modal';
-// Do this in every file:
-import mockData, { mockData as mockDataNamed } from "../data/MockData"; // choose default OR named (see below)
+import { mockData } from '../data/MockData';
 
+const StoriesPage = () => {
+  const [hoveredCard, setHoveredCard] = useState(null);
 
-const StoriesPage = ({ setCurrentPage, setSelectedStory }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSuggestModal, setShowSuggestModal] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    location: '',
-    description: ''
-  });
-
-  const filteredStories = mockData.stories.filter(story => 
-    story.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleSuggestSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!formData.title || !formData.location || !formData.description) {
-      alert('Please fill in all fields');
-      return;
-    }
-
-    console.log('Story Suggestion:', formData);
-    alert('Thank you for your suggestion!');
-    
-    setFormData({ title: '', location: '', description: '' });
-    setShowSuggestModal(false);
-  };
+  // Get stories from mockData
+  const stories = mockData.stories;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 pt-24 pb-16 px-4">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-bold text-center mb-12">
-          <span className="text-white">THE </span>
-          <span className="text-green-400">UNTOLD STORIES </span>
-          <span className="text-white">OF </span>
-          <span className="text-green-400">NEPAL</span>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #000000 0%, #0a3d2e 100%)',
+      padding: '40px 20px',
+      color: '#fff'
+    }}>
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto'
+      }}>
+        {/* Title Section */}
+        <h1 style={{
+          textAlign: 'center',
+          fontSize: 'clamp(36px, 6vw, 64px)',
+          fontWeight: 'bold',
+          marginBottom: '80px',
+          letterSpacing: '3px',
+          lineHeight: '1.3',
+          textShadow: '2px 2px 8px rgba(0, 0, 0, 0.8)',
+          padding: '20px'
+        }}>
+          THE <span style={{ 
+            color: '#2ecc71',
+            textShadow: '0 0 20px rgba(46, 204, 113, 0.5)'
+          }}>UNTOLD STORIES</span> OF <span style={{ 
+            color: '#2ecc71',
+            textShadow: '0 0 20px rgba(46, 204, 113, 0.5)'
+          }}>NEPAL</span>
         </h1>
 
-        <div className="max-w-2xl mx-auto mb-12">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search stories..." 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-gray-900 border border-green-500/30 rounded-full text-white placeholder-gray-500 focus:border-green-400 outline-none" 
-            />
-          </div>
-        </div>
+        {/* Stories Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '30px',
+          marginBottom: '60px'
+        }}>
+          {stories.map((story) => (
+            <div
+              key={story.id}
+              onMouseEnter={() => setHoveredCard(story.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '2px solid #2ecc71',
+                borderRadius: '15px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                transform: hoveredCard === story.id ? 'translateY(-10px)' : 'translateY(0)',
+                boxShadow: hoveredCard === story.id 
+                  ? '0 15px 40px rgba(46, 204, 113, 0.4)' 
+                  : '0 5px 15px rgba(0, 0, 0, 0.3)'
+              }}
+            >
+              {/* Image Container */}
+              <div style={{
+                width: '100%',
+                aspectRatio: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, #1a1a1a 0%, #2d3436 100%)'
+              }}>
+                {story.image ? (
+                  <img
+                    src={story.image}
+                    alt={story.title}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      filter: hoveredCard === story.id ? 'grayscale(0%)' : 'grayscale(100%)',
+                      transition: 'filter 0.3s ease'
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    fontSize: '80px',
+                    opacity: 0.3,
+                    filter: hoveredCard === story.id ? 'none' : 'grayscale(100%)',
+                    transition: 'filter 0.3s'
+                  }}>
+                    {story.category === 'Mythology' && '🦍'}
+                    {story.category === 'Mystery' && '👹'}
+                    {story.category === 'Heritage' && '🏛️'}
+                    {story.category === 'Archaeology' && '🗿'}
+                    {story.category === 'Tradition' && '🪔'}
+                  </div>
+                )}
+                
+                {/* Overlay on hover */}
+                {hoveredCard === story.id && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(46, 204, 113, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{
+                      background: '#2ecc71',
+                      color: '#000',
+                      padding: '10px 20px',
+                      borderRadius: '25px',
+                      fontWeight: 'bold',
+                      fontSize: '14px'
+                    }}>
+                      Read Story
+                    </span>
+                  </div>
+                )}
+              </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {filteredStories.map((story) => (
-            <StoryCard 
-              key={story.id} 
-              story={story} 
-              onClick={() => { 
-                setSelectedStory(story.id); 
-                setCurrentPage('story-detail'); 
-              }} 
-            />
+              {/* Title and Category */}
+              <div style={{
+                padding: '20px'
+              }}>
+                <div style={{
+                  textAlign: 'center',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  letterSpacing: '0.5px',
+                  marginBottom: '8px'
+                }}>
+                  {story.title}
+                </div>
+                <div style={{
+                  textAlign: 'center',
+                  fontSize: '12px',
+                  color: '#2ecc71',
+                  fontWeight: '500'
+                }}>
+                  {story.category}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 
-        <div className="text-center">
-          <button 
-            onClick={() => setShowSuggestModal(true)} 
-            className="bg-green-500 hover:bg-green-400 text-black font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-500/50"
-          >
-            SUGGEST STORIES
+        {/* Suggest Stories Button */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginTop: '40px'
+        }}>
+          <button style={{
+            background: '#2ecc71',
+            color: '#000',
+            border: 'none',
+            padding: '18px 60px',
+            borderRadius: '50px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            letterSpacing: '2px',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            textTransform: 'uppercase',
+            boxShadow: '0 5px 20px rgba(46, 204, 113, 0.4)'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'scale(1.05)';
+            e.target.style.boxShadow = '0 8px 30px rgba(46, 204, 113, 0.6)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'scale(1)';
+            e.target.style.boxShadow = '0 5px 20px rgba(46, 204, 113, 0.4)';
+          }}>
+            Suggest Stories
           </button>
         </div>
       </div>
-
-      {showSuggestModal && (
-        <Modal onClose={() => setShowSuggestModal(false)} title="Suggest a Story">
-          <form onSubmit={handleSuggestSubmit} className="space-y-4">
-            <div>
-              <label className="block text-white mb-2 text-sm font-medium">
-                Story Title <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Enter the story title"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:border-green-400 outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-white mb-2 text-sm font-medium">
-                Location <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Where is this story from?"
-                required
-                value={formData.location}
-                onChange={(e) => setFormData({...formData, location: e.target.value})}
-                className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:border-green-400 outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-white mb-2 text-sm font-medium">
-                Description <span className="text-red-400">*</span>
-              </label>
-              <textarea
-                placeholder="Tell us about this story..."
-                rows={5}
-                required
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:border-green-400 outline-none resize-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-lg transition-all"
-            >
-              Submit Suggestion
-            </button>
-          </form>
-        </Modal>
-      )}
     </div>
   );
 };
