@@ -10,7 +10,7 @@ import {
 } from '../../store/slices/authSlice';
 
 function SaalikAdminDashboard() {
-  const router = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
@@ -18,18 +18,18 @@ function SaalikAdminDashboard() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/Login');
+      navigate('/Login');
       return;
     }
 
     if (user && user.role !== 'admin') {
-      router.push('/user_dashboard');
+      navigate('/user_dashboard');
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push('/Login');
+    navigate('/Login');
   };
 
   if (!isAuthenticated || !user) {

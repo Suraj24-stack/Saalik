@@ -1,5 +1,3 @@
-
-
 // store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../../lib/api";

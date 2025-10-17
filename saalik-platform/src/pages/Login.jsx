@@ -49,7 +49,7 @@ export default function Login() {
   const successMessage = searchParams.get("message");
   const verificationSuccess = searchParams.get("verified") === "true";
   const resetSuccess = searchParams.get("reset") === "true";
-  const redirectPath = searchParams.get("redirect") || "/dashboard/adminDashboard";
+  const redirectPath = searchParams.get("redirect") || "/admin";
 
   const isEmailVerificationError =
     !!error &&
@@ -76,7 +76,7 @@ export default function Login() {
   // Redirect when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      const targetPath = user.role === "admin" ? "/admin_dashboard" : redirectPath;
+      const targetPath = user.role === "admin" ? "/admin" : redirectPath;
       navigate(targetPath);
     }
   }, [isAuthenticated, user, navigate, redirectPath]);
@@ -118,7 +118,7 @@ export default function Login() {
       if (result.type === "auth/loginUser/fulfilled") {
         const userData = result.payload.user;
         let targetPath = redirectPath;
-        if (userData.role === "admin") targetPath = "/admin_dashboard";
+        if (userData.role === "admin") targetPath = "/admindashboard";
         else if (userData.role === "moderator") targetPath = "/user_hostdashboard";
         navigate(targetPath);
       }
@@ -419,10 +419,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
-   
-       
- 
     </main>
   );
 }
