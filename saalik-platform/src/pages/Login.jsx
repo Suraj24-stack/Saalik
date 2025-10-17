@@ -76,7 +76,7 @@ export default function Login() {
   // Redirect when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      const targetPath = user.role === "admin" ? "/admin_dashboard" : redirectPath;
+      const targetPath = user.role === "admin" ? "/admin" : redirectPath;
       navigate(targetPath);
     }
   }, [isAuthenticated, user, navigate, redirectPath]);
@@ -118,8 +118,8 @@ export default function Login() {
       if (result.type === "auth/loginUser/fulfilled") {
         const userData = result.payload.user;
         let targetPath = redirectPath;
-        if (userData.role === "admin") targetPath = "/admin_dashboard";
-        else if (userData.role === "moderator") targetPath = "/user_hostdashboard";
+        if (userData.role === "super_admin") targetPath = "/admin";
+        else if (userData.role === "moderator") targetPath = "/user";
         navigate(targetPath);
       }
     } catch (err) {
@@ -419,10 +419,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
-   
-       
- 
     </main>
   );
 }

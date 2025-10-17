@@ -1,21 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch , useSelector} from 'react-redux';
+import { selectIsAuthenticated ,selectUser,logout } from '../../store/slices/authSlice';
 
 function SaalikAdminDashboard() {
-  // Mock user data - replace with actual Redux in your app
-  const [user] = useState({
-    name: 'Admin User',
-    email: 'admin@saalik.com',
-    role: 'admin'
-  });
-  
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectUser);
   const [activeTab, setActiveTab] = useState('overview');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/Login');
+      return;
+    }
+
+    if (user && user.role !== 'super_admin') {
+      navigate('/user_dashboard');
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogout = () => {
-    alert('Logout functionality - integrate with your auth system');
+    dispatch(logout());
+    navigate('/Login');
   };
+
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 to-teal-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-400 mx-auto mb-4"></div>
+          <p className="text-emerald-100">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getUserInitials = () => {
     if (user?.name) {
@@ -107,12 +127,12 @@ function SaalikAdminDashboard() {
     { id: 4, type: 'user', message: '10 new user registrations today', time: '3 hours ago', read: true },
   ];
 
-  const filteredUsers = allUsers.filter(user => 
+ /* const filteredUsers = allUsers.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  );*/ 
 
-  const filteredBookings = allBookings.filter(booking =>
+  /*const filteredBookings = allBookings.filter(booking =>
     selectedFilter === 'all' || booking.status === selectedFilter
   );
 
@@ -122,7 +142,7 @@ function SaalikAdminDashboard() {
 
   const filteredGuides = allGuides.filter(guide =>
     selectedFilter === 'all' || guide.status === selectedFilter
-  );
+  );*/
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-950 to-teal-950">
@@ -198,38 +218,8 @@ function SaalikAdminDashboard() {
             </div>
 
             {/* Admin Menu */}
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <button 
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative p-2 text-emerald-300 hover:text-white transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                </button>
-
-                {/* Notifications Dropdown */}
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 bg-slate-800 rounded-xl shadow-2xl border border-emerald-700 overflow-hidden z-50">
-                    <div className="p-4 bg-gradient-to-r from-emerald-900/50 to-teal-900/50 border-b border-emerald-700">
-                      <h3 className="text-white font-semibold">Notifications</h3>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto">
-                      {notifications.map(notif => (
-                        <div key={notif.id} className={`p-4 border-b border-slate-700 hover:bg-slate-700/50 transition-colors ${!notif.read ? 'bg-emerald-900/20' : ''}`}>
-                          <p className="text-white text-sm">{notif.message}</p>
-                          <p className="text-slate-400 text-xs mt-1">{notif.time}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="p-3 bg-slate-900 text-center">
-                      <button className="text-emerald-400 text-sm hover:text-emerald-300">View All</button>
-                    </div>
-                  </div>
-                )}
-              </div>
+             <div className="flex items-center space-x-4">
+              {/*   */}
               
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full flex items-center justify-center text-emerald-900 font-bold text-sm">

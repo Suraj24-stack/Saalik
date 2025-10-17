@@ -13,12 +13,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 
-function App() {
-  const [showContact, setShowContact] = useState(false);
+  function App() {
+    const [showContact, setShowContact] = useState(false);
 
-  return (
-    <>
-      <Navbar onContact={() => setShowContact(true)} />
+    return (
+      <>
+        <Navbar onContact={() => setShowContact(true)} />
 
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -29,42 +29,42 @@ function App() {
         <Route path="/user" element={<SaalikuserDashboard/>} />
       </Routes>
 
-      {/* Contact Page as Modal */}
-      <AnimatePresence>
-  {showContact && (
-    <motion.div
-      key="backdrop"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="fixed inset-0 mt-10 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50"
-    >
+        {/* Contact Page as Modal */}
+        <AnimatePresence>
+    {showContact && (
       <motion.div
-        key="modal"
-        initial={{ scale: 0.9, opacity: 0, y: 40 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 40 }}
-        transition={{ type: "spring", stiffness: 140, damping: 18 }}
-        className="relative bg-[#0a0a0a] border border-green-500/30 rounded-2xl shadow-2xl w-[90%] max-w-2xl p-6 text-white"
+        key="backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 mt-10 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50"
       >
-        {/* Close Button */}
-        <button
-          onClick={() => setShowContact(false)}
-          className="absolute top-3 right-4 text-gray-400 hover:text-green-400 text-2xl font-semibold transition-colors"
+        <motion.div
+          key="modal"
+          initial={{ scale: 0.9, opacity: 0, y: 40 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 40 }}
+          transition={{ type: "spring", stiffness: 140, damping: 18 }}
+          className="relative bg-[#0a0a0a] border border-green-500/30 rounded-2xl shadow-2xl w-[90%] max-w-2xl p-6 text-white"
         >
-          ✕
-        </button>
+          {/* Close Button */}
+          <button
+            onClick={() => setShowContact(false)}
+            className="absolute top-3 right-4 text-gray-400 hover:text-green-400 text-2xl font-semibold transition-colors"
+          >
+            ✕
+          </button>
 
-        <ContactPage />
+          <ContactPage />
+        </motion.div>
       </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+    )}
+  </AnimatePresence>
 
-      <Footer />
-    </>
-  );
-}
+        <Footer />
+      </>
+    );
+  }
 
-export default App;
+  export default App;
