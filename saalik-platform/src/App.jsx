@@ -10,7 +10,7 @@ import Footer from "./components/Footer.jsx";
 import SaalikAdminDashboard from "./dashboard/adminDashboard.jsx";
 import SaalikuserDashboard from "./dashboard/userDashboard.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-import SaalikUserDashboard from "./dashboard/userDashboard.jsx";
+
 
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
         <Route path="/guide-booking" element={<GuideBookingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<SaalikAdminDashboard />} />
-        <Route path="/user" element={<SaalikUserDashboard/>} />
+        <Route path="/user" element={<SaalikuserDashboard/>} />
       </Routes>
 
       {/* Contact Page as Modal */}
