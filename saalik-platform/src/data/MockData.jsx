@@ -1,4 +1,11 @@
 export const mockData = {
+
+// Navbar Data
+  navbar: {
+    logo: "/saaliklogo.png", // Place your logo in public folder
+    brandName: "SAALIK"
+  },
+
   // Hero Carousel Slides
   heroSlides: [
     {
@@ -14,7 +21,7 @@ export const mockData = {
       title: "THE SHADOWS OF",
       highlight: "KHYAK",
       subtitle: "Discover the Untold Stories of Nepal",
-      image: "/2.png", // Place image in public folder
+      image: "/natrajan.png", // Place image in public folder
       icon: "👹"
     },
     {
@@ -22,20 +29,20 @@ export const mockData = {
       title: "THE TALE OF",
       highlight: "HIMALAYAN YETI",
       subtitle: "Discover the Untold Stories of Nepal",
-      image: "/3.jpeg", // Place image in public folder
+      image: "/", // Place image in public folder
       icon: "🦍"
     }
   ],
 
   // About Section Image
-  aboutImage: "/2.png", // Place deity statue image in public folder
+  aboutImage: "/natrajan.png", // Place deity statue image in public folder
 
   // Stories for Stories Section
   stories: [
     {
       id: 1,
       title: "The Tale of Himalayan Yeti",
-      image: "/6.png",
+      image: "/untold.png",
       excerpt: "Ancient legends of the mysterious creature that roams the Himalayas...",
       content: `The Himalayan Yeti, also known as the "Abominable Snowman," represents one of the most enduring mysteries of the Himalayan region. Local communities have passed down stories of this elusive creature for generations, describing it as a large, ape-like being that inhabits the remote mountain regions of Nepal.`,
       category: "Mythology",
@@ -160,7 +167,7 @@ export const mockData = {
     subtitle: "Discover Nepal with Confidence",
     description: "Book certified local guides through SAALIK. Our curated guides bring culture, history, and spirituality to life while ensuring your safety and comfort. From heritage walks to temple tours, they help you experience Nepal beyond the surface.",
     buttonText: "LAUNCHING SOON",
-    image: "/7.png"
+    image: "/guide.png"
   },
 
   // Footer Data

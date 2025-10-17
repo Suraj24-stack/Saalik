@@ -4,7 +4,7 @@ import HomePage from "./pages/HomePage.jsx";
 import StoriesPage from "./pages/StoriesPage.jsx";
 import GuideBookingPage from "./pages/GuideBookingPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
-import Login from "./components/Login.jsx";
+import Login from "./pages/Login.jsx";
 import Footer from "./components/Footer.jsx";
 
 

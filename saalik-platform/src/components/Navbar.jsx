@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { mockData } from "../data/mockData"; // Adjust path as needed
 
 const Navbar = ({ onHome, onStories, onGuideBooking, onContact, onLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -10,12 +11,12 @@ const Navbar = ({ onHome, onStories, onGuideBooking, onContact, onLogin }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <button onClick={onHome} className="flex items-center space-x-2 focus:outline-none">
-            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-black" fill="currentColor">
-                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-              </svg>
-            </div>
-            <span className="text-white text-xl font-bold tracking-wider">SAALIK</span>
+            <img 
+              src={mockData.navbar.logo}
+              alt={`${mockData.navbar.brandName} Logo`}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+            <span className="text-white text-xl font-bold tracking-wider">{mockData.navbar.brandName}</span>
           </button>
 
           {/* Desktop Menu */}
