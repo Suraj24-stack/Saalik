@@ -1,6 +1,6 @@
-// routes/users.js
+// routes/userRoute.js
 const express = require('express');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth'); // ← Fixed import
 const {
   createUser,
   login,
@@ -17,49 +17,21 @@ const {
 
 const router = express.Router();
 
-// ========================================
-// PUBLIC ROUTES (No Authentication Required)
-// ========================================
-
-// POST /users/login - User login
-router.post('/login', login);
-
-// POST /users - Create new user (can be public for registration or admin-only)
+// PUBLIC ROUTES
+router.post('/Login', login);
 router.post('/', createUser);
 
-// ========================================
-// USER-SPECIFIC ROUTES (Must come before /:id routes)
-// ========================================
+// USER-SPECIFIC ROUTES
+router.get('/profile', protect, getProfile);
+router.put('/profile', protect, updateProfile);
+router.put('/change-password', protect, changePassword);
 
-// GET /users/profile - Get current user profile
-router.get('/profile', authenticateToken, getProfile);
-
-// PUT /users/profile - Update current user profile
-router.put('/profile', authenticateToken, updateProfile);
-
-// PUT /users/change-password - Change current user password
-router.put('/change-password', authenticateToken, changePassword);
-
-// GET /users/stats - Get user statistics (admin only)
-router.get('/stats', authenticateToken, requireAdmin, getUserStats);
-
-// ========================================
 // ADMIN-ONLY ROUTES
-// ========================================
-
-// GET /users - Get all users with pagination and search (admin only)
-router.get('/', authenticateToken, requireAdmin, getUsers);
-
-// GET /users/:id - Get user by ID (admin only)
-router.get('/:id', authenticateToken, requireAdmin, getUserById);
-
-// PUT /users/:id/role - Update user role (admin only)
-router.put('/:id/role', authenticateToken, requireAdmin, updateUserRole);
-
-// PUT /users/:id/reset-password - Reset user password (admin only)
-router.put('/:id/reset-password', authenticateToken, requireAdmin, resetUserPassword);
-
-// DELETE /users/:id - Delete user (admin only)
-router.delete('/:id', authenticateToken, requireAdmin, deleteUser);
+router.get('/stats', protect, authorize('admin'), getUserStats);
+router.get('/', protect, authorize('admin'), getUsers);
+router.get('/:id', protect, authorize('admin'), getUserById);
+router.put('/:id/role', protect, authorize('admin'), updateUserRole);
+router.put('/:id/reset-password', protect, authorize('admin'), resetUserPassword);
+router.delete('/:id', protect, authorize('admin'), deleteUser);
 
 module.exports = router;

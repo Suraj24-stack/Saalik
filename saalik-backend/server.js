@@ -51,7 +51,7 @@ app.use('/api/v1/initiatives', require('./routes/initiativeRoutes'));
 app.use('/api/v1/waitlist', require('./routes/waitlistRoutes'));
 app.use('/api/v1/contact', require('./routes/contactRoutes'));
 app.use('/api/v1/suggestions', require('./routes/suggestionRoutes'));
-
+app.use('/api/v1/userRoutes', require('./routes/userRoute'));
 // -------------------------------
 // 🩺 Health & Root Routes
 // -------------------------------
@@ -73,7 +73,7 @@ app.get('/', (req, res) => {
     endpoints: {
       users:"api/users",
       auth:{
-        login: "POST/api/users/login",
+        login: "POST/api/users/Login",
         register: "POST /api/users",
       },
       admin: '/api/v1/admin',
@@ -83,17 +83,13 @@ app.get('/', (req, res) => {
       waitlist: '/api/v1/waitlist',
       contact: '/api/v1/contact',
       suggestions: '/api/v1/suggestions',
+      Login: '/api/v1/login',
     },
   });
 });
 
- /// Import Routes //
-const userRoute = require("./routes/userRoute");
+ 
 
-
-
-// Mout user /api prefixer
-app.use("api/users", userRoute);
 
 // -------------------------------
 // ❌ 404 Handler

@@ -49,7 +49,7 @@ export default function Login() {
   const successMessage = searchParams.get("message");
   const verificationSuccess = searchParams.get("verified") === "true";
   const resetSuccess = searchParams.get("reset") === "true";
-  const redirectPath = searchParams.get("redirect") || "/dashboard";
+  const redirectPath = searchParams.get("redirect") || "/dashboard/adminDashboard";
 
   const isEmailVerificationError =
     !!error &&
