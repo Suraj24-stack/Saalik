@@ -8,10 +8,6 @@ import Login from "./pages/Login.jsx";
 import Footer from "./components/Footer.jsx";
 
 
-
-
-
-
 function App() {
   const [currentPage, setCurrentPage] = useState("home");
 
@@ -31,8 +27,7 @@ function App() {
       {currentPage === "guide-booking" && <GuideBookingPage />}
       {currentPage === "contact" && <ContactPage />}
       
-      {currentPage === "Login" && <Login/>}
-      
+      {currentPage === "login" && <Login/>}
 
       <Footer />
     </>

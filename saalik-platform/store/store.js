@@ -10,7 +10,7 @@ export const store = configureStore({
   reducer: {
     auth: authSlice,
     user: userSlice, // Fixed: removed duplicate
-     host: hostReducer,
+    // host: hostReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

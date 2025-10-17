@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { mockData } from "../data/mockData"; // Adjust path as needed
+import { mockData } from "../data/MockData"; // Adjust path as needed
 
 const Navbar = ({ onHome, onStories, onGuideBooking, onContact, onLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
