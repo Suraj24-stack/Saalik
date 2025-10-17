@@ -13,11 +13,11 @@ if (typeof window !== "undefined") {
 }
 
 // Login
-export const loginUser = createAsyncThunk(
+export const LoginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, { rejectWithValue }) => {
     try {
-      const data = await api.post("/users/login", credentials);
+      const data = await api.post("/auth/Login", credentials);
 
       // Store token in localStorage
       if (typeof window !== "undefined" && data.token) {
@@ -320,11 +320,11 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Login
-      .addCase(loginUser.pending, (state) => {
+      .addCase(LoginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(LoginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
@@ -336,7 +336,7 @@ const authSlice = createSlice({
           api.setAuthToken(action.payload.token);
         }
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(LoginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
         state.isAuthenticated = false;

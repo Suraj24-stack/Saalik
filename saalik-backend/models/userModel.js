@@ -1,67 +1,108 @@
-// models/userModel.js
-const pool = require('../config/database');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
-const PUBLIC_COLUMNS = `
-  id, name, email, role, phone, address, email_verified, created_at, updated_at
-`;
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true,
+    },
+  },
+  password: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  role: {
+    type: DataTypes.ENUM('user', 'admin', 'moderator'),
+    defaultValue: 'user',
+  },
+  phone: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+  },
+  address: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  email_verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+}, {
+  tableName: 'users',
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  paranoid: false, // We'll handle soft delete manually
+});
 
-const PRIVATE_COLUMNS = `
-  id, name, email, password, role, phone, address, email_verified, created_at, updated_at
-`;
+// Public columns (exclude password)
+const PUBLIC_ATTRIBUTES = [
+  'id', 'name', 'email', 'role', 'phone', 'address', 
+  'email_verified', 'created_at', 'updated_at'
+];
+
+// Hash password before creating
+User.beforeCreate(async (user) => {
+  if (user.password) {
+    const salt = await bcrypt.genSalt(12);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+});
 
 /**
- * Find users with pagination and optional search (MySQL).
- * LIMIT/OFFSET must be numbers (no strings).
+ * Find users with pagination and optional search
  */
 exports.findAll = async ({ page = 1, limit = 10, search = '', role = '' }) => {
   const offset = (page - 1) * limit;
   
-  const conditions = [];
-  const params = [];
+  const where = {};
   
   if (search) {
-    conditions.push('(name LIKE ? OR email LIKE ?)');
-    params.push(`%${search}%`, `%${search}%`);
+    where[sequelize.Sequelize.Op.or] = [
+      { name: { [sequelize.Sequelize.Op.like]: `%${search}%` } },
+      { email: { [sequelize.Sequelize.Op.like]: `%${search}%` } },
+    ];
   }
   
   if (role) {
-    conditions.push('role = ?');
-    params.push(role);
+    where.role = role;
   }
   
-  const whereSql = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const { count, rows } = await User.findAndCountAll({
+    where,
+    attributes: PUBLIC_ATTRIBUTES,
+    limit: Number(limit),
+    offset: Number(offset),
+    order: [['created_at', 'DESC']],
+  });
   
-  // Data query
-  const dataSql = `
-    SELECT ${PUBLIC_COLUMNS}
-    FROM users
-    ${whereSql}
-    ORDER BY created_at DESC
-    LIMIT ? OFFSET ?
-  `;
-  const dataParams = [...params, Number(limit), Number(offset)];
-  const [rows] = await pool.execute(dataSql, dataParams);
-  
-  // Count query (use same WHERE/params)
-  const countSql = `
-    SELECT COUNT(*) AS count
-    FROM users
-    ${whereSql}
-  `;
-  const [countRows] = await pool.execute(countSql, params);
-  const total = countRows[0]?.count ? Number(countRows[0].count) : 0;
-  
-  return { 
-    rows, 
-    total,
+  return {
+    rows,
+    total: count,
     pagination: {
       currentPage: Number(page),
-      totalPages: Math.ceil(total / limit),
-      hasNextPage: page < Math.ceil(total / limit),
-      hasPrevPage: page > 1
-    }
+      totalPages: Math.ceil(count / limit),
+      hasNextPage: page < Math.ceil(count / limit),
+      hasPrevPage: page > 1,
+    },
   };
 };
 
@@ -71,9 +112,9 @@ exports.findAll = async ({ page = 1, limit = 10, search = '', role = '' }) => {
 exports.findPublicById = async (id) => {
   if (!id) return null;
   
-  const sql = `SELECT ${PUBLIC_COLUMNS} FROM users WHERE id = ? LIMIT 1`;
-  const [rows] = await pool.execute(sql, [id]);
-  return rows[0] || null;
+  return await User.findByPk(id, {
+    attributes: PUBLIC_ATTRIBUTES,
+  });
 };
 
 /**
@@ -82,9 +123,7 @@ exports.findPublicById = async (id) => {
 exports.findById = async (id) => {
   if (!id) return null;
   
-  const sql = `SELECT ${PRIVATE_COLUMNS} FROM users WHERE id = ? LIMIT 1`;
-  const [rows] = await pool.execute(sql, [id]);
-  return rows[0] || null;
+  return await User.findByPk(id);
 };
 
 /**
@@ -94,27 +133,26 @@ exports.findById = async (id) => {
 exports.findByEmail = async ({ email }) => {
   if (!email) return [[]];
   
-  const sql = `SELECT ${PRIVATE_COLUMNS} FROM users WHERE email = ? LIMIT 1`;
-  const [rows] = await pool.execute(sql, [email]);
+  const user = await User.findOne({
+    where: { email },
+  });
   
   // Return in the format expected by controller: [users]
-  return [rows];
+  return [[user].filter(Boolean)];
 };
 
 /**
  * Check if email exists
  */
 exports.emailExists = async (email, excludeId = null) => {
-  let sql = `SELECT id FROM users WHERE email = ?`;
-  let params = [email];
+  const where = { email };
   
   if (excludeId) {
-    sql += ' AND id != ?';
-    params.push(excludeId);
+    where.id = { [sequelize.Sequelize.Op.ne]: excludeId };
   }
   
-  const [rows] = await pool.execute(sql, params);
-  return rows.length > 0;
+  const count = await User.count({ where });
+  return count > 0;
 };
 
 /**
@@ -127,27 +165,24 @@ exports.create = async ({ name, email, password, role = 'user' }) => {
   }
   
   // Check if email already exists
-  const emailExists = await this.emailExists(email);
+  const emailExists = await exports.emailExists(email);
   if (emailExists) {
     throw new Error('Email already exists');
   }
   
-  const id = uuidv4();
-  const salt = await bcrypt.genSalt(12);
-  const hashedPassword = await bcrypt.hash(password, salt);
-  
-  const sql = `
-    INSERT INTO users (id, name, email, password, role, phone, address, email_verified, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, NULL, NULL, FALSE, NOW(), NOW())
-  `;
-  
   try {
-    await pool.execute(sql, [id, name, email, hashedPassword, role]);
+    const user = await User.create({
+      id: uuidv4(),
+      name,
+      email,
+      password, // Will be hashed by beforeCreate hook
+      role,
+    });
     
     // Return public user data
-    return await this.findPublicById(id);
+    return await exports.findPublicById(user.id);
   } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
+    if (error.name === 'SequelizeUniqueConstraintError') {
       throw new Error('Email already exists');
     }
     throw error;
@@ -155,66 +190,40 @@ exports.create = async ({ name, email, password, role = 'user' }) => {
 };
 
 /**
- * Update profile fields (name, email, phone, address)
+ * Update profile fields (name, email, phone, address, role)
  */
 exports.updateProfile = async (id, updateData) => {
   if (!id) return null;
   
-  const fields = [];
-  const params = [];
+  const user = await User.findByPk(id);
+  if (!user) return null;
   
-  if (updateData.name !== undefined) {
-    fields.push('name = ?');
-    params.push(updateData.name);
-  }
-  
-  if (updateData.email !== undefined) {
-    // Check if email already exists for another user
-    const emailExists = await this.emailExists(updateData.email, id);
+  // Check if email already exists for another user
+  if (updateData.email && updateData.email !== user.email) {
+    const emailExists = await exports.emailExists(updateData.email, id);
     if (emailExists) {
       throw new Error('Email already exists');
     }
-    fields.push('email = ?');
-    params.push(updateData.email);
   }
   
-  if (updateData.phone !== undefined) {
-    fields.push('phone = ?');
-    params.push(updateData.phone);
+  const allowedFields = ['name', 'email', 'phone', 'address', 'role'];
+  const updates = {};
+  
+  allowedFields.forEach(field => {
+    if (updateData[field] !== undefined) {
+      updates[field] = updateData[field];
+    }
+  });
+  
+  if (Object.keys(updates).length === 0) {
+    return await exports.findPublicById(id);
   }
-  
-  if (updateData.address !== undefined) {
-    fields.push('address = ?');
-    params.push(updateData.address);
-  }
-  
-  if (updateData.role !== undefined) {
-    fields.push('role = ?');
-    params.push(updateData.role);
-  }
-  
-  if (fields.length === 0) {
-    return await this.findPublicById(id);
-  }
-  
-  fields.push('updated_at = NOW()');
-  params.push(id);
-  
-  const sql = `
-    UPDATE users
-    SET ${fields.join(', ')}
-    WHERE id = ?
-  `;
   
   try {
-    const [result] = await pool.execute(sql, params);
-    
-    if (result.affectedRows === 0) return null;
-    
-    // Return updated public fields
-    return await this.findPublicById(id);
+    await user.update(updates);
+    return await exports.findPublicById(id);
   } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
+    if (error.name === 'SequelizeUniqueConstraintError') {
       throw new Error('Email already exists');
     }
     throw error;
@@ -227,17 +236,11 @@ exports.updateProfile = async (id, updateData) => {
 exports.updateRole = async (id, role) => {
   if (!id || !role) return null;
   
-  const sql = `
-    UPDATE users
-    SET role = ?, updated_at = NOW()
-    WHERE id = ?
-  `;
-  const [result] = await pool.execute(sql, [role, id]);
+  const user = await User.findByPk(id);
+  if (!user) return null;
   
-  if (result.affectedRows === 0) return null;
-  
-  // Return updated public fields
-  return await this.findPublicById(id);
+  await user.update({ role });
+  return await exports.findPublicById(id);
 };
 
 /**
@@ -246,9 +249,11 @@ exports.updateRole = async (id, role) => {
 exports.getPasswordHash = async (id) => {
   if (!id) return null;
   
-  const sql = `SELECT password FROM users WHERE id = ? LIMIT 1`;
-  const [rows] = await pool.execute(sql, [id]);
-  return rows[0]?.password || null;
+  const user = await User.findByPk(id, {
+    attributes: ['password'],
+  });
+  
+  return user?.password || null;
 };
 
 /**
@@ -256,6 +261,9 @@ exports.getPasswordHash = async (id) => {
  */
 exports.updatePassword = async (id, newPassword) => {
   if (!id || !newPassword) return false;
+  
+  const user = await User.findByPk(id);
+  if (!user) return false;
   
   // If password is already hashed, use it directly
   // If not hashed, hash it
@@ -267,13 +275,8 @@ exports.updatePassword = async (id, newPassword) => {
     hashedPassword = await bcrypt.hash(newPassword, salt);
   }
   
-  const sql = `
-    UPDATE users
-    SET password = ?, updated_at = NOW()
-    WHERE id = ?
-  `;
-  const [result] = await pool.execute(sql, [hashedPassword, id]);
-  return result.affectedRows > 0;
+  await user.update({ password: hashedPassword });
+  return true;
 };
 
 /**
@@ -285,7 +288,7 @@ exports.changePassword = async (id, oldPassword, newPassword) => {
   }
   
   // Get current password hash
-  const currentHash = await this.getPasswordHash(id);
+  const currentHash = await exports.getPasswordHash(id);
   if (!currentHash) {
     throw new Error('User not found');
   }
@@ -297,7 +300,7 @@ exports.changePassword = async (id, oldPassword, newPassword) => {
   }
   
   // Update with new password
-  return await this.updatePassword(id, newPassword);
+  return await exports.updatePassword(id, newPassword);
 };
 
 /**
@@ -315,24 +318,24 @@ exports.comparePassword = async (candidatePassword, hashedPassword) => {
 exports.deleteById = async (id) => {
   if (!id) return false;
   
-  const sql = `DELETE FROM users WHERE id = ?`;
-  const [result] = await pool.execute(sql, [id]);
-  return result.affectedRows > 0;
+  const result = await User.destroy({
+    where: { id },
+  });
+  
+  return result > 0;
 };
 
 /**
- * Soft delete user (add deleted_at column if needed)
+ * Soft delete user
  */
 exports.softDeleteById = async (id) => {
   if (!id) return false;
   
-  const sql = `
-    UPDATE users 
-    SET deleted_at = NOW(), updated_at = NOW() 
-    WHERE id = ? AND deleted_at IS NULL
-  `;
-  const [result] = await pool.execute(sql, [id]);
-  return result.affectedRows > 0;
+  const user = await User.findByPk(id);
+  if (!user || user.deleted_at) return false;
+  
+  await user.update({ deleted_at: new Date() });
+  return true;
 };
 
 /**
@@ -341,9 +344,11 @@ exports.softDeleteById = async (id) => {
 exports.findByRole = async (role) => {
   if (!role) return [];
   
-  const sql = `SELECT ${PUBLIC_COLUMNS} FROM users WHERE role = ? ORDER BY created_at DESC`;
-  const [rows] = await pool.execute(sql, [role]);
-  return rows;
+  return await User.findAll({
+    where: { role },
+    attributes: PUBLIC_ATTRIBUTES,
+    order: [['created_at', 'DESC']],
+  });
 };
 
 /**
@@ -352,60 +357,60 @@ exports.findByRole = async (role) => {
 exports.countByRole = async (role) => {
   if (!role) return 0;
   
-  const sql = `SELECT COUNT(*) AS count FROM users WHERE role = ?`;
-  const [rows] = await pool.execute(sql, [role]);
-  return rows[0]?.count ? Number(rows[0].count) : 0;
+  return await User.count({
+    where: { role },
+  });
 };
 
 /**
  * Count total users
  */
 exports.countTotal = async () => {
-  const sql = `SELECT COUNT(*) AS count FROM users`;
-  const [rows] = await pool.execute(sql);
-  return rows[0]?.count ? Number(rows[0].count) : 0;
+  return await User.count();
 };
 
 /**
  * Get all unique roles
  */
 exports.getAllRoles = async () => {
-  const sql = `SELECT DISTINCT role FROM users ORDER BY role`;
-  const [rows] = await pool.execute(sql);
-  return rows.map(row => row.role);
+  const users = await User.findAll({
+    attributes: [[sequelize.fn('DISTINCT', sequelize.col('role')), 'role']],
+    order: [['role', 'ASC']],
+    raw: true,
+  });
+  
+  return users.map(user => user.role);
 };
 
 /**
  * Get user statistics
  */
 exports.getStats = async () => {
-  const sql = `
-    SELECT 
-      COUNT(*) as total_users,
-      COUNT(CASE WHEN role = 'admin' THEN 1 END) as admin_count,
-      COUNT(CASE WHEN role = 'user' THEN 1 END) as user_count,
-      COUNT(CASE WHEN role = 'moderator' THEN 1 END) as moderator_count,
-      COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) as today_registrations,
-      COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as week_registrations,
-      COUNT(CASE WHEN email_verified = TRUE THEN 1 END) as verified_users
-    FROM users
-  `;
-  const [rows] = await pool.execute(sql);
-  return rows[0];
+  const stats = await User.findOne({
+    attributes: [
+      [sequelize.fn('COUNT', sequelize.col('id')), 'total_users'],
+      [sequelize.fn('SUM', sequelize.literal("CASE WHEN role = 'admin' THEN 1 ELSE 0 END")), 'admin_count'],
+      [sequelize.fn('SUM', sequelize.literal("CASE WHEN role = 'user' THEN 1 ELSE 0 END")), 'user_count'],
+      [sequelize.fn('SUM', sequelize.literal("CASE WHEN role = 'moderator' THEN 1 ELSE 0 END")), 'moderator_count'],
+      [sequelize.fn('SUM', sequelize.literal("CASE WHEN DATE(created_at) = CURDATE() THEN 1 ELSE 0 END")), 'today_registrations'],
+      [sequelize.fn('SUM', sequelize.literal("CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END")), 'week_registrations'],
+      [sequelize.fn('SUM', sequelize.literal("CASE WHEN email_verified = TRUE THEN 1 ELSE 0 END")), 'verified_users'],
+    ],
+    raw: true,
+  });
+  
+  return stats;
 };
 
 /**
  * Find recently registered users
  */
 exports.findRecentUsers = async (limit = 5) => {
-  const sql = `
-    SELECT ${PUBLIC_COLUMNS} 
-    FROM users 
-    ORDER BY created_at DESC 
-    LIMIT ?
-  `;
-  const [rows] = await pool.execute(sql, [Number(limit)]);
-  return rows;
+  return await User.findAll({
+    attributes: PUBLIC_ATTRIBUTES,
+    order: [['created_at', 'DESC']],
+    limit: Number(limit),
+  });
 };
 
 /**
@@ -416,14 +421,16 @@ exports.bulkUpdateRoles = async (userIds, role) => {
     return 0;
   }
   
-  const placeholders = userIds.map(() => '?').join(',');
-  const sql = `
-    UPDATE users 
-    SET role = ?, updated_at = NOW() 
-    WHERE id IN (${placeholders})
-  `;
-  const [result] = await pool.execute(sql, [role, ...userIds]);
-  return result.affectedRows;
+  const [affectedRows] = await User.update(
+    { role },
+    {
+      where: {
+        id: { [sequelize.Sequelize.Op.in]: userIds },
+      },
+    }
+  );
+  
+  return affectedRows;
 };
 
 /**
@@ -432,42 +439,40 @@ exports.bulkUpdateRoles = async (userIds, role) => {
 exports.updateEmailVerification = async (id, verified = true) => {
   if (!id) return false;
   
-  const sql = `
-    UPDATE users
-    SET email_verified = ?, updated_at = NOW()
-    WHERE id = ?
-  `;
-  const [result] = await pool.execute(sql, [verified, id]);
-  return result.affectedRows > 0;
+  const user = await User.findByPk(id);
+  if (!user) return false;
+  
+  await user.update({ email_verified: verified });
+  return true;
 };
 
 /**
  * Find users with email verification status
  */
 exports.findByEmailVerification = async (verified = true) => {
-  const sql = `
-    SELECT ${PUBLIC_COLUMNS} 
-    FROM users 
-    WHERE email_verified = ? 
-    ORDER BY created_at DESC
-  `;
-  const [rows] = await pool.execute(sql, [verified]);
-  return rows;
+  return await User.findAll({
+    where: { email_verified: verified },
+    attributes: PUBLIC_ATTRIBUTES,
+    order: [['created_at', 'DESC']],
+  });
 };
 
 /**
  * Get user login history (if you have a login_history table)
  */
 exports.getLoginHistory = async (userId, limit = 10) => {
-  const sql = `
-    SELECT login_at, ip_address, user_agent
-    FROM login_history 
-    WHERE user_id = ? 
-    ORDER BY login_at DESC 
-    LIMIT ?
-  `;
   try {
-    const [rows] = await pool.execute(sql, [userId, Number(limit)]);
+    const sql = `
+      SELECT login_at, ip_address, user_agent
+      FROM login_history 
+      WHERE user_id = ? 
+      ORDER BY login_at DESC 
+      LIMIT ?
+    `;
+    const [rows] = await sequelize.query(sql, {
+      replacements: [userId, Number(limit)],
+      type: sequelize.QueryTypes.SELECT,
+    });
     return rows;
   } catch (error) {
     // Table might not exist, return empty array
@@ -479,12 +484,15 @@ exports.getLoginHistory = async (userId, limit = 10) => {
  * Record user login (if you have a login_history table)
  */
 exports.recordLogin = async (userId, ipAddress = null, userAgent = null) => {
-  const sql = `
-    INSERT INTO login_history (user_id, login_at, ip_address, user_agent)
-    VALUES (?, NOW(), ?, ?)
-  `;
   try {
-    await pool.execute(sql, [userId, ipAddress, userAgent]);
+    const sql = `
+      INSERT INTO login_history (user_id, login_at, ip_address, user_agent)
+      VALUES (?, NOW(), ?, ?)
+    `;
+    await sequelize.query(sql, {
+      replacements: [userId, ipAddress, userAgent],
+      type: sequelize.QueryTypes.INSERT,
+    });
     return true;
   } catch (error) {
     // Table might not exist, just continue
@@ -492,3 +500,6 @@ exports.recordLogin = async (userId, ipAddress = null, userAgent = null) => {
     return false;
   }
 };
+
+// Export the model as well
+exports.User = User;

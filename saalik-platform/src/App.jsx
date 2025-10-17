@@ -8,6 +8,9 @@ import Login from "./pages/Login.jsx";
 import Footer from "./components/Footer.jsx";
 
 
+ import SaalikAdminDashboard from "./dashboard/adminDashboard.jsx";
+
+
 function App() {
   const [currentPage, setCurrentPage] = useState("home");
 
@@ -28,6 +31,7 @@ function App() {
       {currentPage === "contact" && <ContactPage />}
       
       {currentPage === "login" && <Login/>}
+      {currentPage === "SaalikAdminDashboard" && <SaalikAdminDashboard />}
 
       <Footer />
     </>

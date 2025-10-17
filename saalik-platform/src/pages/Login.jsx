@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import {
-  loginUser,
+  LoginUser,
   clearError,
   selectIsAuthenticated,
   selectIsLoading,
@@ -109,7 +109,7 @@ export default function Login() {
 
     try {
       const result = await dispatch(
-        loginUser({
+        LoginUser({
           ...formData,
           rememberMe,
         })

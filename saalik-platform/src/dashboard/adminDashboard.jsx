@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
   selectIsAuthenticated, 
   selectUser,
   logout 
-} from '../../../store/slices/authSlice';
+} from '../../store/slices/authSlice';
 
 function SaalikAdminDashboard() {
-  const router = useRouter();
+  const router = useNavigate();
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
@@ -18,7 +18,7 @@ function SaalikAdminDashboard() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/Login');
       return;
     }
 
@@ -29,7 +29,7 @@ function SaalikAdminDashboard() {
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push('/login');
+    router.push('/Login');
   };
 
   if (!isAuthenticated || !user) {
