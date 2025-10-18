@@ -11,6 +11,7 @@ import Footer from "./components/Footer.jsx";
 import SaalikAdminDashboard from "./dashboard/adminDashboard.jsx";
 import SaalikuserDashboard from "./dashboard/userDashboard.jsx";
 import { motion, AnimatePresence } from "framer-motion";
+import GuideBookingForm from "./pages/GuideBookingForm.jsx";
 
 function App() {
   const [showContact, setShowContact] = useState(false);
@@ -27,20 +28,21 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<SaalikAdminDashboard />} />
         <Route path="/user" element={<SaalikuserDashboard />} />
+        <Route path="/GuideBookingForm" element={<GuideBookingForm/>}/>
       </Routes>
 
       {/* Contact Modal */}
       <AnimatePresence>
         {showContact && (
           <>
-            {/* Backdrop */}
+            {/* Light Transparent Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => setShowContact(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4"
             >
               {/* Modal Container */}
               <motion.div
@@ -78,7 +80,7 @@ function App() {
                 </button>
 
                 {/* Contact Card */}
-                <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 border-2 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)]">
+                <div className="bg-gradient-to-tr from-gray-900 to-black-900 backdrop-blur-xl rounded-3xl p-8 border-2 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)]">
                   {/* Header */}
                   <h2 className="text-3xl font-bold text-green-400 mb-10 text-center tracking-wide">
                     Contact Information
