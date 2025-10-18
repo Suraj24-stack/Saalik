@@ -16,20 +16,20 @@ export const mockData = {
 
   // Hero Carousel Slides
   heroSlides: [
-    {
-      id: 1,
-      title: "DURBAR SQUARE'S",
-      highlight: "KAAL BHAIRAB",
-      subtitle: "Discover the Untold Stories of Nepal",
-      image: "/1.jpeg", // Place image in public folder
-      icon: "🏛️"
-    },
+   {
+    id: 1,
+    title: "DURBAR SQUARE'S",
+    highlight: "KAAL BHAIRAB",
+    subtitle: "Discover the Untold Stories of Nepal",
+    image: "/Main slider/1.png",
+    icon: "🏛️"
+  },
     {
       id: 2,
       title: "THE SHADOWS OF",
       highlight: "KHYAK",
       subtitle: "Discover the Untold Stories of Nepal",
-      image: "/natrajan.png", // Place image in public folder
+      image:  "/Main slider/2.png",
       icon: "👹"
     },
     {
@@ -37,7 +37,7 @@ export const mockData = {
       title: "THE TALE OF",
       highlight: "HIMALAYAN YETI",
       subtitle: "Discover the Untold Stories of Nepal",
-      image: "/", // Place image in public folder
+      image: "/Main slider/3.png",
       icon: "🦍"
     }
   ],
@@ -114,25 +114,25 @@ export const mockData = {
     { 
       id: 1, 
       name: "Department of Archaeology", 
-      logo: "/3.png",
+      logo: "/Collaborations/government.png",
       description: "Government department preserving Nepal's archaeological heritage"
     },
     { 
       id: 2, 
       name: "National Archives", 
-      logo: "/3.png",
+      logo:  "/Collaborations/kageshwori.png",
       description: "Repository of Nepal's historical documents"
     },
     { 
       id: 3, 
       name: "Kageshwori Manohara Municipality", 
-      logo: "/4.png",
+      logo: "/Collaborations/government.png",
       description: "Local municipality supporting cultural preservation"
     },
     { 
       id: 4, 
       name: "Tokha Municipality", 
-      logo: "/5.png",
+      logo:  "/Collaborations/tokha.png",
       description: "Local municipality promoting heritage tourism"
     }
   ],
@@ -143,29 +143,29 @@ export const mockData = {
       id: 1, 
       name: "openlipi", 
       description: "Digital preservation of ancient Nepali scripts and languages",
-      logo: "/2.png",
-      link: "https://openlipi.org"
+      logo: "/Our initiatives carrousel slider/1.png",
+     
     },
     { 
       id: 2, 
       name: "openabhilekh", 
       description: "Open access platform for historical inscriptions and records",
-      logo: "/initiatives/openabhilekh.svg",
-      link: "https://openabhilekh.org"
+      logo: "/Our initiatives carrousel slider/2.png",
+      
     },
     { 
       id: 3, 
       name: "SANKET", 
       description: "Cultural heritage documentation and storytelling platform",
-      logo: "/initiatives/sanket.svg",
-      link: "https://sanket.org"
+      logo: "/Our initiatives carrousel slider/3.png",
+     
     },
     { 
       id: 4, 
       name: "RISTI AI", 
       description: "AI-powered heritage analysis and restoration technology",
-      logo: "/initiatives/risti-ai.svg",
-      link: "https://risti.ai"
+      logo: "/Our initiatives carrousel slider/4.png",
+    
     }
   ],
 

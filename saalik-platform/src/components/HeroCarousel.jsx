@@ -14,6 +14,9 @@ const HeroCarousel = () => {
     return () => clearInterval(timer);
   }, [slides.length]);
 
+  const currentSlideData = slides[currentSlide];
+  const hasImage = currentSlideData.image && currentSlideData.image !== "/" && currentSlideData.image !== "";
+
   return (
     <section className="relative h-[350px] md:h-[400px] w-full overflow-hidden bg-gradient-to-br from-black via-emerald-950/30 to-black pt-14 md:pt-20">
       
@@ -30,62 +33,42 @@ const HeroCarousel = () => {
                 Discover the <span className="text-green-400">Untold Stories</span> of Nepal
               </p>
 
-              {/* Main Title - Single Line */}
+              {/* Main Title */}
               <div className="space-y-1">
                 <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-green-400 tracking-[0.15em] uppercase leading-tight">
-                  {slides[currentSlide].title}
+                  {currentSlideData.title}
                 </h2>
                 
                 <h1 className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-[0.08em] uppercase leading-tight">
                   <span className="text-white">TALE OF </span>
-                  <span className="text-green-400">{slides[currentSlide].highlight}</span>
+                  <span className="text-green-400">{currentSlideData.highlight}</span>
                 </h1>
               </div>
 
             </div>
 
-            {/* Right Side - Blended Image */}
+            {/* Right Side - Image (INCREASED SIZE) */}
             <div className="hidden lg:block relative flex-shrink-0">
-              <div className="relative w-[300px] xl:w-[350px] h-[250px] xl:h-[300px]">
+              <div className="relative w-[400px] xl:w-[480px] h-[320px] xl:h-[380px]">
                 
-                {/* Green Glow Effect Behind */}
-                <div className="absolute inset-0 bg-green-400/20 blur-3xl rounded-full scale-110" />
-                
-                {/* Image Container with Gradient Border */}
-                <div className="relative w-full h-full rounded-2xl overflow-hidden">
-                  
-                  {/* Gradient Border Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-400 via-green-500 to-emerald-600 opacity-40 rounded-2xl" />
-                  
-                  {/* Inner Container */}
-                  <div className="absolute inset-[3px] bg-gradient-to-br from-black/90 to-emerald-950/80 rounded-2xl overflow-hidden">
-                    
-                    {slides[currentSlide].image ? (
-                      <img
-                        src={slides[currentSlide].image}
-                        alt={slides[currentSlide].highlight}
-                        className="w-full h-full object-cover opacity-80 mix-blend-lighten"
-                        style={{
-                          filter: 'contrast(1.1) brightness(0.9)'
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-emerald-950">
-                        <span className="text-8xl opacity-30">
-                          {slides[currentSlide].icon || "🏛️"}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Blend Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-l from-transparent via-green-400/10 to-black/40" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                {hasImage ? (
+                  <img
+                    src={currentSlideData.image}
+                    alt={currentSlideData.highlight}
+                    className="w-full h-full object-contain opacity-90"
+                    onError={(e) => {
+                      console.error('Image failed to load:', currentSlideData.image);
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-9xl opacity-30">
+                      {currentSlideData.icon || "🏛️"}
+                    </span>
                   </div>
-                </div>
+                )}
 
-                {/* Corner Accents */}
-                <div className="absolute -top-2 -right-2 w-16 h-16 border-t-2 border-r-2 border-green-400/60 rounded-tr-2xl" />
-                <div className="absolute -bottom-2 -left-2 w-16 h-16 border-b-2 border-l-2 border-green-400/60 rounded-bl-2xl" />
               </div>
             </div>
 

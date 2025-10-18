@@ -72,9 +72,7 @@ const AboutSection = () => (
                 ))}
               </div>
 
-              {/* Corner Accent Decorations */}
-              <div className="absolute -top-4 -left-4 w-20 h-20 border-t-2 border-l-2 border-green-400/50 rounded-tl-3xl" />
-              <div className="absolute -bottom-4 -right-4 w-20 h-20 border-b-2 border-r-2 border-green-400/50 rounded-br-3xl" />
+              {/* REMOVED: Corner Accent Decorations */}
             </div>
           </div>
         </div>

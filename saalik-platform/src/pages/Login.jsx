@@ -118,8 +118,8 @@ export default function Login() {
       if (result.type === "auth/loginUser/fulfilled") {
         const userData = result.payload.user;
         let targetPath = redirectPath;
-        if (userData.role === "admin") targetPath = "/admindashboard";
-        else if (userData.role === "moderator") targetPath = "/user_hostdashboard";
+        if (userData.role === "super_admin") targetPath = "/admin";
+        else if (userData.role === "moderator") targetPath = "/user";
         navigate(targetPath);
       }
     } catch (err) {

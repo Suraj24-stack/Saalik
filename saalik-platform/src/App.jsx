@@ -1,14 +1,16 @@
-  import { Routes, Route } from "react-router-dom";
-  import { useState } from "react";
-  import Navbar from "./components/Navbar.jsx";
-  import HomePage from "./pages/HomePage.jsx";
-  import StoriesPage from "./pages/StoriesPage.jsx";
-  import GuideBookingPage from "./pages/GuideBookingPage.jsx";
-  import ContactPage from "./pages/ContactPage.jsx";
-  import Login from "./pages/Login.jsx";
-  import Footer from "./components/Footer.jsx";
-  import SaalikAdminDashboard from "./dashboard/adminDashboard.jsx";
-  import { motion, AnimatePresence } from "framer-motion";
+import { Routes, Route } from "react-router-dom";
+import { useState } from "react";
+import Navbar from "./components/Navbar.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import StoriesPage from "./pages/StoriesPage.jsx";
+import GuideBookingPage from "./pages/GuideBookingPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
+import Login from "./pages/Login.jsx";
+import Footer from "./components/Footer.jsx";
+import SaalikAdminDashboard from "./dashboard/adminDashboard.jsx";
+import SaalikuserDashboard from "./dashboard/userDashboard.jsx";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 
   function App() {
@@ -18,13 +20,14 @@
       <>
         <Navbar onContact={() => setShowContact(true)} />
 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/stories" element={<StoriesPage />} />
-          <Route path="/guide-booking" element={<GuideBookingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<SaalikAdminDashboard />} />
-        </Routes>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/stories" element={<StoriesPage />} />
+        <Route path="/guide-booking" element={<GuideBookingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<SaalikAdminDashboard />} />
+        <Route path="/user" element={<SaalikuserDashboard/>} />
+      </Routes>
 
         {/* Contact Page as Modal */}
         <AnimatePresence>

@@ -47,38 +47,24 @@ const StoriesPreview = ({ onViewAll, onStoryClick }) => {
           {/* Right Side - Single Image */}
           <div className="relative h-[400px] md:h-[500px] lg:h-[550px]">
             
-            {/* Main Background Glow */}
-            <div className="absolute inset-0 bg-green-400/10 blur-3xl rounded-full scale-150" />
-
             {/* Single Image Container */}
-            <div className="relative h-full w-full overflow-hidden rounded-2xl group">
-              
-              {/* Green Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent z-10" />
+            <div className="relative h-full w-full overflow-hidden group">
               
               {/* Main Image */}
               {mockData.stories[1]?.image ? (
                 <img
                   src={mockData.stories[0].image}
                   alt="Cultural Heritage"
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center">
                   <span className="text-9xl opacity-40">🏛️</span>
                 </div>
               )}
               
-              {/* Bottom Gradient Shadow */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
-              
-              {/* Green Border Effect */}
-              <div className="absolute inset-0 border-2 border-green-400/40 rounded-2xl z-20" />
             </div>
 
-            {/* Decorative Corner Accents */}
-            <div className="absolute -top-4 -left-4 w-20 h-20 border-t-2 border-l-2 border-green-400/40 rounded-tl-3xl z-30" />
-            <div className="absolute -bottom-4 -right-4 w-20 h-20 border-b-2 border-r-2 border-green-400/40 rounded-br-3xl z-30" />
           </div>
 
         </div>
