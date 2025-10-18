@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';  // ✅ Import useNavigate
 import { mockData } from '../data/MockData';
 
 const StoriesPage = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
+  const navigate = useNavigate();  // ✅ Initialize navigate
 
-  // Get stories from mockData
   const stories = mockData.stories;
 
   return (
@@ -18,7 +19,6 @@ const StoriesPage = () => {
         maxWidth: '1400px',
         margin: '0 auto'
       }}>
-        {/* Title Section */}
         <h1 style={{
           textAlign: 'center',
           fontSize: 'clamp(36px, 6vw, 64px)',
@@ -38,7 +38,6 @@ const StoriesPage = () => {
           }}>NEPAL</span>
         </h1>
 
-        {/* Stories Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
@@ -50,6 +49,10 @@ const StoriesPage = () => {
               key={story.id}
               onMouseEnter={() => setHoveredCard(story.id)}
               onMouseLeave={() => setHoveredCard(null)}
+              onClick={() => {                           // ✅ Navigate to story detail
+                navigate(`/stories/${story.id}`);
+                window.scrollTo(0, 0);
+              }}
               style={{
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '2px solid #2ecc71',
@@ -63,7 +66,6 @@ const StoriesPage = () => {
                   : '0 5px 15px rgba(0, 0, 0, 0.3)'
               }}
             >
-              {/* Image Container */}
               <div style={{
                 width: '100%',
                 aspectRatio: '1',
@@ -101,7 +103,6 @@ const StoriesPage = () => {
                   </div>
                 )}
                 
-                {/* Overlay on hover */}
                 {hoveredCard === story.id && (
                   <div style={{
                     position: 'absolute',
@@ -128,7 +129,6 @@ const StoriesPage = () => {
                 )}
               </div>
 
-              {/* Title and Category */}
               <div style={{
                 padding: '20px'
               }}>
@@ -154,7 +154,6 @@ const StoriesPage = () => {
           ))}
         </div>
 
-        {/* Suggest Stories Button */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',

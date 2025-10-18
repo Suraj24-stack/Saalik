@@ -1,19 +1,21 @@
 import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';  // ✅ Import hooks
 import { ChevronLeft } from 'lucide-react';
 import StoryCard from '../components/Storycard';
-import mockData from "../data/mockData";
+import { mockData } from '../data/MockData';  // ✅ Fixed import
 
-
-
-const StoryDetailPage = ({ storyId, setCurrentPage, setSelectedStory }) => {
-  const story = mockData.stories.find(s => s.id === storyId) || mockData.stories[0];
-  const relatedStories = mockData.stories.filter(s => s.id !== storyId).slice(0, 4);
+const StoryDetailPage = () => {
+  const { id } = useParams();  // ✅ Get ID from URL
+  const navigate = useNavigate();  // ✅ Initialize navigate
+  
+  const story = mockData.stories.find(s => s.id === parseInt(id)) || mockData.stories[0];
+  const relatedStories = mockData.stories.filter(s => s.id !== parseInt(id)).slice(0, 4);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 pt-24 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
         <button 
-          onClick={() => setCurrentPage('stories')} 
+          onClick={() => navigate('/stories')}  // ✅ Navigate back
           className="text-green-400 hover:text-green-300 mb-8 flex items-center space-x-2"
         >
           <ChevronLeft size={20} />
@@ -56,7 +58,7 @@ const StoryDetailPage = ({ storyId, setCurrentPage, setSelectedStory }) => {
                 key={relatedStory.id} 
                 story={relatedStory}
                 onClick={() => { 
-                  setSelectedStory(relatedStory.id); 
+                  navigate(`/stories/${relatedStory.id}`);  // ✅ Navigate to related story
                   window.scrollTo(0, 0); 
                 }} 
               />
