@@ -49,7 +49,7 @@ export default function Login() {
   const successMessage = searchParams.get("message");
   const verificationSuccess = searchParams.get("verified") === "true";
   const resetSuccess = searchParams.get("reset") === "true";
-  const redirectPath = searchParams.get("redirect") || "/admin/dashbaord";
+  const redirectPath = searchParams.get("redirect") || "/admin";
 
   const isEmailVerificationError =
     !!error &&
@@ -76,7 +76,7 @@ export default function Login() {
   // Redirect when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      const targetPath = user.role === "admin" ? "/admin/dashbaord" : redirectPath;
+      const targetPath = user.role === "admin" ? "/admin" : redirectPath;
       navigate(targetPath);
     }
   }, [isAuthenticated, user, navigate, redirectPath]);
