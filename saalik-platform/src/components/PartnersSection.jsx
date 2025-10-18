@@ -2,12 +2,13 @@ import React from "react";
 import { mockData } from "../data/MockData"; 
 
 const PartnersSection = () => (
-  <section className="relative bg-gradient-to-b from-black via-emerald-950/20 to-black py-20 md:py-28 px-4 overflow-hidden">
+  <section className="relative py-20 md:py-28 px-4 overflow-hidden" style={{ backgroundColor: '#001410' }}>
     
-    {/* Background Pattern */}
-    <div className="absolute inset-0 opacity-5">
+    {/* Background Pattern - Dark Green Grid */}
+    <div className="absolute inset-0 opacity-[0.03]">
       <div className="absolute inset-0" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='1'%3E%3Cpath d='M0 0h1v1H0V0zm10 0h1v1h-1V0zm10 0h1v1h-1V0zm10 0h1v1h-1V0zm10 0h1v1h-1V0zm10 0h1v1h-1V0zm10 0h1v1h-1V0zm10 0h1v1h-1V0zM0 10h1v1H0v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zM0 20h1v1H0v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zM0 30h1v1H0v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zM0 40h1v1H0v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zM0 50h1v1H0v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zM0 60h1v1H0v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zM0 70h1v1H0v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1zm10 0h1v1h-1v-1z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        backgroundSize: '80px 80px',
       }} />
     </div>
 
@@ -57,7 +58,7 @@ const PartnersSection = () => (
       {/* SAALIK Group Section */}
       <div className="relative max-w-5xl mx-auto">
         {/* Bordered Container */}
-        <div className="relative border-2 border-green-500/30 rounded-3xl p-8 md:p-12 bg-gradient-to-br from-emerald-950/20 to-transparent backdrop-blur-sm">
+        <div className="relative border-2 border-green-500/40 rounded-3xl p-8 md:p-12 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0, 30, 20, 0.3)' }}>
           
           {/* Glow Effect */}
           <div className="absolute inset-0 bg-green-400/5 rounded-3xl blur-2xl" />
@@ -88,7 +89,7 @@ const PartnersSection = () => (
                     />
                   </div>
                 </div>
-                <p className="text-green-400 text-xs md:text-sm font-semibold tracking-wider">SAALIK</p>
+                
               </div>
               
               {/* SAALIK DESIGNS Logo */}
@@ -112,9 +113,7 @@ const PartnersSection = () => (
           </div>
         </div>
 
-        {/* Corner Decorations */}
-        <div className="absolute -top-3 -left-3 w-16 h-16 border-t-2 border-l-2 border-green-400/40 rounded-tl-2xl" />
-        <div className="absolute -bottom-3 -right-3 w-16 h-16 border-b-2 border-r-2 border-green-400/40 rounded-br-2xl" />
+        {/* Corner Decorations - REMOVED */}
       </div>
 
     </div>

@@ -5,12 +5,12 @@ const GuideBookingSection = ({ onJoinWaitlist }) => (
   <section className="bg-gradient-to-b from-black via-black to-green-900 py-20 px-4 border-t border-green-600/30">
     <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
       
-      {/* Image with green shadow - LEFT SIDE */}
-      <div className="flex justify-center relative">
+      {/* Image - LEFT SIDE */}
+      <div className="flex justify-center bg-gradient-to-b from-black to-transparent">
         <img
           src={mockData.guideBooking.image}
           alt={mockData.guideBooking.imageAlt}
-          className="rounded-2xl border-4 border-green-600 shadow-[0_0_15px_rgba(5,150,105,0.7)] w-full max-w-md object-cover"
+          className="w-full max-w-md object-cover mix-blend-lighten"
         />
       </div>
 
@@ -22,13 +22,11 @@ const GuideBookingSection = ({ onJoinWaitlist }) => (
         <div className="space-y-6 text-green-300 leading-relaxed mb-10">
           <p>
             Discover Nepal with confidence by{" "}
-            <span className="font-semibold text-green-400 underline decoration-green-400">booking certified local guides</span>{" "}
+            <span className="font-semibold text-green-400 underline decoration-green-400">booking verified local guides</span>{" "}
             through SAALIK. Our{" "}
-            <span className="font-semibold text-green-400 underline decoration-green-400">expert guides</span> bring culture, history, and spirituality to life.
-          </p>
-          <p>
-            From heritage walks to temple tours, they help you{" "}
-            <span className="font-semibold text-green-400 underline decoration-green-400">experience Nepal beyond the surface</span>.
+            <span className="font-semibold text-green-400 underline decoration-green-400">trusted guides</span> bring culture, history, and spirituality to life while ensuring your journey is both{" "}
+            <span className="font-semibold text-green-400 underline decoration-green-400">safe and insightful</span>. With expertise ranging from heritage walks to temple tours, they help you{" "}
+            <span className="font-semibold text-green-400 underline decoration-green-400">experience Nepal</span> beyond the surface.
           </p>
         </div>
         <button
