@@ -14,6 +14,9 @@ const HeroCarousel = () => {
     return () => clearInterval(timer);
   }, [slides.length]);
 
+  const currentSlideData = slides[currentSlide];
+  const hasImage = currentSlideData.image && currentSlideData.image !== "/" && currentSlideData.image !== "";
+
   return (
     <section className="relative h-[350px] md:h-[400px] w-full overflow-hidden bg-gradient-to-br from-black via-emerald-950/30 to-black pt-14 md:pt-20">
       
@@ -30,34 +33,38 @@ const HeroCarousel = () => {
                 Discover the <span className="text-green-400">Untold Stories</span> of Nepal
               </p>
 
-              {/* Main Title - Single Line */}
+              {/* Main Title */}
               <div className="space-y-1">
                 <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-green-400 tracking-[0.15em] uppercase leading-tight">
-                  {slides[currentSlide].title}
+                  {currentSlideData.title}
                 </h2>
                 
                 <h1 className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-[0.08em] uppercase leading-tight">
                   <span className="text-white">TALE OF </span>
-                  <span className="text-green-400">{slides[currentSlide].highlight}</span>
+                  <span className="text-green-400">{currentSlideData.highlight}</span>
                 </h1>
               </div>
 
             </div>
 
-            {/* Right Side - Image Only (No Box) */}
+            {/* Right Side - Image (INCREASED SIZE) */}
             <div className="hidden lg:block relative flex-shrink-0">
-              <div className="relative w-[300px] xl:w-[350px] h-[250px] xl:h-[300px]">
+              <div className="relative w-[400px] xl:w-[480px] h-[320px] xl:h-[380px]">
                 
-                {slides[currentSlide].image ? (
+                {hasImage ? (
                   <img
-                    src={slides[currentSlide].image}
-                    alt={slides[currentSlide].highlight}
+                    src={currentSlideData.image}
+                    alt={currentSlideData.highlight}
                     className="w-full h-full object-contain opacity-90"
+                    onError={(e) => {
+                      console.error('Image failed to load:', currentSlideData.image);
+                      e.target.style.display = 'none';
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-8xl opacity-30">
-                      {slides[currentSlide].icon || "🏛️"}
+                    <span className="text-9xl opacity-30">
+                      {currentSlideData.icon || "🏛️"}
                     </span>
                   </div>
                 )}
