@@ -1,10 +1,14 @@
 // src/pages/GuideBookingPage.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import navigate hook
 import GuideBookingSection from "./GuideBookingSection";
 
 export default function GuideBookingPage() {
+  const navigate = useNavigate(); // ✅ Initialize navigation
+
   const handleJoinWaitlist = () => {
-    alert("Thank you! Guide Booking will launch soon.");
+    // Instead of alert, navigate to the form page
+    navigate("/GuideBookingForm");
   };
 
   return (
