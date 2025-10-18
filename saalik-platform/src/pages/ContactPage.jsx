@@ -1,79 +1,106 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { X } from 'lucide-react';
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({ 
-    name: '', 
-    email: '', 
-    phone: '',
-    subject: '',
-    message: '' 
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.message) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    console.log('Contact form submission:', formData);
-    alert('Thank you for contacting us! We will get back to you soon.');
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-  };
-
   return (
-    <div className="min-h-screen bg-black pt-24 pb-16 px-4">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-bold text-center mb-6">
-          <span className="text-white">CONTACT </span>
-          <span className="text-green-400">US</span>
-        </h1>
-        
-        <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
-          Have questions or suggestions? We'd love to hear from you. 
-          Fill out the form below and we'll get back to you as soon as possible.
-        </p>
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      {/* Contact Information Card */}
+      <div className="relative w-full max-w-md">
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 border-2 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)]">
+          {/* Close Button */}
+          <button className="absolute top-4 right-4 text-white hover:text-green-400 transition-colors">
+            <X size={24} />
+          </button>
 
-        <div className="max-w-md mx-auto mb-12">
-          <div className="bg-black rounded-2xl p-8 border-2 border-green-500 shadow-[0_0_30px_rgba(34,197,94,0.5)]">
-            <h2 className="text-2xl font-bold text-green-400 mb-8 text-center">Contact Information</h2>
+          {/* Header */}
+          <h2 className="text-3xl font-bold text-green-400 mb-10 text-center tracking-wide">
+            Contact Information
+          </h2>
+
+          {/* Email Section */}
+          <div className="mb-8">
+            <div className="border-l-4 border-green-500 pl-6 py-2">
+              <div className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                EMAIL
+              </div>
+              <a 
+                href="mailto:saalik130@gmail.com" 
+                className="text-white text-xl hover:text-green-400 transition-colors duration-300"
+              >
+                saalik130@gmail.com
+              </a>
+            </div>
+          </div>
+
+          {/* Phone Section */}
+          <div className="mb-10">
+            <div className="border-l-4 border-green-500 pl-6 py-2">
+              <div className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                PHONE
+              </div>
+              <a 
+                href="tel:+9779840836892" 
+                className="text-white text-xl hover:text-green-400 transition-colors duration-300"
+              >
+                +977-9840836892
+              </a>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-green-500/30 mb-8"></div>
+
+          {/* Connect With Us Section */}
+          <div>
+            <h3 className="text-green-400 text-lg font-bold mb-6 tracking-wide">
+              Connect With Us
+            </h3>
             
-            <div className="space-y-6">
-              <div className="border-l-4 border-green-500 pl-4">
-                <div className="text-green-400 text-xs uppercase tracking-wider mb-1">EMAIL</div>
-                <a href="mailto:info@saalik.com" className="text-white text-lg hover:text-green-400 transition-colors">
-                  info@saalik.com
+            <div className="space-y-5">
+              {/* Facebook */}
+              <div className="flex items-center justify-between py-2 border-b border-gray-800 hover:border-green-500/30 transition-colors">
+                <span className="text-white font-medium">Facebook</span>
+                <a 
+                  href="https://facebook.com/saalik" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-400 hover:text-green-300 transition-colors duration-300"
+                >
+                  /saalik
                 </a>
               </div>
 
-              <div className="border-l-4 border-green-500 pl-4">
-                <div className="text-green-400 text-xs uppercase tracking-wider mb-1">PHONE</div>
-                <a href="tel:+9779876543210" className="text-white text-lg hover:text-green-400 transition-colors">
-                  +977-9876543210
+              {/* YouTube */}
+              <div className="flex items-center justify-between py-2 border-b border-gray-800 hover:border-green-500/30 transition-colors">
+                <span className="text-white font-medium">YouTube</span>
+                <a 
+                  href="https://youtube.com/@saalik0" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-400 hover:text-green-300 transition-colors duration-300"
+                >
+                  /saalik0
                 </a>
               </div>
 
-              <div className="pt-4 border-t border-green-500/30">
-                <div className="text-green-400 text-lg font-semibold mb-4">Connect With Us</div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white">Facebook</span>
-                    <a href="#" className="text-green-400 hover:text-green-300 transition-colors">/saalik</a>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white">YouTube</span>
-                    <a href="#" className="text-green-400 hover:text-green-300 transition-colors">/saalik0</a>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white">Instagram</span>
-                    <a href="#" className="text-green-400 hover:text-green-300 transition-colors">/saalik0</a>
-                  </div>
-                </div>
+              {/* Instagram */}
+              <div className="flex items-center justify-between py-2 border-b border-gray-800 hover:border-green-500/30 transition-colors">
+                <span className="text-white font-medium">Instagram</span>
+                <a 
+                  href="https://instagram.com/saalik0" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-400 hover:text-green-300 transition-colors duration-300"
+                >
+                  /saalik0
+                </a>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Glow effect */}
+        <div className="absolute inset-0 bg-green-500/10 blur-3xl rounded-3xl -z-10"></div>
       </div>
     </div>
   );
