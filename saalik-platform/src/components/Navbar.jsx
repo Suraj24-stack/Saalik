@@ -57,12 +57,6 @@ const Navbar = ({ onContact }) => {
             >
               CONTACT
             </button>
-            <button
-              onClick={() => handleNavigate("/login")}
-              className="px-3 py-1 rounded border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-colors"
-            >
-              LOGIN
-            </button>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -106,12 +100,7 @@ const Navbar = ({ onContact }) => {
             >
               CONTACT
             </button>
-            <button
-              onClick={() => handleNavigate("/login")}
-              className="block w-full text-left py-2 px-4 rounded border border-green-400 text-green-400 hover:bg-green-400 hover:text-black transition-colors"
-            >
-              LOGIN
-            </button>
+           
           </div>
         </div>
       )}
