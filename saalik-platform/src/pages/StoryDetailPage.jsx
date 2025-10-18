@@ -1,8 +1,7 @@
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
 import StoryCard from '../components/Storycard';
-// Do this in every file:
-import mockData, { mockData as mockDataNamed } from "../data/mockData"; // choose default OR named (see below)
+import mockData from "../data/mockData";
 
 
 

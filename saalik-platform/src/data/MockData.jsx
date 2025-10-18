@@ -90,7 +90,7 @@ export const mockData = {
     {
       id: 5,
       title: "The Living Goddess Kumari",
-      image: "/stories/kumari.jpg",
+      image: "/natrajan.png",
       excerpt: "The tradition of worshipping a young girl as a living deity...",
       content: `The Kumari tradition represents a unique aspect of Nepalese culture where a young girl is selected to be worshipped as a living goddess. This centuries-old practice continues to fascinate scholars and devotees alike.`,
       category: "Tradition",
