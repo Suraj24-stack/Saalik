@@ -24,8 +24,8 @@ import { motion, AnimatePresence } from "framer-motion";
         <Route path="/" element={<HomePage />} />
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/guide-booking" element={<GuideBookingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<SaalikAdminDashboard />} />
+        <Route path="/admin" element={<Login />} />
+        <Route path="/admin/dashboard" element={<SaalikAdminDashboard />} />
         <Route path="/user" element={<SaalikuserDashboard/>} />
       </Routes>
 
