@@ -17,29 +17,29 @@ const StoriesPreview = ({ onViewAll, onStoryClick }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           
           {/* Left Side - Text Content */}
-          <div className="space-y-6 lg:pr-8">
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              <span className="text-white">UNTOLD </span>
-              <span className="text-green-400">STORIES</span>
-            </h2>
+          <div className="space-y-6 lg:pr-8 text-center lg:text-left">
+           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <span className="text-white"> UNTOLD </span>
+            <span className="text-green-400">STORIES</span>
+          </h2>
             
-            <div className="text-gray-300 text-base md:text-lg leading-relaxed space-y-4">
+            <div className="text-white text-base md:text-lg lg:text-xl leading-relaxed space-y-4 text-justify font-normal">
               <p>
-                Browse through <span className="text-green-400 font-semibold">SAALIK's</span> ever-growing{" "}
+                Browse through <span className="text-green-400 font-semibold">SAALIK's</span> ever growing{" "}
                 <span className="text-green-400 font-semibold">database of statues</span> and{" "}
-                <span className="text-green-400 font-semibold">sculptures</span> from across Nepal, where each piece carries a{" "}
-                <span className="text-green-400 font-semibold">story of kings, gods, artisans, and civilizations</span>.
+                <span className="text-green-400 font-semibold">sculptures</span> from across Nepal, where each piece carries{" "}
+                <span className="text-green-400 font-semibold">a story of kings, gods, artisans, and civilizations</span>.
                 More than just stone and metal, these statues embody centuries of history, faith, and craftsmanship inviting you to{" "}
                 <span className="text-green-400 font-semibold">explore the cultural heartbeat of Nepal</span>.
               </p>
             </div>
 
-            <div>
+            <div className="flex justify-center lg:justify-start pt-4">
               <button
                 onClick={onViewAll}
-                className="bg-green-500 hover:bg-green-400 text-black font-bold text-sm md:text-base py-3 md:py-4 px-8 md:px-12 rounded-full transition-all duration-300 hover:scale-105 shadow-xl shadow-green-500/30 tracking-wider uppercase"
+                className="bg-green-500 hover:bg-green-400 text-white font-black text-base md:text-lg py-4 md:py-5 px-12 md:px-16 rounded-full transition-all duration-300 hover:scale-105 shadow-2xl shadow-green-500/40 tracking-wider uppercase"
               >
-                SEE OUR STORIES
+                LAUNCHING SOON
               </button>
             </div>
           </div>

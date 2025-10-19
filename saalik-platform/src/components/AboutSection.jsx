@@ -84,7 +84,7 @@ const AboutSection = () => (
             <span className="text-green-400">SAALIK ?</span>
           </h2>
           
-          <div className="space-y-4 text-gray-300 text-base md:text-lg leading-relaxed">
+          <div className="space-y-6 text-white text-base md:text-lg lg:text-xl leading-relaxed mb-10 text-justify">
             <p>
               <span className="text-green-400 font-bold">SAALIK</span> is a cultural tourism and heritage platform dedicated to{" "}
               <span className="text-green-400 font-semibold">preserving</span>, promoting, and showcasing{" "}

@@ -18,25 +18,25 @@ export const mockData = {
   heroSlides: [
    {
     id: 1,
-    title: "DURBAR SQUARE'S",
-    highlight: "KAAL BHAIRAB",
-    subtitle: "Discover the Untold Stories of Nepal",
+   // title: "DURBAR SQUARE'S", //
+    //highlight: "KAAL BHAIRAB",
+   // subtitle: "Discover the Untold Stories of Nepal",
     image: "/Main slider/1.png",
     icon: "🏛️"
   },
     {
       id: 2,
-      title: "THE SHADOWS OF",
-      highlight: "KHYAK",
-      subtitle: "Discover the Untold Stories of Nepal",
+     // title: "THE SHADOWS OF",
+      //highlight: "KHYAK",
+      //subtitle: "Discover the Untold Stories of Nepal",
       image:  "/Main slider/2.png",
       icon: "👹"
     },
     {
       id: 3,
-      title: "THE TALE OF",
-      highlight: "HIMALAYAN YETI",
-      subtitle: "Discover the Untold Stories of Nepal",
+      // title: "THE TALE OF",
+     // highlight: "HIMALAYAN YETI",
+     // subtitle: "Discover the Untold Stories of Nepal",
       image: "/Main slider/3.png",
       icon: "🦍"
     }

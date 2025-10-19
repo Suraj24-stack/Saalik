@@ -18,7 +18,7 @@ const HeroCarousel = () => {
   const hasImage = currentSlideData.image && currentSlideData.image !== "/" && currentSlideData.image !== "";
 
   return (
-    <section className="relative h-[350px] md:h-[400px] w-full overflow-hidden bg-gradient-to-br from-black via-emerald-950/30 to-black pt-14 md:pt-20">
+    <section className="relative h-[500px] md:h-[600px] lg:h-[550px] w-full overflow-hidden bg-gradient-to-br from-black via-emerald-950/20 to-black pt-14 md:pt-20">
       
       {/* Content Container */}
       <div className="relative h-full flex items-center">
@@ -26,36 +26,30 @@ const HeroCarousel = () => {
           <div className="flex items-center justify-between gap-8">
             
             {/* Left Side - Text Content */}
-            <div className="flex-1 max-w-3xl z-10">
+            <div className="flex-1 max-w-5xl z-10">
               
-              {/* Subtitle */}
-              <p className="text-[10px] md:text-xs text-gray-400 mb-3 md:mb-4 tracking-[0.2em] uppercase font-light">
-                Discover the <span className="text-green-400">Untold Stories</span> of Nepal
-              </p>
+              
 
               {/* Main Title */}
-              <div className="space-y-1">
-                <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-green-400 tracking-[0.15em] uppercase leading-tight">
+              <div className="space-y-3 md:space-y-4">
+                <h2 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-green-400 tracking-[0.3em] uppercase leading-none">
                   {currentSlideData.title}
                 </h2>
                 
-                <h1 className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-[0.08em] uppercase leading-tight">
-                  <span className="text-white">TALE OF </span>
-                  <span className="text-green-400">{currentSlideData.highlight}</span>
-                </h1>
+                
               </div>
 
             </div>
 
-            {/* Right Side - Image (INCREASED SIZE) */}
-            <div className="hidden lg:block relative flex-shrink-0">
-              <div className="relative w-[400px] xl:w-[480px] h-[320px] xl:h-[380px]">
+            {/* Right Side - Image (CENTERED DISPLAY) */}
+            <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-[50%] xl:w-[55%]">
+              <div className="relative w-full h-full flex items-center justify-center">
                 
                 {hasImage ? (
                   <img
                     src={currentSlideData.image}
                     alt={currentSlideData.highlight}
-                    className="w-full h-full object-contain opacity-90"
+                    className="w-full h-full object-contain object-center opacity-100 scale-110"
                     onError={(e) => {
                       console.error('Image failed to load:', currentSlideData.image);
                       e.target.style.display = 'none';

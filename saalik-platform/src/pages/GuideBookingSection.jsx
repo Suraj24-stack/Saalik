@@ -23,10 +23,12 @@ const GuideBookingSection = ({ onJoinWaitlist }) => {
 
         {/* Text & Button - RIGHT SIDE */}
         <div>
-          <h2 className="text-5xl font-extrabold text-white mb-6">
-            <span className="text-green-500">GUIDE</span> BOOKING
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <span className="text-white">GUIDE </span>
+            <span className="text-green-400">BOOKING</span>
           </h2>
-          <div className="space-y-6 text-green-300 leading-relaxed mb-10">
+          
+          <div className="space-y-6 text-white text-base md:text-lg lg:text-xl leading-relaxed mb-10 text-justify">
             <p>
               Discover Nepal with confidence by{" "}
               <span className="font-semibold text-green-400 underline decoration-green-400">
@@ -52,9 +54,9 @@ const GuideBookingSection = ({ onJoinWaitlist }) => {
 
           <button
             onClick={handleClick}
-            className="bg-green-600 hover:bg-green-500 text-black font-bold py-4 px-10 rounded-full transition-all hover:scale-105 shadow-lg shadow-green-600/70"
+            className="bg-green-500 hover:bg-green-400 text-white font-black text-base md:text-lg py-4 md:py-5 px-12 md:px-16 rounded-full transition-all duration-300 hover:scale-105 shadow-2xl shadow-green-500/40 tracking-wider uppercase"
           >
-            LAUNCHING SOON
+            JOIN WAITLIST
           </button>
         </div>
       </div>
