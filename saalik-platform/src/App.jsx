@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "./components/Navbar.jsx";
 import HomePage from "./pages/HomePage.jsx";
-import StoriesPage from "./pages/StoriesPage.jsx";
+import StoriesPage from "./pages/Stories.jsx";
 import StoryDetailPage from "./pages/StoryDetailPage.jsx"; 
 import GuideBookingPage from "./pages/GuideBookingPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
@@ -10,26 +10,53 @@ import Login from "./pages/Login.jsx";
 import Footer from "./components/Footer.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import GuideBookingForm from "./pages/GuideBookingForm.jsx";
-// import AdminDashboard from "./dashboard/Dashboard.jsx";
-import Dashboard from "./dashboard/Dashboard.jsx"
-import SaalikUserPage from "./dashboard/User/User.jsx";
+import Dashboard from "./dashboard/Dashboard.jsx";
 
 function App() {
   const [showContact, setShowContact] = useState(false);
 
   return (
     <>
-      <Navbar onContact={() => setShowContact(true)} />
-      
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/stories" element={<StoriesPage />} />
-        <Route path="/stories/:id" element={<StoryDetailPage />} />
-        <Route path="/guide-booking" element={<GuideBookingPage />} />
+        {/* Main website routes with Navbar and Footer */}
+        <Route path="/" element={
+          <>
+            <Navbar onContact={() => setShowContact(true)} />
+            <HomePage />
+            <Footer />
+          </>
+        } />
+        
+        <Route path="/stories" element={
+          <>
+            <Navbar onContact={() => setShowContact(true)} />
+            <StoriesPage />
+            <Footer />
+          </>
+        } />
+        
+        <Route path="/stories/:id" element={
+          <>
+            <Navbar onContact={() => setShowContact(true)} />
+            <StoryDetailPage />
+            <Footer />
+          </>
+        } />
+        
+        <Route path="/guide-booking" element={
+          <>
+            <Navbar onContact={() => setShowContact(true)} />
+            <GuideBookingPage />
+            <Footer />
+          </>
+        } />
+        
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<Dashboard />} />
-        <Route path="/GuideBookingForm" element={<GuideBookingForm/>}/>
-        <Route path="/users" element={<SaalikUserPage/>}/>
+        
+        <Route path="/GuideBookingForm" element={<GuideBookingForm />} />
+        
+        {/* Admin Dashboard - WITHOUT Navbar and Footer */}
+        <Route path="/admin/*" element={<Dashboard />} />
       </Routes>
 
       {/* Contact Modal */}
@@ -176,8 +203,6 @@ function App() {
           </>
         )}
       </AnimatePresence>
-
-      <Footer />
     </>
   );
 }

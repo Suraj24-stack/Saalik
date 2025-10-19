@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Dummy users data (you can replace it with API or Redux state)
 const allUsers = [
   { id: 1, name: 'Rajesh Thapa', email: 'rajesh@email.com', role: 'user', status: 'active', bookings: 8, spent: '$680' },
   { id: 2, name: 'Sarah Johnson', email: 'sarah@email.com', role: 'guide', status: 'active', bookings: 45, spent: '$3,240' },
@@ -20,7 +19,7 @@ export default function SaalikUserPage() {
   );
 
   return (
-    <div className="min-h-screen mt-10 bg-gradient-to-br from-slate-900 via-emerald-950 to-teal-950 p-8">
+    <div className="w-full">
       <h1 className="text-3xl font-bold text-white mb-6">User Management</h1>
 
       {/* Search and Add User */}

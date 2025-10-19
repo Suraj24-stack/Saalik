@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 import {
   LoginUser,
@@ -170,6 +172,7 @@ export default function Login() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Navbar/>
       <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           {/* Back Link */}
@@ -410,6 +413,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <Footer/>
     </main>
   );
 }
