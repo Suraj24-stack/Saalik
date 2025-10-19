@@ -8,10 +8,11 @@ import GuideBookingPage from "./pages/GuideBookingPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import Login from "./pages/Login.jsx";
 import Footer from "./components/Footer.jsx";
-import SaalikAdminDashboard from "./dashboard/adminDashboard.jsx";
-import SaalikuserDashboard from "./dashboard/userDashboard.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import GuideBookingForm from "./pages/GuideBookingForm.jsx";
+// import AdminDashboard from "./dashboard/Dashboard.jsx";
+import Dashboard from "./dashboard/Dashboard.jsx"
+import SaalikUserPage from "./dashboard/User/User.jsx";
 
 function App() {
   const [showContact, setShowContact] = useState(false);
@@ -26,9 +27,9 @@ function App() {
         <Route path="/stories/:id" element={<StoryDetailPage />} />
         <Route path="/guide-booking" element={<GuideBookingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<SaalikAdminDashboard />} />
-        <Route path="/user" element={<SaalikuserDashboard />} />
+        <Route path="/admin" element={<Dashboard />} />
         <Route path="/GuideBookingForm" element={<GuideBookingForm/>}/>
+        <Route path="/users" element={<SaalikUserPage/>}/>
       </Routes>
 
       {/* Contact Modal */}
