@@ -49,7 +49,7 @@ const HeroCarousel = () => {
                   <img
                     src={currentSlideData.image}
                     alt={currentSlideData.highlight}
-                    className="w-full h-full object-contain object-center opacity-100 scale-110"
+                    className="max-w-full max-h-full object-contain opacity-100"
                     onError={(e) => {
                       console.error('Image failed to load:', currentSlideData.image);
                       e.target.style.display = 'none';
