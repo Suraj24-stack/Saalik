@@ -12,7 +12,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { label: "Guide Booking", path: "/admin/guide-booking", icon: "🎯" },
     { label: "Contact", path: "/admin/contact", icon: "📧" },
     { label: "In Association", path: "/admin/in-association", icon: "🤝" },
-    { label: "initiatives", path: "admin/initiatives", icon: "📖"},
+    { label: "initiatives", path: "/admin/initiatives", icon: "📖"},
   ];
 
   const handleClick = (item) => {
