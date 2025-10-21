@@ -7,7 +7,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { label: "Users", path: "/admin/users", icon: "👥" },
     { label: "Stories", path: "/admin/story", icon: "📖" },
-    { label: "Ticket Booking", path: "/admin/ticket-booking", icon: "🎫" },
+    // { label: "Ticket Booking", path: "/admin/ticket-booking", icon: "🎫" },
     { label: "Stories Suggestion", path: "/admin/stories-suggestion", icon: "💡" },
     { label: "Guide Booking", path: "/admin/guide-booking", icon: "🎯" },
     { label: "Contact", path: "/admin/contact", icon: "📧" },

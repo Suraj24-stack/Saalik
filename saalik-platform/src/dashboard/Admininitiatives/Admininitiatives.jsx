@@ -90,11 +90,12 @@ const AdminInitiative = () => {
 
     const submitData = new FormData();
     submitData.append('title', formData.title);
+    submitData.append('name', formData.title); 
     submitData.append('description', formData.description);
     submitData.append('display_order', formData.display_order);
-    
+    submitData.append('is_active', true); 
     if (imageFile) {
-      submitData.append('icon', imageFile);
+       submitData.append('logo_url', imageFile); 
     } else if (formData.icon) {
       submitData.append('icon', formData.icon);
     }
@@ -155,8 +156,8 @@ const AdminInitiative = () => {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manage Initiatives</h1>
-            <p className="text-gray-600 mt-2">Create, edit, and organize your initiatives</p>
+            <h1 className="text-3xl font-bold text-black">Manage Initiatives</h1>
+            <p className="text-black mt-2">Create, edit, and organize your initiatives</p>
           </div>
           <button
             onClick={handleAddNew}
@@ -210,13 +211,13 @@ const AdminInitiative = () => {
 
                 {/* Content */}
                 <div className="mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  <h3 className="text-xl font-semibold text-black mb-2">
                     {initiative.title}
                   </h3>
-                  <p className="text-gray-600 text-sm line-clamp-3">
+                  <p className="text-black text-sm line-clamp-3">
                     {initiative.description}
                   </p>
-                  <span className="inline-block mt-2 text-xs text-gray-500">
+                  <span className="inline-block mt-2 text-xs text-black">
                     Order: {initiative.display_order}
                   </span>
                 </div>
@@ -249,8 +250,8 @@ const AdminInitiative = () => {
             <div className="text-gray-400 mb-4">
               <ImageIcon size={64} className="mx-auto" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No initiatives yet</h3>
-            <p className="text-gray-500">Get started by creating your first initiative</p>
+            <h3 className="text-xl font-semibold text-black mb-2">No initiatives yet</h3>
+            <p className="text-black">Get started by creating your first initiative</p>
           </div>
         )}
       </div>
@@ -261,7 +262,7 @@ const AdminInitiative = () => {
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-black">
                 {editMode ? 'Edit Initiative' : 'Create New Initiative'}
               </h2>
               <button
@@ -276,7 +277,7 @@ const AdminInitiative = () => {
             <form onSubmit={handleSubmit} className="p-6">
               {/* Title */}
               <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-black mb-2">
                   Title *
                 </label>
                 <input
@@ -285,14 +286,14 @@ const AdminInitiative = () => {
                   value={formData.title}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                   placeholder="Enter initiative title"
                 />
               </div>
 
               {/* Description */}
               <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-black mb-2">
                   Description *
                 </label>
                 <textarea
@@ -301,14 +302,14 @@ const AdminInitiative = () => {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black"
                   placeholder="Enter initiative description"
                 />
               </div>
 
               {/* Display Order */}
               <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-black mb-2">
                   Display Order
                 </label>
                 <input
@@ -317,14 +318,14 @@ const AdminInitiative = () => {
                   value={formData.display_order}
                   onChange={handleInputChange}
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                   placeholder="0"
                 />
               </div>
 
               {/* Image Upload */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-black mb-2">
                   Icon/Image
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
@@ -351,7 +352,7 @@ const AdminInitiative = () => {
                     <span className="text-blue-600 hover:text-blue-700 font-medium">
                       {imagePreview ? 'Change Image' : 'Upload Image'}
                     </span>
-                    <span className="text-xs text-gray-500 mt-1">
+                    <span className="text-xs text-black mt-1">
                       PNG, JPG, JPEG up to 5MB
                     </span>
                   </label>
@@ -363,7 +364,7 @@ const AdminInitiative = () => {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-6 py-3 border border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -397,15 +398,15 @@ const AdminInitiative = () => {
               <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                 <AlertCircle className="text-red-600" size={32} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Initiative</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-black mb-2">Delete Initiative</h3>
+              <p className="text-black">
                 Are you sure you want to delete this initiative? This action cannot be undone.
               </p>
             </div>
             <div className="flex gap-4">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-6 py-3 border border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>

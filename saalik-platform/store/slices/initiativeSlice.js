@@ -7,27 +7,41 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/
 // Async Thunks
 // =====================
 
-// Fetch all initiatives
+// Fetch all initiatives (FIXED: Added authentication)
 export const fetchAllInitiatives = createAsyncThunk(
   "initiative/fetchAll",
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/initiatives`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/initiatives`, {
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        },
+      });
+      console.log('Fetch All Response:', response.data);
       return response.data.data;
     } catch (err) {
+      console.error('Fetch All Error:', err);
       return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
 
-// Fetch single initiative by ID
+// Fetch single initiative by ID (FIXED: Added authentication)
 export const fetchInitiativeById = createAsyncThunk(
   "initiative/fetchById",
   async (id, thunkAPI) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/initiatives/${id}`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/initiatives/${id}`, {
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        },
+      });
+      console.log('Fetch By ID Response:', response.data);
       return response.data.data;
     } catch (err) {
+      console.error('Fetch By ID Error:', err);
       return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
   }
@@ -39,33 +53,51 @@ export const createInitiative = createAsyncThunk(
   async (initiativeData, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
+      
+      // Log the FormData contents for debugging
+      console.log('Creating initiative...');
+      for (let pair of initiativeData.entries()) {
+        console.log(pair[0] + ':', pair[1]);
+      }
+      
       const res = await axios.post(`${API_BASE_URL}/initiatives`, initiativeData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log('Create Response:', res.data);
       return res.data.data;
     } catch (err) {
+      console.error('Create Error:', err.response?.data || err.message);
       return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
 
-// Update initiative (Admin) - THIS WAS MISSING
+// Update initiative (Admin)
 export const updateInitiative = createAsyncThunk(
   "initiative/update",
   async ({ id, data }, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
+      
+      // Log the FormData contents for debugging
+      console.log('Updating initiative with ID:', id);
+      for (let pair of data.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+      
       const res = await axios.put(`${API_BASE_URL}/initiatives/${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log('Update Response:', res.data);
       return res.data.data;
     } catch (err) {
+      console.error('Update Error:', err);
       return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
   }
@@ -80,8 +112,10 @@ export const deleteInitiative = createAsyncThunk(
       await axios.delete(`${API_BASE_URL}/initiatives/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log('Delete Success for ID:', id);
       return id;
     } catch (err) {
+      console.error('Delete Error:', err);
       return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
   }
@@ -168,6 +202,7 @@ const initiativeSlice = createSlice({
         if (index !== -1) {
           state.initiatives[index] = action.payload;
         }
+        state.currentInitiative = action.payload;
         state.success = true;
       })
       .addCase(updateInitiative.rejected, (state, action) => {
