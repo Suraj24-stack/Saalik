@@ -173,7 +173,7 @@ export default function Login() {
     <>
      <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <Navbar/>
-      <div className="pt-20 mt-20 pb-12 px-4 sm:px-6 lg:px-8">
+      <div className="pt-20 mt-10 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           {/* Back Link */}
           <Link
