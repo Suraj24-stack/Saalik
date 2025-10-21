@@ -47,22 +47,78 @@ export default function GuideBookingForm() {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
-      <div className="max-w-lg w-full bg-gray-900 rounded-2xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-green-400">
-          Guide Booking Form
+    <div 
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #000000 0%, #0a3d2e 100%)',
+        padding: '60px 20px',
+        color: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <div 
+        style={{
+          maxWidth: '600px',
+          width: '100%',
+          background: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(10px)',
+          border: '2px solid #2ecc71',
+          borderRadius: '20px',
+          padding: '40px',
+          boxShadow: '0 10px 40px rgba(46, 204, 113, 0.2)'
+        }}
+      >
+        <h1 
+          style={{
+            fontSize: 'clamp(28px, 5vw, 42px)',
+            fontWeight: 'bold',
+            marginBottom: '30px',
+            textAlign: 'center',
+            letterSpacing: '2px',
+            textShadow: '2px 2px 8px rgba(0, 0, 0, 0.8)'
+          }}
+        >
+          <span style={{ color: '#fff' }}>GUIDE </span>
+          <span style={{ color: '#2ecc71', textShadow: '0 0 20px rgba(46, 204, 113, 0.5)' }}>
+            BOOKING FORM
+          </span>
         </h1>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded-lg text-red-200 text-sm">
+          <div 
+            style={{
+              marginBottom: '20px',
+              padding: '15px',
+              background: 'rgba(231, 76, 60, 0.1)',
+              border: '2px solid #e74c3c',
+              borderRadius: '10px',
+              color: '#e74c3c',
+              fontSize: '14px',
+              textAlign: 'center'
+            }}
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
-            <label className="block text-sm mb-1">Full Name *</label>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                marginBottom: '8px',
+                color: '#2ecc71',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Full Name *
+            </label>
             <input
               type="text"
               name="name"
@@ -70,12 +126,37 @@ export default function GuideBookingForm() {
               onChange={handleChange}
               required
               disabled={submitLoading}
-              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '2px solid rgba(46, 204, 113, 0.3)',
+                color: '#fff',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                opacity: submitLoading ? 0.5 : 1,
+                cursor: submitLoading ? 'not-allowed' : 'text'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2ecc71'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(46, 204, 113, 0.3)'}
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Email *</label>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                marginBottom: '8px',
+                color: '#2ecc71',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Email *
+            </label>
             <input
               type="email"
               name="email"
@@ -83,68 +164,235 @@ export default function GuideBookingForm() {
               onChange={handleChange}
               required
               disabled={submitLoading}
-              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '2px solid rgba(46, 204, 113, 0.3)',
+                color: '#fff',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                opacity: submitLoading ? 0.5 : 1,
+                cursor: submitLoading ? 'not-allowed' : 'text'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2ecc71'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(46, 204, 113, 0.3)'}
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Phone</label>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                marginBottom: '8px',
+                color: '#2ecc71',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Phone
+            </label>
             <input
               type="text"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               disabled={submitLoading}
-              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '2px solid rgba(46, 204, 113, 0.3)',
+                color: '#fff',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                opacity: submitLoading ? 0.5 : 1,
+                cursor: submitLoading ? 'not-allowed' : 'text'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2ecc71'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(46, 204, 113, 0.3)'}
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Travel Date</label>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                marginBottom: '8px',
+                color: '#2ecc71',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Travel Date
+            </label>
             <input
               type="date"
               name="travel_date"
               value={formData.travel_date}
               onChange={handleChange}
               disabled={submitLoading}
-              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '2px solid rgba(46, 204, 113, 0.3)',
+                color: '#fff',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                opacity: submitLoading ? 0.5 : 1,
+                cursor: submitLoading ? 'not-allowed' : 'text',
+                colorScheme: 'dark'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2ecc71'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(46, 204, 113, 0.3)'}
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Destination</label>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                marginBottom: '8px',
+                color: '#2ecc71',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Destination
+            </label>
             <input
               type="text"
               name="destination"
               value={formData.destination}
               onChange={handleChange}
               disabled={submitLoading}
-              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '2px solid rgba(46, 204, 113, 0.3)',
+                color: '#fff',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                opacity: submitLoading ? 0.5 : 1,
+                cursor: submitLoading ? 'not-allowed' : 'text'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2ecc71'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(46, 204, 113, 0.3)'}
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Message</label>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                marginBottom: '8px',
+                color: '#2ecc71',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Message
+            </label>
             <textarea
               name="message"
               value={formData.message}
               onChange={handleChange}
-              rows="3"
+              rows="4"
               disabled={submitLoading}
-              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            ></textarea>
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '2px solid rgba(46, 204, 113, 0.3)',
+                color: '#fff',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                opacity: submitLoading ? 0.5 : 1,
+                cursor: submitLoading ? 'not-allowed' : 'text',
+                resize: 'vertical',
+                fontFamily: 'inherit'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#2ecc71'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(46, 204, 113, 0.3)'}
+            />
           </div>
 
           <button
             type="submit"
             disabled={submitLoading}
-            className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold py-2 rounded-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            style={{
+              width: '100%',
+              background: '#2ecc71',
+              color: '#000',
+              border: 'none',
+              padding: '16px',
+              borderRadius: '50px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              letterSpacing: '2px',
+              cursor: submitLoading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              textTransform: 'uppercase',
+              boxShadow: '0 5px 20px rgba(46, 204, 113, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              opacity: submitLoading ? 0.6 : 1,
+              marginTop: '10px'
+            }}
+            onMouseEnter={(e) => {
+              if (!submitLoading) {
+                e.target.style.transform = 'scale(1.05)';
+                e.target.style.boxShadow = '0 8px 30px rgba(46, 204, 113, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1)';
+              e.target.style.boxShadow = '0 5px 20px rgba(46, 204, 113, 0.4)';
+            }}
           >
             {submitLoading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg 
+                  style={{
+                    animation: 'spin 1s linear infinite',
+                    width: '20px',
+                    height: '20px'
+                  }}
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24"
+                >
+                  <circle 
+                    style={{ opacity: 0.25 }} 
+                    cx="12" 
+                    cy="12" 
+                    r="10" 
+                    stroke="currentColor" 
+                    strokeWidth="4"
+                  />
+                  <path 
+                    style={{ opacity: 0.75 }} 
+                    fill="currentColor" 
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
                 </svg>
                 Submitting...
               </>
@@ -157,11 +405,35 @@ export default function GuideBookingForm() {
         <button
           onClick={() => navigate("/guide-booking")}
           disabled={submitLoading}
-          className="mt-4 w-full text-gray-400 hover:text-green-400 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            marginTop: '20px',
+            width: '100%',
+            background: 'transparent',
+            border: 'none',
+            color: submitLoading ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.6)',
+            fontSize: '14px',
+            cursor: submitLoading ? 'not-allowed' : 'pointer',
+            transition: 'color 0.3s ease',
+            padding: '10px'
+          }}
+          onMouseEnter={(e) => {
+            if (!submitLoading) e.target.style.color = '#2ecc71';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.color = 'rgba(255, 255, 255, 0.6)';
+          }}
         >
           ← Back to Guide Booking
         </button>
       </div>
+
+      {/* Add CSS animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

@@ -9,7 +9,7 @@ const GuideBookingSection = () => {
     navigate("/GuideBookingForm");
   };
 
-  // Get guide booking data (you can later replace with Redux/API call)
+  // Get guide booking data from mock (you can replace this with API call later if needed)
   const guideBookingData = mockData.guideBooking;
 
   return (
