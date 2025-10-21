@@ -39,7 +39,8 @@ const GuideBookingPage = () => {
           letterSpacing: '3px',
           lineHeight: '1.3',
           textShadow: '2px 2px 8px rgba(0, 0, 0, 0.8)',
-          padding: '20px'
+          padding: '20px',
+          fontFamily: 'Arial, sans-serif'
         }}>
           <span style={{ 
             color: '#fff'
@@ -163,7 +164,8 @@ const GuideBookingPage = () => {
                         padding: '10px 20px',
                         borderRadius: '25px',
                         fontWeight: 'bold',
-                        fontSize: '14px'
+                        fontSize: '14px',
+                        fontFamily: 'Arial, sans-serif'
                       }}>
                         View Details
                       </span>
@@ -172,7 +174,8 @@ const GuideBookingPage = () => {
                 </div>
 
                 <div style={{
-                  padding: '20px'
+                  padding: '20px',
+                  fontFamily: 'Arial, sans-serif'
                 }}>
                   <div style={{
                     textAlign: 'center',
@@ -216,7 +219,8 @@ const GuideBookingPage = () => {
             padding: '60px 20px',
             fontSize: '18px',
             color: 'rgba(255, 255, 255, 0.5)',
-            marginBottom: '40px'
+            marginBottom: '40px',
+            fontFamily: 'Arial, sans-serif'
           }}>
             <p>Be the first to join our guide booking waitlist!</p>
           </div>
@@ -245,7 +249,8 @@ const GuideBookingPage = () => {
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               textTransform: 'uppercase',
-              boxShadow: '0 5px 20px rgba(46, 204, 113, 0.4)'
+              boxShadow: '0 5px 20px rgba(46, 204, 113, 0.4)',
+              fontFamily: 'Arial, sans-serif'
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'scale(1.05)';

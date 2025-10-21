@@ -4,7 +4,6 @@ import { mockData } from "../data/MockData";
 const StoriesPreview = ({ onViewAll, onStoryClick }) => {
   return (
     <section className="relative bg-gradient-to-br from-emerald-950 via-black to-emerald-950 py-16 md:py-24 px-4 md:px-8 overflow-hidden">
-      
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -13,17 +12,15 @@ const StoriesPreview = ({ onViewAll, onStoryClick }) => {
       </div>
 
       <div className="max-w-7xl mx-auto relative">
-        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          
           {/* Left Side - Text Content */}
           <div className="space-y-6 lg:pr-8 text-center lg:text-left">
-           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            <span className="text-white"> UNTOLD </span>
-            <span className="text-green-400">STORIES</span>
-          </h2>
-            
-            <div className="text-white text-base md:text-lg lg:text-xl leading-relaxed space-y-4 text-justify font-normal">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
+              <span className="text-white"> UNTOLD </span>
+              <span className="text-green-400">STORIES</span>
+            </h2>
+
+            <div className="text-white text-base md:text-lg lg:text-xl leading-relaxed space-y-4 text-justify font-normal" style={{ fontFamily: 'Arial, sans-serif' }}>
               <p>
                 Browse through <span className="text-green-400 font-semibold">SAALIK's</span> ever growing{" "}
                 <span className="text-green-400 font-semibold">database of statues</span> and{" "}
@@ -46,10 +43,8 @@ const StoriesPreview = ({ onViewAll, onStoryClick }) => {
 
           {/* Right Side - Single Image */}
           <div className="relative h-[400px] md:h-[500px] lg:h-[550px]">
-            
             {/* Single Image Container */}
             <div className="relative h-full w-full overflow-hidden group">
-              
               {/* Main Image */}
               {mockData.stories[1]?.image ? (
                 <img
@@ -62,11 +57,8 @@ const StoriesPreview = ({ onViewAll, onStoryClick }) => {
                   <span className="text-9xl opacity-40">🏛️</span>
                 </div>
               )}
-              
             </div>
-
           </div>
-
         </div>
       </div>
     </section>
