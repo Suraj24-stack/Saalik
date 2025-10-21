@@ -12,7 +12,7 @@ export const fetchAllWaitlist = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/waitlist`);
-      return response.data.data; // Assuming response format: { success: true, data: [...] }
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -25,6 +25,19 @@ export const fetchWaitlistById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/waitlist/${id}`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Create new waitlist entry (for form submission)
+export const createWaitlistEntry = createAsyncThunk(
+  'waitlist/create',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/waitlist`, formData);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -52,6 +65,8 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  submitSuccess: false,
+  submitLoading: false,
   // Statistics for dashboard
   stats: {
     total: 0,
@@ -73,6 +88,9 @@ const waitlistSlice = createSlice({
     clearSuccess: (state) => {
       state.success = false;
     },
+    clearSubmitSuccess: (state) => {
+      state.submitSuccess = false;
+    },
     clearSelectedEntry: (state) => {
       state.selectedEntry = null;
     },
@@ -83,13 +101,6 @@ const waitlistSlice = createSlice({
       state.stats.contacted = state.waitlist.filter(item => item.status === 'contacted').length;
       state.stats.approved = state.waitlist.filter(item => item.status === 'approved').length;
       state.stats.rejected = state.waitlist.filter(item => item.status === 'rejected').length;
-    },
-    // Filter waitlist by status (client-side filtering)
-    filterByStatus: (state, action) => {
-      if (action.payload === 'all') {
-        return; // Show all entries
-      }
-      // This won't modify the state, but you can use a selector instead
     },
   },
   extraReducers: (builder) => {
@@ -130,6 +141,25 @@ const waitlistSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Create waitlist entry
+      .addCase(createWaitlistEntry.pending, (state) => {
+        state.submitLoading = true;
+        state.error = null;
+        state.submitSuccess = false;
+      })
+      .addCase(createWaitlistEntry.fulfilled, (state, action) => {
+        state.submitLoading = false;
+        state.submitSuccess = true;
+        state.error = null;
+        // Optionally add to waitlist array
+        state.waitlist.unshift(action.payload);
+      })
+      .addCase(createWaitlistEntry.rejected, (state, action) => {
+        state.submitLoading = false;
+        state.error = action.payload;
+        state.submitSuccess = false;
+      })
+
       // Update waitlist status
       .addCase(updateWaitlistStatus.pending, (state) => {
         state.loading = true;
@@ -167,10 +197,10 @@ const waitlistSlice = createSlice({
 
 export const { 
   clearError, 
-  clearSuccess, 
+  clearSuccess,
+  clearSubmitSuccess,
   clearSelectedEntry,
   calculateStats,
-  filterByStatus 
 } = waitlistSlice.actions;
 
 // Selectors for filtering

@@ -2,28 +2,37 @@ import React from "react";
 import { mockData } from "../data/MockData";
 import { useNavigate } from "react-router-dom";
 
-const GuideBookingSection = ({ onJoinWaitlist }) => {
+const GuideBookingSection = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate("/GuideBookingForm"); // navigate when button clicked
+    navigate("/GuideBookingForm");
   };
+
+  // Get guide booking data (you can later replace with Redux/API call)
+  const guideBookingData = mockData.guideBooking;
 
   return (
     <section className="bg-gradient-to-b from-black via-black to-green-900 py-20 px-4 border-t border-green-600/30">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Image - LEFT SIDE */}
         <div className="flex justify-center bg-gradient-to-b from-black to-transparent">
-          <img
-            src={mockData.guideBooking.image}
-            alt={mockData.guideBooking.imageAlt}
-            className="w-full max-w-md object-cover mix-blend-lighten"
-          />
+          {guideBookingData.image ? (
+            <img
+              src={guideBookingData.image}
+              alt={guideBookingData.imageAlt || "Guide Booking"}
+              className="w-full max-w-md object-cover mix-blend-lighten"
+            />
+          ) : (
+            <div className="w-full max-w-md h-96 flex items-center justify-center bg-gray-800 rounded-lg">
+              <span className="text-6xl opacity-30">🗺️</span>
+            </div>
+          )}
         </div>
 
         {/* Text & Button - RIGHT SIDE */}
         <div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8">
             <span className="text-white">GUIDE </span>
             <span className="text-green-400">BOOKING</span>
           </h2>
