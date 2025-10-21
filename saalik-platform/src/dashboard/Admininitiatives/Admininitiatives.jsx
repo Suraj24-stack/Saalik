@@ -1,72 +1,74 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllInitiatives, createInitiative, deleteInitiative, clearError, clearSuccess } from "../../../store/slices/initiativeSlice";
 
-export default function Admininitiatives() {
-  const [initiatives, setInitiatives] = useState([]);
-  const [form, setForm] = useState({ name: "", description: "", logo: null });
+const AdminInitiatives = () => {
+  const dispatch = useDispatch();
+  const { initiatives, loading, error, success } = useSelector(state => state.initiative);
 
-  const fetchData = async () => {
-    const data = await getInitiatives();
-    setInitiatives(data);
-  };
+  const [formData, setFormData] = useState({
+    name: "",
+    logo: null,
+    description: "",
+    website: "",
+    display_order: 0
+  });
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    dispatch(fetchAllInitiatives());
+  }, [dispatch]);
 
-  const handleSubmit = async (e) => {
+  const handleChange = e => {
+    const { name, value, files } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: files ? files[0] : value
+    }));
+  };
+
+  const handleSubmit = e => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("description", form.description);
-    if (form.logo) formData.append("logo", form.logo);
-
-    await addInitiative(formData);
-    setForm({ name: "", description: "", logo: null });
-    fetchData();
+    const data = new FormData();
+    Object.keys(formData).forEach(key => {
+      if (formData[key] !== null) data.append(key, formData[key]);
+    });
+    dispatch(createInitiative(data));
+    setFormData({ name: "", logo: null, description: "", website: "", display_order: 0 });
   };
 
   return (
-    <div className="p-6 text-white">
-      <h2 className="text-2xl font-bold mb-4">Admin Initiatives</h2>
+    <div className="p-8">
+      <h2 className="text-2xl font-bold mb-6">Admin Initiatives</h2>
+
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {success && <div className="text-green-500 mb-4">Action successful!</div>}
 
       <form onSubmit={handleSubmit} className="mb-6 flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="Initiative Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="p-2 rounded bg-gray-800"
-        />
-        <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="p-2 rounded bg-gray-800"
-        />
-        <input
-          type="file"
-          onChange={(e) => setForm({ ...form, logo: e.target.files[0] })}
-          className="p-2 rounded bg-gray-800"
-        />
-        <button
-          type="submit"
-          className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-300"
-        >
-          Add Initiative
-        </button>
+        <input type="text" placeholder="Name" name="name" value={formData.name} onChange={handleChange} className="border p-2 rounded" required />
+        <input type="file" name="logo" onChange={handleChange} className="border p-2 rounded" />
+        <input type="text" placeholder="Description" name="description" value={formData.description} onChange={handleChange} className="border p-2 rounded" />
+        <input type="text" placeholder="Website" name="website" value={formData.website} onChange={handleChange} className="border p-2 rounded" />
+        <input type="number" placeholder="Display Order" name="display_order" value={formData.display_order} onChange={handleChange} className="border p-2 rounded" />
+        <button type="submit" className="bg-green-500 text-white p-2 rounded hover:bg-green-600">Add Initiative</button>
       </form>
 
-      <div>
-        <h3 className="text-xl font-semibold mb-2">Existing Initiatives</h3>
+      <h3 className="text-xl font-bold mb-4">Existing Initiatives</h3>
+      {loading ? <p>Loading...</p> :
         <ul className="space-y-2">
-          {initiatives.map((item) => (
-            <li key={item.id} className="bg-gray-900 p-2 rounded flex justify-between items-center">
-              <span>{item.name}</span>
-              <img src={item.logo_url} alt={item.name} className="w-12 h-12 object-contain"/>
+          {initiatives.map(i => (
+            <li key={i.id} className="border p-2 rounded flex justify-between items-center">
+              <div>
+                <p className="font-bold">{i.name}</p>
+                {i.logo_url && <img src={i.logo_url.startsWith("http") ? i.logo_url : `${import.meta.env.VITE_API_URL}${i.logo_url}`} alt={i.name} className="w-20 h-20 object-contain" />}
+                <p>{i.description}</p>
+              </div>
+              <button onClick={() => dispatch(deleteInitiative(i.id))} className="text-red-500 hover:text-red-700">Delete</button>
             </li>
           ))}
         </ul>
-      </div>
+      }
     </div>
   );
-}
+};
+
+export default AdminInitiatives;

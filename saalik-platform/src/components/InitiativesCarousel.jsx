@@ -1,102 +1,62 @@
-import React, { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { mockData } from "../data/MockData";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllInitiatives } from "../../store/slices/initiativeSlice";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 const InitiativesCarousel = () => {
+  const dispatch = useDispatch();
+  const { initiatives, loading, error } = useSelector(state => state.initiative);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const initiatives = mockData.initiatives;
   const itemsPerView = 4;
 
+  useEffect(() => { dispatch(fetchAllInitiatives()); }, [dispatch]);
   const totalSlides = Math.ceil(initiatives.length / itemsPerView);
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  if (loading) return <Loader2 className="animate-spin text-green-400" size={48} />;
+
+  if (error) return <p className="text-red-500 text-center mt-4">Failed to load initiatives: {error}</p>;
+
+  if (initiatives.length === 0) return <p className="text-gray-400 text-center mt-4">No initiatives available.</p>;
 
   return (
-    <section className="bg-gradient-to-b from-gray-900 to-black py-16 px-4">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-          <span className="text-white">OUR </span>
-          <span className="text-green-400">INITIATIVES</span>
-        </h2>
+    <section className="py-12 px-4 bg-gradient-to-b from-black via-gray-900 to-black">
+      <h2 className="text-3xl font-bold text-center mb-12 text-white">
+        OUR <span className="text-green-400">INITIATIVES</span>
+      </h2>
 
-        <div className="relative">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 px-12">
-            {initiatives
-              .slice(
-                currentIndex * itemsPerView,
-                currentIndex * itemsPerView + itemsPerView
-              )
-              .map((initiative) => (
-                <div 
-                  key={initiative.id} 
-                  className="flex flex-col items-center text-center group cursor-pointer"
-                >
-                  
-                  {/* Logo Image */}
-                  <div className="relative w-32 h-32 mb-6 flex items-center justify-center">
-                    {initiative.logo ? (
-                      <img
-                        src={initiative.logo}
-                        alt={initiative.name}
-                        className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-110"
-                        onError={(e) => {
-                          console.error('Logo failed to load:', initiative.logo);
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-800/50 rounded-lg">
-                        <span className="text-5xl opacity-30">🏛️</span>
-                      </div>
-                    )}
-                  </div>
-
-                 
-                </div>
-              ))}
-          </div>
-
-          {/* Navigation Arrows */}
-          {initiatives.length > itemsPerView && (
-            <>
-              <button
-                onClick={() =>
-                  setCurrentIndex(
-                    (prev) => (prev - 1 + totalSlides) % totalSlides
-                  )
-                }
-                className="absolute left-0 top-1/2 -translate-y-1/2 text-green-400 hover:text-green-300 transition-colors bg-green-400/10 hover:bg-green-400/20 rounded-full p-2 backdrop-blur-sm"
-                aria-label="Previous"
-              >
-                <ChevronLeft size={32} strokeWidth={2.5} />
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentIndex((prev) => (prev + 1) % totalSlides)
-                }
-                className="absolute right-0 top-1/2 -translate-y-1/2 text-green-400 hover:text-green-300 transition-colors bg-green-400/10 hover:bg-green-400/20 rounded-full p-2 backdrop-blur-sm"
-                aria-label="Next"
-              >
-                <ChevronRight size={32} strokeWidth={2.5} />
-              </button>
-            </>
-          )}
+      <div className="relative max-w-6xl mx-auto">
+        <div className="flex justify-center gap-8 overflow-hidden">
+          {initiatives
+            .slice(currentIndex * itemsPerView, currentIndex * itemsPerView + itemsPerView)
+            .map(i => (
+              <div key={i.id} className="w-32 h-32 flex items-center justify-center">
+                {i.logo_url && (
+                  <img
+                    src={i.logo_url.startsWith("http") ? i.logo_url : `${API_BASE_URL}${i.logo_url}`}
+                    alt={i.name}
+                    className="object-contain w-full h-full hover:scale-110 transition-transform"
+                  />
+                )}
+              </div>
+            ))}
         </div>
 
-        {/* Optional: Pagination Dots */}
-        {totalSlides > 1 && (
-          <div className="flex justify-center gap-2 mt-12">
-            {Array.from({ length: totalSlides }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? "bg-green-400 w-8"
-                    : "bg-gray-600 w-2 hover:bg-gray-500"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
+        {initiatives.length > itemsPerView && (
+          <>
+            <button
+              onClick={() => setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides)}
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-green-400/20 hover:bg-green-400/40 p-2 rounded-full"
+            >
+              <ChevronLeft size={32} className="text-white" />
+            </button>
+            <button
+              onClick={() => setCurrentIndex((prev) => (prev + 1) % totalSlides)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-green-400/20 hover:bg-green-400/40 p-2 rounded-full"
+            >
+              <ChevronRight size={32} className="text-white" />
+            </button>
+          </>
         )}
       </div>
     </section>
