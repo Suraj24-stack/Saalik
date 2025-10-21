@@ -14,8 +14,10 @@ import AdminContactPage from "./AdminContact/Contact";
 import AdminGuideBookingPage from "./AdminGuide/Guide";
 import AdminTicketBookingPage from "./AdminTicket/Ticket";
 import AdminStoriesSuggestionPage from "./AdminStoriesSuggestion/StoriesSuggestion";
+import Admininitiatives from "./Admininitiatives/Admininitiatives";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -69,12 +71,12 @@ export default function Dashboard() {
             <Route path="guide-booking" element={<AdminGuideBookingPage />} />
             <Route path="contact" element={<AdminContactPage />} />
             <Route path="in-association" element={<AdminAssociationPage />} />
+            <Route path="initiatives" element={<Admininitiatives/>} />
           </Routes>
         </main>
       </div>
     </div>
     <Footer/>
     </>
-    
   );
 }
