@@ -4,22 +4,33 @@ import axios from 'axios';
 // Configure your API base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
+// Helper function to get auth config with JWT token
+const getAuthConfig = () => {
+  const token = localStorage.getItem('token');
+  return {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  };
+};
+
 // Async thunks for API calls
 
-// Fetch all partners
+// Fetch all partners (PUBLIC - no auth needed)
 export const fetchAllPartners = createAsyncThunk(
   'partner/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/partners`);
-      return response.data.data; // Assuming response format: { success: true, data: [...] }
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// Fetch partner by ID
+// Fetch partner by ID (PUBLIC - no auth needed)
 export const fetchPartnerById = createAsyncThunk(
   'partner/fetchById',
   async (id, { rejectWithValue }) => {
@@ -32,40 +43,67 @@ export const fetchPartnerById = createAsyncThunk(
   }
 );
 
-// Create new partner
+// Create new partner (PROTECTED - requires JWT)
 export const createPartner = createAsyncThunk(
   'partner/create',
   async (partnerData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/partners`, partnerData);
+      const response = await axios.post(
+        `${API_BASE_URL}/partners`, 
+        partnerData,
+        getAuthConfig()
+      );
       return response.data.data;
     } catch (error) {
+      if (error.response?.status === 401) {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return rejectWithValue('Session expired. Please login again.');
+      }
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// Update partner
+// Update partner (PROTECTED - requires JWT)
 export const updatePartner = createAsyncThunk(
   'partner/update',
   async ({ id, partnerData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/partners/${id}`, partnerData);
+      const response = await axios.put(
+        `${API_BASE_URL}/partners/${id}`, 
+        partnerData,
+        getAuthConfig()
+      );
       return response.data.data;
     } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return rejectWithValue('Session expired. Please login again.');
+      }
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// Delete partner
+// Delete partner (PROTECTED - requires JWT)
 export const deletePartner = createAsyncThunk(
   'partner/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_BASE_URL}/partners/${id}`);
-      return id; // Return the deleted partner's ID
+      await axios.delete(
+        `${API_BASE_URL}/partners/${id}`,
+        getAuthConfig()
+      );
+      return id;
     } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return rejectWithValue('Session expired. Please login again.');
+      }
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
