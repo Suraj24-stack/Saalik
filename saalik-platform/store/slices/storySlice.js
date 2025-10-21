@@ -4,6 +4,17 @@ import axios from 'axios';
 // Configure your API base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token'); // or your storage method
+  return {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  };
+};
+
 // Async thunks for API calls
 
 // Fetch all stories
@@ -11,8 +22,8 @@ export const fetchAllStories = createAsyncThunk(
   'story/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/stories`);
-      return response.data.data; // Assuming response format: { success: true, data: [...] }
+      const response = await axios.get(`${API_BASE_URL}/stories`, getAuthHeaders());
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -24,7 +35,7 @@ export const fetchStoryById = createAsyncThunk(
   'story/fetchById',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/stories/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/stories/${id}`, getAuthHeaders());
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -37,7 +48,7 @@ export const createStory = createAsyncThunk(
   'story/create',
   async (storyData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/stories`, storyData);
+      const response = await axios.post(`${API_BASE_URL}/stories`, storyData, getAuthHeaders());
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -50,7 +61,7 @@ export const updateStory = createAsyncThunk(
   'story/update',
   async ({ id, storyData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/stories/${id}`, storyData);
+      const response = await axios.put(`${API_BASE_URL}/stories/${id}`, storyData, getAuthHeaders());
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -63,8 +74,8 @@ export const deleteStory = createAsyncThunk(
   'story/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_BASE_URL}/stories/${id}`);
-      return id; // Return the deleted story's ID
+      await axios.delete(`${API_BASE_URL}/stories/${id}`, getAuthHeaders());
+      return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -135,7 +146,7 @@ const storySlice = createSlice({
       })
       .addCase(createStory.fulfilled, (state, action) => {
         state.loading = false;
-        state.stories.unshift(action.payload); // Add to beginning of array
+        state.stories.unshift(action.payload);
         state.success = true;
         state.error = null;
       })

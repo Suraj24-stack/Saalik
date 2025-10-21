@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 import {
   LoginUser,
@@ -169,8 +171,10 @@ export default function Login() {
   const displaySuccessMessage = getSuccessMessage();
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+    <>
+     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Navbar/>
+      <div className="pt-20 mt-20 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           {/* Back Link */}
           <Link
@@ -194,7 +198,7 @@ export default function Login() {
           )}
 
           {/* Login Card */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8 space-y-8">
+          <div className="bg-white/80 mt-20 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8 space-y-8">
             {/* Header */}
             <div className="text-center space-y-4">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
@@ -411,5 +415,8 @@ export default function Login() {
         </div>
       </div>
     </main>
+    <Footer/>
+    </>
+   
   );
 }

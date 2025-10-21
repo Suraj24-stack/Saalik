@@ -27,18 +27,24 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 // Allowed Origins (comma-separated in .env)
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8081'];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-}));
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  }));
+
+// app.use(cors({
+//   origin: "http://localhost:5173", // your frontend URL
+//   credentials: true,               // if using cookies or auth headers
+// }));
+
 
 // Static file serving
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/uploads', express.static('uploads'));
 
 // -------------------------------
 // 📦 API Routes

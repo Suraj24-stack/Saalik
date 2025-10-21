@@ -3,7 +3,7 @@ import React from "react";
 const AdminNavbar = () => {
   return (
     <nav className="bg-gray-800 p-4">
-      <div className="container mt-20 mx-auto flex space-x-4">
+      <div className="container mt-17 mx-auto flex space-x-4">
         <a href="#home" className="text-white hover:bg-gray-700 px-3 py-2 rounded">
           Home
         </a>
