@@ -68,7 +68,6 @@ export default function Login() {
   useEffect(() => {
     if (successMessage || verificationSuccess || resetSuccess) {
       const timer = setTimeout(() => {
-        // Replace current url params with clean /login
         navigate("/login", { replace: true });
       }, 5000);
       return () => clearTimeout(timer);
@@ -172,14 +171,14 @@ export default function Login() {
 
   return (
     <>
-     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <Navbar/>
       <div className="pt-20 mt-20 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           {/* Back Link */}
           <Link
             to="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-8 transition-all duration-200 hover:translate-x-1 group"
+            className="inline-flex items-center text-emerald-400 hover:text-emerald-300 mb-8 transition-all duration-200 hover:translate-x-1 group"
           >
             <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
             Back to Home
@@ -187,10 +186,10 @@ export default function Login() {
 
           {/* Success Message */}
           {displaySuccessMessage && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-start animate-fadeIn">
-              <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+            <div className="bg-emerald-900/30 border border-emerald-500/50 rounded-xl p-4 mb-6 flex items-start animate-fadeIn backdrop-blur-sm">
+              <CheckCircle className="w-5 h-5 text-emerald-400 mt-0.5 mr-3 flex-shrink-0" />
               <div>
-                <p className="text-green-700 text-sm font-medium">
+                <p className="text-emerald-300 text-sm font-medium">
                   {displaySuccessMessage}
                 </p>
               </div>
@@ -198,15 +197,15 @@ export default function Login() {
           )}
 
           {/* Login Card */}
-          <div className="bg-white/80 mt-20 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8 space-y-8">
+          <div className="bg-gradient-to-br from-gray-800/90 via-gray-900/90 to-black/90 backdrop-blur-sm rounded-3xl shadow-2xl border-2 border-emerald-500/30 p-8 space-y-8">
             {/* Header */}
             <div className="text-center space-y-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/50">
                 <LogIn className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-                <p className="text-gray-600 leading-relaxed">
+                <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+                <p className="text-gray-400 leading-relaxed">
                   Sign in to your account to continue your study abroad journey
                 </p>
               </div>
@@ -215,30 +214,30 @@ export default function Login() {
             {/* Error Message */}
             {error && (
               <div
-                className={`rounded-xl p-4 animate-fadeIn border ${
+                className={`rounded-xl p-4 animate-fadeIn border backdrop-blur-sm ${
                   isEmailVerificationError
-                    ? "bg-orange-50 border-orange-200"
+                    ? "bg-orange-900/30 border-orange-500/50"
                     : isAccountStatusError
-                    ? "bg-yellow-50 border-yellow-200"
-                    : "bg-red-50 border-red-200"
+                    ? "bg-yellow-900/30 border-yellow-500/50"
+                    : "bg-red-900/30 border-red-500/50"
                 }`}
               >
                 <div className="flex items-start space-x-3">
                   {isEmailVerificationError ? (
-                    <Mail className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                    <Mail className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
                   ) : isAccountStatusError ? (
-                    <Shield className="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+                    <Shield className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
                   ) : (
-                    <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
                   )}
                   <div className="flex-1">
                     <p
                       className={`text-sm font-medium ${
                         isEmailVerificationError
-                          ? "text-orange-700"
+                          ? "text-orange-300"
                           : isAccountStatusError
-                          ? "text-yellow-700"
-                          : "text-red-700"
+                          ? "text-yellow-300"
+                          : "text-red-300"
                       }`}
                     >
                       {isEmailVerificationError
@@ -250,10 +249,10 @@ export default function Login() {
                     <p
                       className={`text-sm mt-1 ${
                         isEmailVerificationError
-                          ? "text-orange-600"
+                          ? "text-orange-400"
                           : isAccountStatusError
-                          ? "text-yellow-600"
-                          : "text-red-600"
+                          ? "text-yellow-400"
+                          : "text-red-400"
                       }`}
                     >
                       {error}
@@ -267,16 +266,16 @@ export default function Login() {
             <form id="loginForm" onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Email Address</label>
+                <label className="block text-sm font-semibold text-emerald-400">Email Address *</label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/50 hover:bg-white text-gray-900 placeholder-gray-500"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-emerald-500/30 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-900/50 hover:bg-gray-900/70 text-white placeholder-gray-500 transition-all"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -284,22 +283,22 @@ export default function Login() {
 
               {/* Password */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Password</label>
+                <label className="block text-sm font-semibold text-emerald-400">Password *</label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className="w-full pl-12 pr-14 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/50 hover:bg-white text-gray-900 placeholder-gray-500"
+                    className="w-full pl-12 pr-14 py-4 border-2 border-emerald-500/30 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-900/50 hover:bg-gray-900/70 text-white placeholder-gray-500 transition-all"
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-emerald-400 p-1 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -313,13 +312,13 @@ export default function Login() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-emerald-600 border-gray-600 rounded focus:ring-emerald-500 bg-gray-800"
                   />
-                  <span className="ml-3 text-sm text-gray-600 font-medium">Remember me</span>
+                  <span className="ml-3 text-sm text-gray-300 font-medium">Remember me</span>
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -331,8 +330,8 @@ export default function Login() {
                 disabled={isLoading || !isFormValid}
                 className={`w-full font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-2 shadow-lg transition-all ${
                   isLoading || !isFormValid
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                    ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                    : "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 shadow-emerald-500/50"
                 }`}
               >
                 {isLoading ? (
@@ -349,74 +348,23 @@ export default function Login() {
               </button>
             </form>
 
-            {/* Divider */}
-            
-
             {/* Sign Up */}
             <div className="space-y-4">
-              <Link
+              {/* <Link
                 to="/register"
-                className="inline-flex items-center justify-center w-full py-4 px-6 border-2 border-blue-600 text-blue-600 font-semibold rounded-xl hover:bg-blue-600 hover:text-white transition-all"
+                className="inline-flex items-center justify-center w-full py-4 px-6 border-2 border-emerald-500/50 text-emerald-400 font-semibold rounded-xl hover:bg-emerald-500/10 hover:border-emerald-400 transition-all space-x-2"
               >
                 <BookOpen className="w-5 h-5" />
                 <span>Create New Account</span>
-              </Link>
+              </Link> */}
 
-              {/* Demo Credentials */}
-              <button
-                type="button"
-                onClick={() => setShowDemoCredentials(!showDemoCredentials)}
-                className="inline-flex items-center justify-center w-full py-3 px-6 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 text-purple-600 font-medium rounded-xl hover:from-purple-100 hover:to-blue-100"
-              >
-                <Shield className="w-4 h-4" />
-                <span>Quick Demo Login</span>
-              </button>
-            </div>
-
-            {/* Demo Panel */}
-            {showDemoCredentials && (
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-2xl p-6 space-y-4 animate-fadeIn">
-                <div className="flex items-center space-x-2 mb-3">
-                  <Shield className="w-5 h-5 text-blue-600" />
-                  <h3 className="text-sm font-bold text-gray-700">Demo Credentials</h3>
-                </div>
-                <div className="grid gap-3">
-                  {demoCredentials.map((cred, index) => {
-                    const IconComponent = cred.icon;
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => fillDemoCredentials(cred)}
-                        className="text-left p-4 bg-white/60 hover:bg-white rounded-lg border border-white/40 hover:border-blue-200 group"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                            <IconComponent className="w-5 h-5 text-blue-600" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-gray-700">{cred.type} Account</p>
-                            <p className="text-xs text-gray-500 mt-1">{cred.description}</p>
-                          </div>
-                          <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100">
-                            Click to use
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="text-xs text-gray-500 text-center pt-2 border-t border-blue-100">
-                  These are test accounts for demonstration purposes
-                </div>
-              </div>
-            )}
+             
+            </div>    
           </div>
         </div>
       </div>
     </main>
     <Footer/>
     </>
-   
   );
 }
