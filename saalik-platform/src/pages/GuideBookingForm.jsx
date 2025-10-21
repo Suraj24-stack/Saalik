@@ -124,7 +124,7 @@ export default function GuideBookingForm() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
+              required  
               disabled={submitLoading}
               style={{
                 width: '100%',

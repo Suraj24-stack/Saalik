@@ -78,18 +78,18 @@ const AboutSection = () => (
         </div>
 
         {/* Right Side - Text Content */}
-        <div className="space-y-6 lg:pl-8">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+         <div className="space-y-6 lg:pl-8">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
             <span className="text-white">WHAT IS </span>
-            <span className="text-green-400">SAALIK ?</span>
+            <span className="text-green-400">SAALIK?</span>
           </h2>
           
-          <div className="space-y-6 text-white text-base md:text-lg lg:text-xl leading-relaxed mb-10 text-justify">
+          <div className="space-y-6 text-white text-base md:text-lg lg:text-xl leading-relaxed mb-10 text-justify" style={{ fontFamily: 'Arial, sans-serif' }}>
             <p>
               <span className="text-green-400 font-bold">SAALIK</span> is a cultural tourism and heritage platform dedicated to{" "}
               <span className="text-green-400 font-semibold">preserving</span>, promoting, and showcasing{" "}
               <span className="text-green-400 font-semibold">Nepal's statues and sculptures/culture</span>. By blending technology with tradition, we provide travelers, researchers, and culture enthusiasts with an{" "}
-              <span className="text-green-400 font-semibold">authentic</span> digital experience. Our mission is to centralize and{" "}
+              <span className="text-green-400 font-semibold">authentic digital experience</span>. Our mission is to centralize and{" "}
               <span className="text-green-400 font-semibold">digitalize information</span> on Nepal's cultural heritage, making it accessible worldwide. We envision becoming the leading platform for digital heritage tourism and{" "}
               <span className="text-green-400 font-semibold">cultural preservation</span> in Nepal, bridging the gap between history and innovation. With features such as{" "}
               <span className="text-green-400 font-semibold">AI based statue recognition</span>, a verified{" "}
