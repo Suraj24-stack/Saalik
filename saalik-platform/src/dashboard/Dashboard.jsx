@@ -14,7 +14,7 @@ import AdminContactPage from "./AdminContact/Contact";
 import AdminGuideBookingPage from "./AdminGuide/Guide";
 import AdminTicketBookingPage from "./AdminTicket/Ticket";
 import AdminStoriesSuggestionPage from "./AdminStoriesSuggestion/StoriesSuggestion";
-import Admininitiatives from "./Admininitiatives/Admininitiatives";
+import AdminInitiative from "../dashboard/Admininitiatives/Admininitiatives";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -64,7 +64,6 @@ export default function Dashboard() {
         <main className="flex-1 text-white p-6 overflow-auto">
           <Routes>
             <Route path="/" element={<Navigate to="/admin/users" replace />} />
-            <Route path="initiatives" element={<Admininitiatives/>} />
             <Route path="users" element={<SaalikUserPage />} />
             <Route path="story" element={<AdminStoriesPage />} />
             <Route path="ticket-booking" element={<AdminTicketBookingPage />} />
@@ -72,6 +71,7 @@ export default function Dashboard() {
             <Route path="guide-booking" element={<AdminGuideBookingPage />} />
             <Route path="contact" element={<AdminContactPage />} />
             <Route path="in-association" element={<AdminAssociationPage />} />
+            <Route path="initiatives" element={<AdminInitiative />} />
           </Routes>
         </main>
       </div>

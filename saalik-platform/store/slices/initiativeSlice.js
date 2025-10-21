@@ -20,6 +20,19 @@ export const fetchAllInitiatives = createAsyncThunk(
   }
 );
 
+// Fetch single initiative by ID
+export const fetchInitiativeById = createAsyncThunk(
+  "initiative/fetchById",
+  async (id, thunkAPI) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/initiatives/${id}`);
+      return response.data.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 // Create new initiative (Admin)
 export const createInitiative = createAsyncThunk(
   "initiative/create",
@@ -27,6 +40,25 @@ export const createInitiative = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(`${API_BASE_URL}/initiatives`, initiativeData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return res.data.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// Update initiative (Admin) - THIS WAS MISSING
+export const updateInitiative = createAsyncThunk(
+  "initiative/update",
+  async ({ id, data }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`${API_BASE_URL}/initiatives/${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -62,17 +94,25 @@ const initiativeSlice = createSlice({
   name: "initiative",
   initialState: {
     initiatives: [],
+    currentInitiative: null,
     loading: false,
     error: null,
     success: false,
   },
   reducers: {
-    clearError: (state) => { state.error = null; },
-    clearSuccess: (state) => { state.success = false; },
+    clearError: (state) => { 
+      state.error = null; 
+    },
+    clearSuccess: (state) => { 
+      state.success = false; 
+    },
+    setCurrentInitiative: (state, action) => {
+      state.currentInitiative = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch
+      // Fetch All
       .addCase(fetchAllInitiatives.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -85,6 +125,21 @@ const initiativeSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      
+      // Fetch By ID
+      .addCase(fetchInitiativeById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInitiativeById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentInitiative = action.payload;
+      })
+      .addCase(fetchInitiativeById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
       // Create
       .addCase(createInitiative.pending, (state) => {
         state.loading = true;
@@ -100,6 +155,26 @@ const initiativeSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      
+      // Update
+      .addCase(updateInitiative.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(updateInitiative.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.initiatives.findIndex(i => i.id === action.payload.id);
+        if (index !== -1) {
+          state.initiatives[index] = action.payload;
+        }
+        state.success = true;
+      })
+      .addCase(updateInitiative.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
       // Delete
       .addCase(deleteInitiative.pending, (state) => {
         state.loading = true;
@@ -119,5 +194,5 @@ const initiativeSlice = createSlice({
 });
 
 // Exports
-export const { clearError, clearSuccess } = initiativeSlice.actions;
+export const { clearError, clearSuccess, setCurrentInitiative } = initiativeSlice.actions;
 export default initiativeSlice.reducer;
