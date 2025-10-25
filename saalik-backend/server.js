@@ -32,8 +32,6 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://local
 //   credentials: true
 // }));
 
-
-
   app.use(cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
