@@ -1,427 +1,393 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchAllInitiatives,
-  createInitiative,
-  updateInitiative,
-  deleteInitiative,
-  clearError,
-  clearSuccess,
-} from '../../../store/slices/initiativeSlice';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  X, 
-  Image as ImageIcon,
-  AlertCircle,
-  CheckCircle,
-  Loader
-} from 'lucide-react';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const AdminInitiative = () => {
-  const dispatch = useDispatch();
-  const { initiatives, loading, error, success } = useSelector((state) => state.initiative);
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
-  // Modal state
-  const [showModal, setShowModal] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [currentId, setCurrentId] = useState(null);
+// =====================
+// Async Thunks
+// =====================
 
-  // Form state
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    icon: '',
-    display_order: 0,
-  });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-
-  // Delete confirmation
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
-
-  // Fetch initiatives on mount
-  useEffect(() => {
-    dispatch(fetchAllInitiatives());
-  }, [dispatch]);
-
-  // Handle success/error notifications
-  useEffect(() => {
-    if (success) {
-      setTimeout(() => {
-        dispatch(clearSuccess());
-        handleCloseModal();
-      }, 2000);
+// Fetch all initiatives (with optional filters)
+export const fetchAllInitiatives = createAsyncThunk(
+  "initiative/fetchAll",
+  async ({ isActive = null, sortBy = 'display_order' } = {}, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      let url = `${API_BASE_URL}/initiatives?sortBy=${sortBy}`;
+      
+      if (isActive !== null) {
+        url += `&isActive=${isActive}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        },
+      });
+      console.log('Fetch All Response:', response.data);
+      return response.data.data || response.data;
+    } catch (err) {
+      console.error('Fetch All Error:', err);
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
-  }, [success, dispatch]);
+  }
+);
 
-  useEffect(() => {
-    if (error) {
-      setTimeout(() => {
-        dispatch(clearError());
-      }, 5000);
+// Fetch single initiative by ID
+export const fetchInitiativeById = createAsyncThunk(
+  "initiative/fetchById",
+  async (id, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/initiatives/${id}`, {
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        },
+      });
+      console.log('Fetch By ID Response:', response.data);
+      return response.data.data || response.data;
+    } catch (err) {
+      console.error('Fetch By ID Error:', err);
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
-  }, [error, dispatch]);
+  }
+);
 
-  // Form handlers
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === 'display_order' ? parseInt(value) || 0 : value,
-    }));
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+// Create new initiative (Admin)
+export const createInitiative = createAsyncThunk(
+  "initiative/create",
+  async (initiativeData, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      const formData = new FormData();
+      
+      // Append all fields from the model
+      if (initiativeData.name) formData.append('name', initiativeData.name);
+      if (initiativeData.description) formData.append('description', initiativeData.description);
+      if (initiativeData.website) formData.append('website', initiativeData.website);
+      if (initiativeData.display_order !== undefined) formData.append('display_order', initiativeData.display_order);
+      if (initiativeData.is_active !== undefined) formData.append('is_active', initiativeData.is_active);
+      
+      // Handle logo file upload
+      if (initiativeData.logo && initiativeData.logo instanceof File) {
+        formData.append('logo', initiativeData.logo);
+      }
+      
+      // Log the FormData contents for debugging
+      console.log('Creating initiative...');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ':', pair[1]);
+      }
+      
+      const res = await axios.post(`${API_BASE_URL}/initiatives`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log('Create Response:', res.data);
+      return res.data.data || res.data;
+    } catch (err) {
+      console.error('Create Error:', err.response?.data || err.message);
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
-  };
+  }
+);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const submitData = new FormData();
-    submitData.append('title', formData.title);
-    submitData.append('name', formData.title); 
-    submitData.append('description', formData.description);
-    submitData.append('display_order', formData.display_order);
-    submitData.append('is_active', true); 
-    if (imageFile) {
-       submitData.append('logo_url', imageFile); 
-    } else if (formData.icon) {
-      submitData.append('icon', formData.icon);
+// Update initiative (Admin)
+export const updateInitiative = createAsyncThunk(
+  "initiative/update",
+  async ({ id, data }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      const formData = new FormData();
+      
+      // Append all fields from the model
+      if (data.name) formData.append('name', data.name);
+      if (data.description !== undefined) formData.append('description', data.description);
+      if (data.website !== undefined) formData.append('website', data.website);
+      if (data.display_order !== undefined) formData.append('display_order', data.display_order);
+      if (data.is_active !== undefined) formData.append('is_active', data.is_active);
+      
+      // Handle logo file upload
+      if (data.logo && data.logo instanceof File) {
+        formData.append('logo', data.logo);
+      }
+      
+      // Log the FormData contents for debugging
+      console.log('Updating initiative with ID:', id);
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ':', pair[1]);
+      }
+      
+      const res = await axios.put(`${API_BASE_URL}/initiatives/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log('Update Response:', res.data);
+      return res.data.data || res.data;
+    } catch (err) {
+      console.error('Update Error:', err);
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
+  }
+);
 
-    if (editMode && currentId) {
-      dispatch(updateInitiative({ id: currentId, data: submitData }));
-    } else {
-      dispatch(createInitiative(submitData));
+// Delete initiative (Admin)
+export const deleteInitiative = createAsyncThunk(
+  "initiative/delete",
+  async (id, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_BASE_URL}/initiatives/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Delete Success for ID:', id);
+      return id;
+    } catch (err) {
+      console.error('Delete Error:', err);
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
-  };
+  }
+);
 
-  const handleEdit = (initiative) => {
-    setEditMode(true);
-    setCurrentId(initiative.id);
-    setFormData({
-      title: initiative.title,
-      description: initiative.description,
-      icon: initiative.icon || '',
-      display_order: initiative.display_order || 0,
-    });
-    setImagePreview(initiative.icon || null);
-    setShowModal(true);
-  };
-
-  const handleDelete = (id) => {
-    setDeleteConfirm(id);
-  };
-
-  const confirmDelete = () => {
-    if (deleteConfirm) {
-      dispatch(deleteInitiative(deleteConfirm));
-      setDeleteConfirm(null);
+// Toggle initiative active status (Admin)
+export const toggleInitiativeStatus = createAsyncThunk(
+  "initiative/toggleStatus",
+  async ({ id, isActive }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.patch(
+        `${API_BASE_URL}/initiatives/${id}/toggle-status`,
+        { is_active: isActive },
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+        }
+      );
+      console.log('Toggle Status Response:', res.data);
+      return res.data.data || res.data;
+    } catch (err) {
+      console.error('Toggle Status Error:', err);
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
     }
-  };
+  }
+);
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditMode(false);
-    setCurrentId(null);
-    setFormData({
-      title: '',
-      description: '',
-      icon: '',
-      display_order: 0,
-    });
-    setImageFile(null);
-    setImagePreview(null);
-  };
+// Update display order (Admin)
+export const updateDisplayOrder = createAsyncThunk(
+  "initiative/updateDisplayOrder",
+  async (initiativesOrder, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        `${API_BASE_URL}/initiatives/reorder`,
+        { initiatives: initiativesOrder },
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+        }
+      );
+      console.log('Update Display Order Response:', res.data);
+      return res.data.data || res.data;
+    } catch (err) {
+      console.error('Update Display Order Error:', err);
+      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
 
-  const handleAddNew = () => {
-    handleCloseModal();
-    setShowModal(true);
-  };
+// =====================
+// Slice
+// =====================
+const initiativeSlice = createSlice({
+  name: "initiative",
+  initialState: {
+    initiatives: [],
+    currentInitiative: null,
+    loading: false,
+    error: null,
+    success: false,
+    successMessage: null,
+  },
+  reducers: {
+    clearError: (state) => { 
+      state.error = null; 
+    },
+    clearSuccess: (state) => { 
+      state.success = false;
+      state.successMessage = null;
+    },
+    setCurrentInitiative: (state, action) => {
+      state.currentInitiative = action.payload;
+    },
+    clearCurrentInitiative: (state) => {
+      state.currentInitiative = null;
+    },
+    resetInitiativeState: (state) => {
+      state.initiatives = [];
+      state.currentInitiative = null;
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      state.successMessage = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch All
+      .addCase(fetchAllInitiatives.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllInitiatives.fulfilled, (state, action) => {
+        state.loading = false;
+        state.initiatives = action.payload;
+      })
+      .addCase(fetchAllInitiatives.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Fetch By ID
+      .addCase(fetchInitiativeById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInitiativeById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentInitiative = action.payload;
+      })
+      .addCase(fetchInitiativeById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Create
+      .addCase(createInitiative.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+        state.successMessage = null;
+      })
+      .addCase(createInitiative.fulfilled, (state, action) => {
+        state.loading = false;
+        state.initiatives.push(action.payload);
+        state.success = true;
+        state.successMessage = "Initiative created successfully";
+      })
+      .addCase(createInitiative.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Update
+      .addCase(updateInitiative.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+        state.successMessage = null;
+      })
+      .addCase(updateInitiative.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.initiatives.findIndex(i => i.id === action.payload.id);
+        if (index !== -1) {
+          state.initiatives[index] = action.payload;
+        }
+        state.currentInitiative = action.payload;
+        state.success = true;
+        state.successMessage = "Initiative updated successfully";
+      })
+      .addCase(updateInitiative.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Delete
+      .addCase(deleteInitiative.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+        state.successMessage = null;
+      })
+      .addCase(deleteInitiative.fulfilled, (state, action) => {
+        state.loading = false;
+        state.initiatives = state.initiatives.filter(i => i.id !== action.payload);
+        state.success = true;
+        state.successMessage = "Initiative deleted successfully";
+      })
+      .addCase(deleteInitiative.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Toggle Status
+      .addCase(toggleInitiativeStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(toggleInitiativeStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.initiatives.findIndex(i => i.id === action.payload.id);
+        if (index !== -1) {
+          state.initiatives[index] = action.payload;
+        }
+        if (state.currentInitiative?.id === action.payload.id) {
+          state.currentInitiative = action.payload;
+        }
+        state.success = true;
+        state.successMessage = "Initiative status updated successfully";
+      })
+      .addCase(toggleInitiativeStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Update Display Order
+      .addCase(updateDisplayOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDisplayOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.initiatives = action.payload;
+        state.success = true;
+        state.successMessage = "Display order updated successfully";
+      })
+      .addCase(updateDisplayOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
+});
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-black">Manage Initiatives</h1>
-            <p className="text-black mt-2">Create, edit, and organize your initiatives</p>
-          </div>
-          <button
-            onClick={handleAddNew}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <Plus size={20} />
-            Add Initiative
-          </button>
-        </div>
+// =====================
+// Selectors
+// =====================
+export const selectAllInitiatives = (state) => state.initiative.initiatives;
+export const selectActiveInitiatives = (state) => 
+  state.initiative.initiatives.filter(i => i.is_active);
+export const selectCurrentInitiative = (state) => state.initiative.currentInitiative;
+export const selectInitiativeLoading = (state) => state.initiative.loading;
+export const selectInitiativeError = (state) => state.initiative.error;
+export const selectInitiativeSuccess = (state) => state.initiative.success;
+export const selectInitiativeSuccessMessage = (state) => state.initiative.successMessage;
 
-        {/* Notifications */}
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
-            <AlertCircle size={20} />
-            <span>{error}</span>
-          </div>
-        )}
+// Exports
+export const { 
+  clearError, 
+  clearSuccess, 
+  setCurrentInitiative, 
+  clearCurrentInitiative,
+  resetInitiativeState 
+} = initiativeSlice.actions;
 
-        {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
-            <CheckCircle size={20} />
-            <span>Operation completed successfully!</span>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && !showModal && (
-          <div className="flex justify-center items-center py-20">
-            <Loader className="animate-spin text-blue-600" size={40} />
-          </div>
-        )}
-
-        {/* Initiatives Grid */}
-        {!loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {initiatives.map((initiative) => (
-              <div
-                key={initiative.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6"
-              >
-                {/* Image */}
-                {initiative.icon && (
-                  <div className="mb-4 h-40 w-full bg-gray-100 rounded-lg overflow-hidden">
-                    <img
-                      src={initiative.icon}
-                      alt={initiative.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* Content */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold text-black mb-2">
-                    {initiative.title}
-                  </h3>
-                  <p className="text-black text-sm line-clamp-3">
-                    {initiative.description}
-                  </p>
-                  <span className="inline-block mt-2 text-xs text-black">
-                    Order: {initiative.display_order}
-                  </span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(initiative)}
-                    className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <Edit size={16} />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(initiative.id)}
-                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && initiatives.length === 0 && (
-          <div className="text-center py-20">
-            <div className="text-gray-400 mb-4">
-              <ImageIcon size={64} className="mx-auto" />
-            </div>
-            <h3 className="text-xl font-semibold text-black mb-2">No initiatives yet</h3>
-            <p className="text-black">Get started by creating your first initiative</p>
-          </div>
-        )}
-      </div>
-
-      {/* Create/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-2xl font-bold text-black">
-                {editMode ? 'Edit Initiative' : 'Create New Initiative'}
-              </h2>
-              <button
-                onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <form onSubmit={handleSubmit} className="p-6">
-              {/* Title */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-black mb-2">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                  placeholder="Enter initiative title"
-                />
-              </div>
-
-              {/* Description */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-black mb-2">
-                  Description *
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black"
-                  placeholder="Enter initiative description"
-                />
-              </div>
-
-              {/* Display Order */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-black mb-2">
-                  Display Order
-                </label>
-                <input
-                  type="number"
-                  name="display_order"
-                  value={formData.display_order}
-                  onChange={handleInputChange}
-                  min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                  placeholder="0"
-                />
-              </div>
-
-              {/* Image Upload */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-black mb-2">
-                  Icon/Image
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className="cursor-pointer flex flex-col items-center"
-                  >
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="max-h-48 rounded-lg mb-2"
-                      />
-                    ) : (
-                      <ImageIcon size={48} className="text-gray-400 mb-2" />
-                    )}
-                    <span className="text-blue-600 hover:text-blue-700 font-medium">
-                      {imagePreview ? 'Change Image' : 'Upload Image'}
-                    </span>
-                    <span className="text-xs text-black mt-1">
-                      PNG, JPG, JPEG up to 5MB
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <Loader className="animate-spin" size={20} />
-                      Processing...
-                    </>
-                  ) : editMode ? (
-                    'Update Initiative'
-                  ) : (
-                    'Create Initiative'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <AlertCircle className="text-red-600" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-black mb-2">Delete Initiative</h3>
-              <p className="text-black">
-                Are you sure you want to delete this initiative? This action cannot be undone.
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-6 py-3 border border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default AdminInitiative;
+export default initiativeSlice.reducer;

@@ -23,6 +23,7 @@ export const store = configureStore({
     waitlist: waitlist,
     setting: setting,
     contact: contact,
+   
     // host: hostReducer,
   },
   middleware: (getDefaultMiddleware) =>

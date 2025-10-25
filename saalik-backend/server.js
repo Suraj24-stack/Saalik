@@ -27,10 +27,10 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 // Allowed Origins (comma-separated in .env)
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8081'];
 
-// app.use(cors({
-//   origin: 'http://localhost:5173', // or whatever port your frontend runs on (Vite default is 5173)
-//   credentials: true
-// }));
+app.use(cors({
+  origin: 'http://localhost:5173', // or whatever port your frontend runs on (Vite default is 5173)
+  credentials: true
+}));
 
   app.use(cors({
     origin: (origin, callback) => {
@@ -92,6 +92,7 @@ app.get('/', (req, res) => {
       contact: '/api/v1/contact',
       suggestions: '/api/v1/suggestions',
       users: '/api/v1/users',
+      navbar:'/api/v1/navbar',
     },
   });
 });
