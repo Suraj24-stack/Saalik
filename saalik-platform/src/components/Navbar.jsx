@@ -1,11 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { mockData } from "../data/MockData";
 
 const Navbar = ({ onContact }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
+
+  // Check screen size on mount and resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Check on mount
+    checkScreenSize();
+
+    // Add event listener
+    window.addEventListener("resize", checkScreenSize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   const handleNavigate = (path) => {
     setMobileMenuOpen(false);
@@ -15,9 +32,9 @@ const Navbar = ({ onContact }) => {
   return (
     <nav className="fixed top-0 w-full bg-black/95 backdrop-blur-sm z-50 border-b border-green-500/10 relative overflow-hidden">
       {/* Green glow effect on right side */}
-      <div className="absolute top-0 right-0 w-96 h-full bg-green-500/10 blur-3xl"></div>
-      <div className="absolute top-0 right-20 w-64 h-full bg-green-400/5 blur-2xl"></div>
-      
+      <div className="absolute top-0 right-0 w-96 h-full bg-green-500/10 blur-3xl pointer-events-none"></div>
+      <div className="absolute top-0 right-20 w-64 h-full bg-green-400/5 blur-2xl pointer-events-none"></div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
@@ -38,51 +55,55 @@ const Navbar = ({ onContact }) => {
             </span>
           </button>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
-            <button
-              onClick={() => handleNavigate("/")}
-              className="text-green-400 hover:text-green-300 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
-            >
-              HOME
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
-            </button>
-            <button
-              onClick={() => handleNavigate("/stories")}
-              className="text-white hover:text-green-400 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
-            >
-              STORIES
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
-            </button>
-            <button
-              onClick={() => handleNavigate("/guide-booking")}
-              className="text-white hover:text-green-400 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
-            >
-              GUIDE BOOKING
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
-            </button>
-            <button
-              onClick={onContact}
-              className="text-white hover:text-green-400 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
-            >
-              CONTACT
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
-            </button>
-          </div>
+          {/* Desktop Menu - Show only when NOT mobile */}
+          {!isMobile && (
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => handleNavigate("/")}
+                className="text-green-400 hover:text-green-300 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
+              >
+                HOME
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+              </button>
+              <button
+                onClick={() => handleNavigate("/stories")}
+                className="text-white hover:text-green-400 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
+              >
+                STORIES
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+              </button>
+              <button
+                onClick={() => handleNavigate("/guide-booking")}
+                className="text-white hover:text-green-400 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
+              >
+                GUIDE BOOKING
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+              </button>
+              <button
+                onClick={onContact}
+                className="text-white hover:text-green-400 px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors relative group"
+              >
+                CONTACT
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+              </button>
+            </div>
+          )}
 
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden text-green-400 hover:text-green-300 transition-colors p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          {/* Mobile Menu Toggle - Show only when mobile */}
+          {isMobile && (
+            <button
+              className="text-green-400 hover:text-green-300 transition-colors p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-black/98 border-t border-green-500/20 backdrop-blur-sm">
+      {/* Mobile Menu - Show only when mobile AND menu is open */}
+      {isMobile && mobileMenuOpen && (
+        <div className="bg-black/98 border-t border-green-500/20 backdrop-blur-sm">
           <div className="px-4 py-6 space-y-1 flex flex-col">
             <button
               onClick={() => handleNavigate("/")}
