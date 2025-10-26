@@ -40,7 +40,7 @@ const GuideBookingPage = () => {
           lineHeight: '1.3',
           textShadow: '2px 2px 8px rgba(0, 0, 0, 0.8)',
           padding: '20px',
-          fontFamily: 'Arial, sans-serif'
+          fontFamily: 'Roboto, sans-serif'
         }}>
           <span style={{ 
             color: '#fff'
