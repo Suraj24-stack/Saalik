@@ -1,27 +1,23 @@
-// store/slices/authSlice.js
+// src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../../lib/api";
 
-// Initialize API token from localStorage immediately
-if (typeof window !== "undefined") {
-  const token = localStorage.getItem("token");
-  if (token) {
-    api.setAuthToken(token);
-  }
-}
+// ============================================
+// ASYNC THUNKS
+// ============================================
 
-// Login
+// Login User
 export const LoginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, { rejectWithValue }) => {
     try {
-      const data = await api.post("/auth/Login", credentials);
+      // FIXED: Changed /auth/Login to /auth/login (lowercase)
+      const data = await api.post("/auth/login", credentials);
 
       // Store token in localStorage
       if (typeof window !== "undefined" && data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        // Set token in api module for future requests
         api.setAuthToken(data.token);
       }
 
@@ -32,15 +28,14 @@ export const LoginUser = createAsyncThunk(
   }
 );
 
-// Register
+// Register User
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const data = await api.post("/users", userData);
+      const data = await api.post("/auth/register", userData);
 
-      // Don't store token or log user in automatically if email verification is required
-      // Only store token if email is already verified (edge case)
+      // Only store token if email is already verified
       if (
         typeof window !== "undefined" &&
         data.token &&
@@ -86,7 +81,7 @@ export const resendVerificationEmail = createAsyncThunk(
   }
 );
 
-// Forgot Password - Request Reset
+// Forgot Password
 export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async (email, { rejectWithValue }) => {
@@ -115,7 +110,7 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
-// Get current user / Verify token
+// Get Current User
 export const getCurrentUser = createAsyncThunk(
   "auth/getCurrentUser",
   async (_, { rejectWithValue }) => {
@@ -126,10 +121,8 @@ export const getCurrentUser = createAsyncThunk(
         throw new Error("No token found");
       }
 
-      // Set token in api module
       api.setAuthToken(token);
-
-      const data = await api.get("/auth/verify");
+      const data = await api.get("/auth/me");
       return data;
     } catch (error) {
       if (typeof window !== "undefined") {
@@ -142,7 +135,7 @@ export const getCurrentUser = createAsyncThunk(
   }
 );
 
-// Refresh token
+// Refresh Token
 export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
   async (_, { rejectWithValue }) => {
@@ -154,7 +147,7 @@ export const refreshToken = createAsyncThunk(
       }
 
       api.setAuthToken(token);
-      const data = await api.post("/auth/refresh");
+      const data = await api.post("/auth/refresh-token");
 
       if (data.token) {
         localStorage.setItem("token", data.token);
@@ -168,33 +161,112 @@ export const refreshToken = createAsyncThunk(
   }
 );
 
-// Initial state
-const initialState = {
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-  initialized: false, // Track if we've checked localStorage
+// Logout User
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      await api.post("/auth/logout");
+      
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        api.clearAuthToken();
+      }
 
-  // Email verification states
-  emailVerification: {
-    isLoading: false,
-    success: false,
-    error: null,
-    message: null,
-    registrationEmail: null, // Track email used for registration
-  },
+      return null;
+    } catch (error) {
+      // Clear local storage even on error
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        api.clearAuthToken();
+      }
+      return rejectWithValue(error.message || "Logout failed");
+    }
+  }
+);
 
-  // Password reset states
-  passwordReset: {
+// ============================================
+// INITIAL STATE
+// ============================================
+
+const getInitialState = () => {
+  if (typeof window === "undefined") {
+    return {
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      initialized: false,
+      emailVerification: {
+        isLoading: false,
+        success: false,
+        error: null,
+        message: null,
+        registrationEmail: null,
+      },
+      passwordReset: {
+        isLoading: false,
+        emailSent: false,
+        resetSuccess: false,
+        error: null,
+        message: null,
+      },
+    };
+  }
+
+  // Try to load from localStorage
+  let user = null;
+  let token = null;
+  let isAuthenticated = false;
+
+  try {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken && storedUser) {
+      token = storedToken;
+      user = JSON.parse(storedUser);
+      isAuthenticated = true;
+      api.setAuthToken(storedToken);
+    }
+  } catch (error) {
+    console.error("Error loading auth from storage:", error);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }
+
+  return {
+    user,
+    token,
+    isAuthenticated,
     isLoading: false,
-    emailSent: false,
-    resetSuccess: false,
     error: null,
-    message: null,
-  },
+    initialized: true,
+    emailVerification: {
+      isLoading: false,
+      success: false,
+      error: null,
+      message: null,
+      registrationEmail: null,
+    },
+    passwordReset: {
+      isLoading: false,
+      emailSent: false,
+      resetSuccess: false,
+      error: null,
+      message: null,
+    },
+  };
 };
+
+const initialState = getInitialState();
+
+// ============================================
+// AUTH SLICE
+// ============================================
 
 const authSlice = createSlice({
   name: "auth",
@@ -211,7 +283,6 @@ const authSlice = createSlice({
             state.token = token;
             state.user = JSON.parse(user);
             state.isAuthenticated = true;
-            // Set token in api module
             api.setAuthToken(token);
           } catch (error) {
             console.error("Error loading auth from storage:", error);
@@ -227,7 +298,7 @@ const authSlice = createSlice({
       }
     },
 
-    // Load user from localStorage (backward compatibility)
+    // Load user from localStorage
     loadUserFromStorage: (state) => {
       if (typeof window !== "undefined") {
         const token = localStorage.getItem("token");
@@ -238,7 +309,6 @@ const authSlice = createSlice({
             state.token = token;
             state.user = JSON.parse(user);
             state.isAuthenticated = true;
-            // Set token in api module
             api.setAuthToken(token);
           } catch (error) {
             console.error("Error loading user from storage:", error);
@@ -264,22 +334,18 @@ const authSlice = createSlice({
       }
     },
 
-    // Logout
+    // Logout (synchronous)
     logout: (state) => {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        // Clear token from api module
-        api.clearAuthToken();
-      }
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
 
-      // Reset verification and password reset states
-      state.emailVerification = initialState.emailVerification;
-      state.passwordReset = initialState.passwordReset;
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        api.clearAuthToken();
+      }
     },
 
     // Clear error
@@ -289,12 +355,24 @@ const authSlice = createSlice({
 
     // Clear email verification state
     clearEmailVerificationState: (state) => {
-      state.emailVerification = initialState.emailVerification;
+      state.emailVerification = {
+        isLoading: false,
+        success: false,
+        error: null,
+        message: null,
+        registrationEmail: null,
+      };
     },
 
     // Clear password reset state
     clearPasswordResetState: (state) => {
-      state.passwordReset = initialState.passwordReset;
+      state.passwordReset = {
+        isLoading: false,
+        emailSent: false,
+        resetSuccess: false,
+        error: null,
+        message: null,
+      };
     },
 
     // Update user
@@ -315,9 +393,12 @@ const authSlice = createSlice({
       }
     },
   },
+
   extraReducers: (builder) => {
     builder
-      // Login
+      // ============================================
+      // LOGIN
+      // ============================================
       .addCase(LoginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -329,7 +410,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
 
-        // Ensure token is set in API client
         if (action.payload.token) {
           api.setAuthToken(action.payload.token);
         }
@@ -342,7 +422,9 @@ const authSlice = createSlice({
         state.token = null;
       })
 
-      // Register
+      // ============================================
+      // REGISTER
+      // ============================================
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -351,7 +433,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = null;
 
-        // Only set as authenticated if email is already verified
+        // Only authenticate if email is verified
         if (action.payload.user?.email_verified) {
           state.user = action.payload.user;
           state.token = action.payload.token;
@@ -361,12 +443,11 @@ const authSlice = createSlice({
             api.setAuthToken(action.payload.token);
           }
         } else {
-          // Don't authenticate user if email is not verified
+          // Don't authenticate if email not verified
           state.isAuthenticated = false;
           state.user = null;
           state.token = null;
 
-          // Set registration success message
           state.emailVerification.message =
             "Registration successful! Please check your email to verify your account.";
           state.emailVerification.registrationEmail =
@@ -381,7 +462,9 @@ const authSlice = createSlice({
         state.token = null;
       })
 
-      // Email Verification
+      // ============================================
+      // EMAIL VERIFICATION
+      // ============================================
       .addCase(verifyEmail.pending, (state) => {
         state.emailVerification.isLoading = true;
         state.emailVerification.error = null;
@@ -394,7 +477,7 @@ const authSlice = createSlice({
           action.payload.message || "Email verified successfully!";
         state.emailVerification.error = null;
 
-        // Update user's email_verified status if logged in
+        // Update user if logged in
         if (state.user) {
           state.user.email_verified = true;
           if (typeof window !== "undefined") {
@@ -408,7 +491,9 @@ const authSlice = createSlice({
         state.emailVerification.error = action.payload;
       })
 
-      // Resend Verification Email
+      // ============================================
+      // RESEND VERIFICATION EMAIL
+      // ============================================
       .addCase(resendVerificationEmail.pending, (state) => {
         state.emailVerification.isLoading = true;
         state.emailVerification.error = null;
@@ -424,7 +509,9 @@ const authSlice = createSlice({
         state.emailVerification.error = action.payload;
       })
 
-      // Forgot Password
+      // ============================================
+      // FORGOT PASSWORD
+      // ============================================
       .addCase(forgotPassword.pending, (state) => {
         state.passwordReset.isLoading = true;
         state.passwordReset.error = null;
@@ -443,7 +530,9 @@ const authSlice = createSlice({
         state.passwordReset.error = action.payload;
       })
 
-      // Reset Password
+      // ============================================
+      // RESET PASSWORD
+      // ============================================
       .addCase(resetPassword.pending, (state) => {
         state.passwordReset.isLoading = true;
         state.passwordReset.error = null;
@@ -462,7 +551,9 @@ const authSlice = createSlice({
         state.passwordReset.error = action.payload;
       })
 
-      // Get current user
+      // ============================================
+      // GET CURRENT USER
+      // ============================================
       .addCase(getCurrentUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -471,7 +562,6 @@ const authSlice = createSlice({
         state.user = action.payload.user || action.payload;
         state.isAuthenticated = true;
 
-        // Update user in localStorage
         if (typeof window !== "undefined" && state.user) {
           localStorage.setItem("user", JSON.stringify(state.user));
         }
@@ -484,7 +574,9 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Refresh token
+      // ============================================
+      // REFRESH TOKEN
+      // ============================================
       .addCase(refreshToken.fulfilled, (state, action) => {
         if (action.payload.token) {
           state.token = action.payload.token;
@@ -495,7 +587,6 @@ const authSlice = createSlice({
         }
       })
       .addCase(refreshToken.rejected, (state) => {
-        // If refresh fails, logout
         state.isAuthenticated = false;
         state.user = null;
         state.token = null;
@@ -504,9 +595,33 @@ const authSlice = createSlice({
           localStorage.removeItem("user");
           api.clearAuthToken();
         }
+      })
+
+      // ============================================
+      // LOGOUT
+      // ============================================
+      .addCase(logoutUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
       });
   },
 });
+
+// ============================================
+// ACTIONS & SELECTORS
+// ============================================
 
 export const {
   initializeAuth,
@@ -527,7 +642,6 @@ export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsLoading = (state) => state.auth.isLoading;
 export const selectAuthError = (state) => state.auth.error;
 export const selectIsInitialized = (state) => state.auth.initialized;
-
 
 // Email verification selectors
 export const selectEmailVerification = (state) => state.auth.emailVerification;

@@ -1,6 +1,10 @@
-// store/slices/userSlice.js
+// src/store/slices/userSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../../lib/api';
+
+// ============================================
+// ASYNC THUNKS
+// ============================================
 
 // Fetch user profile
 export const fetchUserProfile = createAsyncThunk(
@@ -8,7 +12,7 @@ export const fetchUserProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('/users/profile');
-      return response.data || response;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch profile');
     }
@@ -23,7 +27,7 @@ export const updateUserProfile = createAsyncThunk(
       const response = await api.put('/users/profile', profileData);
       
       // Update localStorage with new user data
-      if (response.data) {
+      if (response.data && typeof window !== 'undefined') {
         const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
         const updatedUser = { ...currentUser, ...response.data };
         localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -52,6 +56,35 @@ export const changePassword = createAsyncThunk(
   }
 );
 
+// Upload profile picture
+export const uploadProfilePicture = createAsyncThunk(
+  'user/uploadProfilePicture',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/users/profile/picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      // Update localStorage
+      if (response.data && typeof window !== 'undefined') {
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = { ...currentUser, profile_picture: response.data.profile_picture };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+      
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to upload profile picture');
+    }
+  }
+);
+
+// ============================================
+// INITIAL STATE
+// ============================================
+
 const initialState = {
   profile: null,
   isLoading: false,
@@ -68,6 +101,10 @@ const initialState = {
   }
 };
 
+// ============================================
+// USER SLICE
+// ============================================
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -81,18 +118,23 @@ const userSlice = createSlice({
     },
     updateStats: (state, action) => {
       state.stats = action.payload;
+    },
+    setProfile: (state, action) => {
+      state.profile = action.payload;
     }
   },
   extraReducers: (builder) => {
     builder
-      // Fetch profile
+      // ============================================
+      // FETCH PROFILE
+      // ============================================
       .addCase(fetchUserProfile.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.profile = action.payload.data || action.payload;
+        state.profile = action.payload.data || action.payload.user || action.payload;
         state.error = null;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
@@ -100,7 +142,9 @@ const userSlice = createSlice({
         state.error = action.payload;
       })
       
-      // Update profile
+      // ============================================
+      // UPDATE PROFILE
+      // ============================================
       .addCase(updateUserProfile.pending, (state) => {
         state.isUpdating = true;
         state.error = null;
@@ -108,7 +152,10 @@ const userSlice = createSlice({
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.isUpdating = false;
-        state.profile = action.payload.data || { ...state.profile, ...action.payload };
+        
+        // Handle different response structures
+        const userData = action.payload.data || action.payload.user || action.payload;
+        state.profile = { ...state.profile, ...userData };
         state.updateSuccess = true;
         state.error = null;
       })
@@ -118,7 +165,9 @@ const userSlice = createSlice({
         state.updateSuccess = false;
       })
       
-      // Change password
+      // ============================================
+      // CHANGE PASSWORD
+      // ============================================
       .addCase(changePassword.pending, (state) => {
         state.isUpdating = true;
         state.error = null;
@@ -133,10 +182,43 @@ const userSlice = createSlice({
         state.isUpdating = false;
         state.error = action.payload;
         state.passwordChangeSuccess = false;
+      })
+      
+      // ============================================
+      // UPLOAD PROFILE PICTURE
+      // ============================================
+      .addCase(uploadProfilePicture.pending, (state) => {
+        state.isUpdating = true;
+        state.error = null;
+      })
+      .addCase(uploadProfilePicture.fulfilled, (state, action) => {
+        state.isUpdating = false;
+        if (state.profile) {
+          state.profile.profile_picture = action.payload.data?.profile_picture || action.payload.profile_picture;
+        }
+        state.updateSuccess = true;
+        state.error = null;
+      })
+      .addCase(uploadProfilePicture.rejected, (state, action) => {
+        state.isUpdating = false;
+        state.error = action.payload;
       });
   }
 });
 
-export const { clearUpdateSuccess, clearError, updateStats } = userSlice.actions;
+// ============================================
+// ACTIONS & SELECTORS
+// ============================================
+
+export const { clearUpdateSuccess, clearError, updateStats, setProfile } = userSlice.actions;
+
+// Selectors
+export const selectProfile = (state) => state.user.profile;
+export const selectIsLoading = (state) => state.user.isLoading;
+export const selectIsUpdating = (state) => state.user.isUpdating;
+export const selectError = (state) => state.user.error;
+export const selectUpdateSuccess = (state) => state.user.updateSuccess;
+export const selectPasswordChangeSuccess = (state) => state.user.passwordChangeSuccess;
+export const selectStats = (state) => state.user.stats;
 
 export default userSlice.reducer;

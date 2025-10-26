@@ -1,5 +1,4 @@
-// backend/server.js
-
+// server.js - FIXED VERSION
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -15,45 +14,96 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
-// Middleware setup
-app.use(helmet());
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ============================================
+// MIDDLEWARE
+// ============================================
 
-// Logging middleware
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-
-// Allowed Origins (comma-separated in .env)
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8081'];
-
-app.use(cors({
-  origin: 'http://localhost:5173', // or whatever port your frontend runs on (Vite default is 5173)
-  credentials: true
+// Security Headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-  app.use(cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-  }));
+// Compression
+app.use(compression());
 
-// app.use(cors({
-//   origin: "http://localhost:5173", // your frontend URL
-//   credentials: true,               // if using cookies or auth headers
-// }));
+// Body Parsing
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Logging
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
-// Static file serving
-app.use('/uploads', express.static('uploads'));
+// ============================================
+// CORS CONFIGURATION - FIXED!
+// ============================================
 
-// -------------------------------
-// 📦 API Routes
-// -------------------------------
+// Define allowed origins properly
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'https://saalik.prepedo.com',
+      'https://www.saalik.prepedo.com',
+      'https://saalik-api.prepedo.com'
+    ];
+
+console.log('🌐 CORS Allowed Origins:', allowedOrigins);
+
+// CORS Options
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow all origins in development
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+
+    // Reject in production if not in allowed list
+    console.log('❌ CORS Blocked:', origin);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400, // 24 hours
+  optionsSuccessStatus: 200
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
+// ============================================
+// STATIC FILE SERVING
+// ============================================
+
+const uploadPath = process.env.FILE_UPLOAD_PATH || './uploads';
+app.use('/uploads', express.static(path.join(__dirname, uploadPath)));
+
+// ============================================
+// API ROUTES
+// ============================================
+
 app.use('/api/v1/auth', require('./routes/authRoutes'));
 app.use('/api/v1/admin', require('./routes/adminRoutes'));
 app.use('/api/v1/stories', require('./routes/storyRoutes'));
@@ -62,86 +112,106 @@ app.use('/api/v1/initiatives', require('./routes/initiativeRoutes'));
 app.use('/api/v1/waitlist', require('./routes/waitlistRoutes'));
 app.use('/api/v1/contact', require('./routes/contactRoutes'));
 app.use('/api/v1/suggestions', require('./routes/suggestionRoutes'));
-app.use('/api/v1/users',require('./routes/userRoute'));
 
-// -------------------------------
-// 🩺 Health & Root Routes
-// -------------------------------
+// ============================================
+// HEALTH CHECK
+// ============================================
+
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: '✅ Saalik API is running smoothly',
     timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
-app.get('/', (req, res) => {
+// Root info route
+app.get('/api', (req, res) => {
   res.json({
     success: true,
     name: 'Saalik Tourism & Heritage Platform',
     version: '1.0.0',
     message: 'Welcome to the Saalik API 🌿',
-    docs: '/api/v1',
-    endpoints: {
-      auth: '/api/v1/auth',
-      admin: '/api/v1/admin',
-      stories: '/api/v1/stories',
-      partners: '/api/v1/partners',
-      initiatives: '/api/v1/initiatives',
-      waitlist: '/api/v1/waitlist',
-      contact: '/api/v1/contact',
-      suggestions: '/api/v1/suggestions',
-      users: '/api/v1/users',
-      navbar:'/api/v1/navbar',
-    },
+    docs: '/api/v1'
   });
 });
 
-// -------------------------------
-// ❌ 404 Handler
-// -------------------------------
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found',
-  });
+// ============================================
+// SERVE REACT FRONTEND
+// ============================================
+
+const clientDistPath = path.join(__dirname, 'client', 'dist');
+app.use(express.static(clientDistPath));
+
+// Fallback for React Router
+app.get('*', (req, res) => {
+  // If the request starts with /api, skip and send 404
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Route not found' 
+    });
+  }
+  res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
-// -------------------------------
-// ⚠️ Global Error Handler
-// -------------------------------
+// ============================================
+// ERROR HANDLING MIDDLEWARE
+// ============================================
+
+// Catch CORS errors
 app.use((err, req, res, next) => {
-  console.error('🔥 Error:', err.message);
-
-  res.status(err.status || 500).json({
+  if (err.message === 'Not allowed by CORS') {
+    console.error('🔥 CORS Error:', {
+      origin: req.headers.origin,
+      method: req.method,
+      path: req.path
+    });
+    
+    return res.status(403).json({
+      success: false,
+      message: 'CORS policy: Origin not allowed',
+      origin: req.headers.origin
+    });
+  }
+  
+  // Other errors
+  console.error('🔥 Error:', err);
+  res.status(500).json({
     success: false,
-    message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    message: process.env.NODE_ENV === 'development' 
+      ? err.message 
+      : 'Internal server error'
   });
 });
 
-// -------------------------------
-// 🚀 Start Server
-// -------------------------------
+// ============================================
+// START SERVER
+// ============================================
+
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 const startServer = async () => {
   try {
+    // Test database connection
     const dbConnected = await testConnection();
-
     if (!dbConnected) {
       console.error('⚠️ Database connection failed.');
       process.exit(1);
     }
 
-    app.listen(PORT, () => {
+    // Start listening
+    app.listen(PORT, HOST, () => {
       console.log('');
       console.log('🌿========================================');
       console.log('     SAALIK API SERVER STARTED 🚀');
       console.log('🌿========================================');
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`Server running at: http://localhost:${PORT}`);
-      console.log(`Health check: http://localhost:${PORT}/api/health`);
+      console.log(`Server running at: http://${HOST}:${PORT}`);
+      console.log(`Health check: http://${HOST}:${PORT}/api/health`);
+      console.log(`Allowed Origins: ${allowedOrigins.length} configured`);
       console.log('🌿========================================\n');
     });
   } catch (error) {
@@ -150,7 +220,10 @@ const startServer = async () => {
   }
 };
 
-// Handle unexpected crashes
+// ============================================
+// HANDLE UNEXPECTED CRASHES
+// ============================================
+
 process.on('unhandledRejection', (err) => {
   console.error('💥 Unhandled Rejection:', err);
   process.exit(1);
@@ -160,6 +233,10 @@ process.on('uncaughtException', (err) => {
   console.error('💥 Uncaught Exception:', err);
   process.exit(1);
 });
+
+// ============================================
+// START THE SERVER
+// ============================================
 
 startServer();
 
