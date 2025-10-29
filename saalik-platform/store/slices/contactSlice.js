@@ -12,7 +12,7 @@ export const fetchAllContacts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/contacts`);
-      return response.data.data; // Assuming response format: { success: true, data: [...] }
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -25,6 +25,19 @@ export const fetchContactById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/contacts/${id}`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Create new contact submission (CLIENT FORM)
+export const createContact = createAsyncThunk(
+  'contact/create',
+  async (contactData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/contacts`, contactData);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -121,6 +134,24 @@ const contactSlice = createSlice({
       .addCase(fetchContactById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Create new contact submission
+      .addCase(createContact.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.contacts.unshift(action.payload); // Add to beginning of array
+        state.success = true;
+        state.error = null;
+      })
+      .addCase(createContact.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.success = false;
       })
 
       // Update contact status

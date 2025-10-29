@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { LogOut } from "lucide-react";
 import SaalikUserPage from "./User/User";
 import {
   selectIsAuthenticated,
@@ -39,7 +40,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login");
+    navigate("/"); // Redirect to homepage
   };
 
   if (!isAuthenticated || !user) {
@@ -55,28 +56,47 @@ export default function Dashboard() {
 
   return (
     <>
-    <Navbar/>
-    <div className="flex min-h-screen bg-gradient-to-br mt-15 from-slate-900 via-emerald-950 to-teal-950">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
-      <div className="flex-1 flex flex-col">
-        {/* Main Content */}
-        <main className="flex-1 text-white p-6 overflow-auto">
-          <Routes>
-            <Route path="/" element={<Navigate to="/admin/users" replace />} />
-            <Route path="users" element={<SaalikUserPage />} />
-            <Route path="story" element={<AdminStoriesPage />} />
-            <Route path="ticket-booking" element={<AdminTicketBookingPage />} />
-            <Route path="stories-suggestion" element={<AdminStoriesSuggestionPage />} />
-            <Route path="guide-booking" element={<AdminGuideBookingPage />} />
-            <Route path="contact" element={<AdminContactPage />} />
-            <Route path="in-association" element={<AdminAssociationPage />} />
-            <Route path="initiatives" element={<AdminInitiative />} />
-          </Routes>
-        </main>
+      <Navbar />
+      <div className="flex min-h-screen bg-gradient-to-br mt-20 from-slate-900 via-emerald-950 to-teal-950">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        
+        <div className="flex-1 flex flex-col">
+          {/* Header with Logout Button */}
+          <header className="bg-black/20 backdrop-blur-sm border-b border-green-500/20 px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+                <p className="text-green-400 text-sm mt-1">
+                  Welcome back, {user?.name || user?.email}
+                </p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-semibold"
+              >
+                <LogOut size={20} />
+                <span>Logout</span>
+              </button>
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <main className="flex-1 text-white p-6 overflow-auto">
+            <Routes>
+              <Route path="/" element={<Navigate to="/admin/users" replace />} />
+              <Route path="users" element={<SaalikUserPage />} />
+              <Route path="story" element={<AdminStoriesPage />} />
+              <Route path="ticket-booking" element={<AdminTicketBookingPage />} />
+              <Route path="stories-suggestion" element={<AdminStoriesSuggestionPage />} />
+              <Route path="guide-booking" element={<AdminGuideBookingPage />} />
+              <Route path="contact" element={<AdminContactPage />} />
+              <Route path="in-association" element={<AdminAssociationPage />} />
+              <Route path="initiatives" element={<AdminInitiative />} />
+            </Routes>
+          </main>
+        </div>
       </div>
-    </div>
-    <Footer/>
+      <Footer />
     </>
   );
 }
