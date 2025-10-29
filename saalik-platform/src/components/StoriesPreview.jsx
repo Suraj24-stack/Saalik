@@ -15,7 +15,7 @@ const StoriesPreview = ({ onViewAll, onStoryClick }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Side - Text Content */}
           <div className="space-y-6 lg:pr-8 text-center lg:text-left">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
               <span className="text-white"> UNTOLD </span>
               <span className="text-green-400">STORIES</span>
             </h2>

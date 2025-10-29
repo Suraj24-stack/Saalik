@@ -32,7 +32,7 @@ const GuideBookingSection = () => {
 
         {/* Text & Button - RIGHT SIDE */}
         <div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8" style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
             <span className="text-white">GUIDE </span>
             <span className="text-green-400">BOOKING</span>
           </h2>
@@ -40,21 +40,21 @@ const GuideBookingSection = () => {
           <div className="space-y-6 text-white text-base md:text-lg lg:text-xl leading-relaxed mb-10 text-justify">
             <p>
               Discover Nepal with confidence by{" "}
-              <span className="font-semibold text-green-400 underline decoration-green-400">
+              <span className="font-semibold text-green-400">
                 booking verified local guides
               </span>{" "}
               through SAALIK. Our{" "}
-              <span className="font-semibold text-green-400 underline decoration-green-400">
+              <span className="font-semibold text-green-400">
                 trusted guides
               </span>{" "}
               bring culture, history, and spirituality to life while ensuring
               your journey is both{" "}
-              <span className="font-semibold text-green-400 underline decoration-green-400">
+              <span className="font-semibold text-green-400">
                 safe and insightful
               </span>
               . With expertise ranging from heritage walks to temple tours, they
               help you{" "}
-              <span className="font-semibold text-green-400 underline decoration-green-400">
+              <span className="font-semibold text-green-400">
                 experience Nepal
               </span>{" "}
               beyond the surface.

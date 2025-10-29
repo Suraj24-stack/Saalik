@@ -18,55 +18,36 @@ const HeroCarousel = () => {
   const hasImage = currentSlideData.image && currentSlideData.image !== "/" && currentSlideData.image !== "";
 
   return (
-    <section className="relative h-[500px] md:h-[600px] lg:h-[550px] w-full overflow-hidden bg-gradient-to-br from-black via-emerald-950/20 to-black pt-14 md:pt-20">
+    <section className="relative h-[500px] md:h-[600px] lg:h-[700px] w-full overflow-hidden bg-gradient-to-br from-black via-emerald-950/20 to-black pt-14 md:pt-20">
       
-      {/* Content Container */}
-      <div className="relative h-full flex items-center">
-        <div className="container mx-auto px-4 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between gap-8">
-            
-            {/* Left Side - Text Content */}
-            <div className="flex-1 max-w-5xl z-10">
-              
-              
-
-              {/* Main Title */}
-              <div className="space-y-3 md:space-y-4">
-                <h2 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-green-400 tracking-[0.3em] uppercase leading-none">
+      {/* Content Container - Centered */}
+      <div className="relative h-full flex items-center justify-center">
+        <div className="container mx-auto px-4 md:px-8 lg:px-12 h-full flex items-center justify-center">
+          
+          {/* Single Centered Image */}
+          <div className="w-full h-full flex items-center justify-center">
+            {hasImage ? (
+              <img
+                src={currentSlideData.image}
+                alt={currentSlideData.title}
+                className="max-w-full max-h-[85%] object-contain"
+                onError={(e) => {
+                  console.error('Image failed to load:', currentSlideData.image);
+                  e.target.style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center space-y-4">
+                <span className="text-9xl opacity-30">
+                  {currentSlideData.icon || "🏛️"}
+                </span>
+                <h2 className="text-4xl md:text-6xl font-bold text-green-400 tracking-wider uppercase">
                   {currentSlideData.title}
                 </h2>
-                
-                
               </div>
-
-            </div>
-
-            {/* Right Side - Image (CENTERED DISPLAY) */}
-            <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-[50%] xl:w-[55%]">
-              <div className="relative w-full h-full flex items-center justify-center">
-                
-                {hasImage ? (
-                  <img
-                    src={currentSlideData.image}
-                    alt={currentSlideData.highlight}
-                    className="max-w-full max-h-full object-contain opacity-100"
-                    onError={(e) => {
-                      console.error('Image failed to load:', currentSlideData.image);
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-9xl opacity-30">
-                      {currentSlideData.icon || "🏛️"}
-                    </span>
-                  </div>
-                )}
-
-              </div>
-            </div>
-
+            )}
           </div>
+
         </div>
 
         {/* Left Arrow */}
