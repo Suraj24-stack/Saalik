@@ -106,7 +106,8 @@ const PartnerAdminDashboard = () => {
     }
 
     if (editMode && currentPartner) {
-      dispatch(updatePartner({ id: currentPartner.id, partnerData: formData }));
+      // ✅ FIXED: Changed 'partnerData' to 'data'
+      dispatch(updatePartner({ id: currentPartner.id, data: formData }));
     } else {
       dispatch(createPartner(formData));
     }

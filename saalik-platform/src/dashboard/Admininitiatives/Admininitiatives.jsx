@@ -1,393 +1,480 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchAllInitiatives,
+  createInitiative,
+  updateInitiative,
+  deleteInitiative,
+  clearError,
+  clearSuccess,
+} from '../../../store/slices/initiativeSlice';
+import { Plus, Edit2, Trash2, Save, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+const AdminInitiatives = () => {
+  const dispatch = useDispatch();
+  const { initiatives, loading, error, success, successMessage } = useSelector(
+    (state) => state.initiative
+  );
 
-// =====================
-// Async Thunks
-// =====================
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    website: '',
+    display_order: '',
+    is_active: true,
+    logo: null,
+  });
+  const [logoPreview, setLogoPreview] = useState(null);
 
-// Fetch all initiatives (with optional filters)
-export const fetchAllInitiatives = createAsyncThunk(
-  "initiative/fetchAll",
-  async ({ isActive = null, sortBy = 'display_order' } = {}, thunkAPI) => {
-    try {
-      const token = localStorage.getItem("token");
-      let url = `${API_BASE_URL}/initiatives?sortBy=${sortBy}`;
-      
-      if (isActive !== null) {
-        url += `&isActive=${isActive}`;
-      }
-      
-      const response = await axios.get(url, {
-        headers: { 
-          Authorization: `Bearer ${token}` 
-        },
-      });
-      console.log('Fetch All Response:', response.data);
-      return response.data.data || response.data;
-    } catch (err) {
-      console.error('Fetch All Error:', err);
-      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+  // Fetch initiatives on component mount
+  useEffect(() => {
+    dispatch(fetchAllInitiatives());
+  }, [dispatch]);
+
+  // Handle success/error messages
+  useEffect(() => {
+    if (success) {
+      setTimeout(() => {
+        dispatch(clearSuccess());
+        handleCloseForm();
+      }, 2000);
     }
-  }
-);
+  }, [success, dispatch]);
 
-// Fetch single initiative by ID
-export const fetchInitiativeById = createAsyncThunk(
-  "initiative/fetchById",
-  async (id, thunkAPI) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_BASE_URL}/initiatives/${id}`, {
-        headers: { 
-          Authorization: `Bearer ${token}` 
-        },
-      });
-      console.log('Fetch By ID Response:', response.data);
-      return response.data.data || response.data;
-    } catch (err) {
-      console.error('Fetch By ID Error:', err);
-      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        dispatch(clearError());
+      }, 5000);
     }
-  }
-);
+  }, [error, dispatch]);
 
-// Create new initiative (Admin)
-export const createInitiative = createAsyncThunk(
-  "initiative/create",
-  async (initiativeData, thunkAPI) => {
-    try {
-      const token = localStorage.getItem("token");
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  // Handle file upload
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, logo: file }));
       
-      const formData = new FormData();
-      
-      // Append all fields from the model
-      if (initiativeData.name) formData.append('name', initiativeData.name);
-      if (initiativeData.description) formData.append('description', initiativeData.description);
-      if (initiativeData.website) formData.append('website', initiativeData.website);
-      if (initiativeData.display_order !== undefined) formData.append('display_order', initiativeData.display_order);
-      if (initiativeData.is_active !== undefined) formData.append('is_active', initiativeData.is_active);
-      
-      // Handle logo file upload
-      if (initiativeData.logo && initiativeData.logo instanceof File) {
-        formData.append('logo', initiativeData.logo);
-      }
-      
-      // Log the FormData contents for debugging
-      console.log('Creating initiative...');
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ':', pair[1]);
-      }
-      
-      const res = await axios.post(`${API_BASE_URL}/initiatives`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log('Create Response:', res.data);
-      return res.data.data || res.data;
-    } catch (err) {
-      console.error('Create Error:', err.response?.data || err.message);
-      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
-);
+  };
 
-// Update initiative (Admin)
-export const updateInitiative = createAsyncThunk(
-  "initiative/update",
-  async ({ id, data }, thunkAPI) => {
-    try {
-      const token = localStorage.getItem("token");
-      
-      const formData = new FormData();
-      
-      // Append all fields from the model
-      if (data.name) formData.append('name', data.name);
-      if (data.description !== undefined) formData.append('description', data.description);
-      if (data.website !== undefined) formData.append('website', data.website);
-      if (data.display_order !== undefined) formData.append('display_order', data.display_order);
-      if (data.is_active !== undefined) formData.append('is_active', data.is_active);
-      
-      // Handle logo file upload
-      if (data.logo && data.logo instanceof File) {
-        formData.append('logo', data.logo);
-      }
-      
-      // Log the FormData contents for debugging
-      console.log('Updating initiative with ID:', id);
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ':', pair[1]);
-      }
-      
-      const res = await axios.put(`${API_BASE_URL}/initiatives/${id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log('Update Response:', res.data);
-      return res.data.data || res.data;
-    } catch (err) {
-      console.error('Update Error:', err);
-      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+  // Open form for creating new initiative
+  const handleOpenCreateForm = () => {
+    setIsFormOpen(true);
+    setEditingId(null);
+    setFormData({
+      name: '',
+      description: '',
+      website: '',
+      display_order: initiatives.length + 1,
+      is_active: true,
+      logo: null,
+    });
+    setLogoPreview(null);
+  };
+
+  // Open form for editing existing initiative
+  const handleOpenEditForm = (initiative) => {
+    setIsFormOpen(true);
+    setEditingId(initiative.id);
+    setFormData({
+      name: initiative.name || '',
+      description: initiative.description || '',
+      website: initiative.website || '',
+      display_order: initiative.display_order || 0,
+      is_active: initiative.is_active !== undefined ? initiative.is_active : true,
+      logo: null,
+    });
+    
+    // Set existing logo as preview
+    if (initiative.logo_url) {
+      const logoUrl = initiative.logo_url.startsWith('http')
+        ? initiative.logo_url
+        : `${API_BASE_URL}${initiative.logo_url}`;
+      setLogoPreview(logoUrl);
+    } else {
+      setLogoPreview(null);
     }
-  }
-);
+  };
 
-// Delete initiative (Admin)
-export const deleteInitiative = createAsyncThunk(
-  "initiative/delete",
-  async (id, thunkAPI) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/initiatives/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log('Delete Success for ID:', id);
-      return id;
-    } catch (err) {
-      console.error('Delete Error:', err);
-      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+  // Close form and reset
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingId(null);
+    setFormData({
+      name: '',
+      description: '',
+      website: '',
+      display_order: '',
+      is_active: true,
+      logo: null,
+    });
+    setLogoPreview(null);
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!formData.name.trim()) {
+      alert('Initiative name is required');
+      return;
     }
-  }
-);
 
-// Toggle initiative active status (Admin)
-export const toggleInitiativeStatus = createAsyncThunk(
-  "initiative/toggleStatus",
-  async ({ id, isActive }, thunkAPI) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.patch(
-        `${API_BASE_URL}/initiatives/${id}/toggle-status`,
-        { is_active: isActive },
-        {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-        }
-      );
-      console.log('Toggle Status Response:', res.data);
-      return res.data.data || res.data;
-    } catch (err) {
-      console.error('Toggle Status Error:', err);
-      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+    const submitData = {
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      website: formData.website.trim(),
+      display_order: parseInt(formData.display_order) || 0,
+      is_active: formData.is_active,
+    };
+
+    // Add logo only if a new file was selected
+    if (formData.logo instanceof File) {
+      submitData.logo = formData.logo;
     }
-  }
-);
 
-// Update display order (Admin)
-export const updateDisplayOrder = createAsyncThunk(
-  "initiative/updateDisplayOrder",
-  async (initiativesOrder, thunkAPI) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(
-        `${API_BASE_URL}/initiatives/reorder`,
-        { initiatives: initiativesOrder },
-        {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-        }
-      );
-      console.log('Update Display Order Response:', res.data);
-      return res.data.data || res.data;
-    } catch (err) {
-      console.error('Update Display Order Error:', err);
-      return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
+    if (editingId) {
+      // Update existing initiative
+      dispatch(updateInitiative({ id: editingId, data: submitData }));
+    } else {
+      // Create new initiative
+      dispatch(createInitiative(submitData));
     }
-  }
-);
+  };
 
-// =====================
-// Slice
-// =====================
-const initiativeSlice = createSlice({
-  name: "initiative",
-  initialState: {
-    initiatives: [],
-    currentInitiative: null,
-    loading: false,
-    error: null,
-    success: false,
-    successMessage: null,
-  },
-  reducers: {
-    clearError: (state) => { 
-      state.error = null; 
-    },
-    clearSuccess: (state) => { 
-      state.success = false;
-      state.successMessage = null;
-    },
-    setCurrentInitiative: (state, action) => {
-      state.currentInitiative = action.payload;
-    },
-    clearCurrentInitiative: (state) => {
-      state.currentInitiative = null;
-    },
-    resetInitiativeState: (state) => {
-      state.initiatives = [];
-      state.currentInitiative = null;
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-      state.successMessage = null;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      // Fetch All
-      .addCase(fetchAllInitiatives.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAllInitiatives.fulfilled, (state, action) => {
-        state.loading = false;
-        state.initiatives = action.payload;
-      })
-      .addCase(fetchAllInitiatives.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      
-      // Fetch By ID
-      .addCase(fetchInitiativeById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchInitiativeById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.currentInitiative = action.payload;
-      })
-      .addCase(fetchInitiativeById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      
-      // Create
-      .addCase(createInitiative.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = false;
-        state.successMessage = null;
-      })
-      .addCase(createInitiative.fulfilled, (state, action) => {
-        state.loading = false;
-        state.initiatives.push(action.payload);
-        state.success = true;
-        state.successMessage = "Initiative created successfully";
-      })
-      .addCase(createInitiative.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      
-      // Update
-      .addCase(updateInitiative.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = false;
-        state.successMessage = null;
-      })
-      .addCase(updateInitiative.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.initiatives.findIndex(i => i.id === action.payload.id);
-        if (index !== -1) {
-          state.initiatives[index] = action.payload;
-        }
-        state.currentInitiative = action.payload;
-        state.success = true;
-        state.successMessage = "Initiative updated successfully";
-      })
-      .addCase(updateInitiative.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      
-      // Delete
-      .addCase(deleteInitiative.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = false;
-        state.successMessage = null;
-      })
-      .addCase(deleteInitiative.fulfilled, (state, action) => {
-        state.loading = false;
-        state.initiatives = state.initiatives.filter(i => i.id !== action.payload);
-        state.success = true;
-        state.successMessage = "Initiative deleted successfully";
-      })
-      .addCase(deleteInitiative.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      
-      // Toggle Status
-      .addCase(toggleInitiativeStatus.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(toggleInitiativeStatus.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.initiatives.findIndex(i => i.id === action.payload.id);
-        if (index !== -1) {
-          state.initiatives[index] = action.payload;
-        }
-        if (state.currentInitiative?.id === action.payload.id) {
-          state.currentInitiative = action.payload;
-        }
-        state.success = true;
-        state.successMessage = "Initiative status updated successfully";
-      })
-      .addCase(toggleInitiativeStatus.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      
-      // Update Display Order
-      .addCase(updateDisplayOrder.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateDisplayOrder.fulfilled, (state, action) => {
-        state.loading = false;
-        state.initiatives = action.payload;
-        state.success = true;
-        state.successMessage = "Display order updated successfully";
-      })
-      .addCase(updateDisplayOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-  },
-});
+  // Handle delete
+  const handleDelete = (id, name) => {
+    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+      dispatch(deleteInitiative(id));
+    }
+  };
 
-// =====================
-// Selectors
-// =====================
-export const selectAllInitiatives = (state) => state.initiative.initiatives;
-export const selectActiveInitiatives = (state) => 
-  state.initiative.initiatives.filter(i => i.is_active);
-export const selectCurrentInitiative = (state) => state.initiative.currentInitiative;
-export const selectInitiativeLoading = (state) => state.initiative.loading;
-export const selectInitiativeError = (state) => state.initiative.error;
-export const selectInitiativeSuccess = (state) => state.initiative.success;
-export const selectInitiativeSuccessMessage = (state) => state.initiative.successMessage;
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Manage Initiatives</h1>
+            <p className="text-gray-600 mt-1">
+              Create and manage platform initiatives
+            </p>
+          </div>
+          <button
+            onClick={handleOpenCreateForm}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus size={20} />
+            Add Initiative
+          </button>
+        </div>
 
-// Exports
-export const { 
-  clearError, 
-  clearSuccess, 
-  setCurrentInitiative, 
-  clearCurrentInitiative,
-  resetInitiativeState 
-} = initiativeSlice.actions;
+        {/* Success Message */}
+        {success && (
+          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            {successMessage}
+          </div>
+        )}
 
-export default initiativeSlice.reducer;
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {/* Initiatives List */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {loading && !isFormOpen ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="animate-spin text-green-600" size={48} />
+            </div>
+          ) : initiatives.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg">No initiatives found</p>
+              <p className="text-sm mt-2">Click "Add Initiative" to create your first initiative</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Logo
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Website
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Order
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {initiatives.map((initiative) => (
+                    <tr key={initiative.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {initiative.logo_url ? (
+                          <img
+                            src={
+                              initiative.logo_url.startsWith('http')
+                                ? initiative.logo_url
+                                : `${API_BASE_URL}${initiative.logo_url}`
+                            }
+                            alt={initiative.name}
+                            className="h-12 w-12 object-contain rounded"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                            <ImageIcon size={20} className="text-gray-400" />
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {initiative.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-500 max-w-xs truncate">
+                          {initiative.description || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {initiative.website ? (
+                          <a
+                            href={initiative.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline"
+                          >
+                            Visit
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-900">
+                          {initiative.display_order}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            initiative.is_active
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {initiative.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => handleOpenEditForm(initiative)}
+                          className="text-blue-600 hover:text-blue-900 mr-4"
+                          title="Edit"
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(initiative.id, initiative.name)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Delete"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Form Modal */}
+        {isFormOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {editingId ? 'Edit Initiative' : 'Create New Initiative'}
+                  </h2>
+                  <button
+                    onClick={handleCloseForm}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Initiative Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                      required
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows="3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                    />
+                  </div>
+
+                  {/* Website */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Website URL
+                    </label>
+                    <input
+                      type="url"
+                      name="website"
+                      value={formData.website}
+                      onChange={handleInputChange}
+                      placeholder="https://example.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                    />
+                  </div>
+
+                  {/* Display Order */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Display Order
+                    </label>
+                    <input
+                      type="number"
+                      name="display_order"
+                      value={formData.display_order}
+                      onChange={handleInputChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                    />
+                  </div>
+
+                  {/* Logo Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Logo
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                    />
+                    {logoPreview && (
+                      <div className="mt-2">
+                        <img
+                          src={logoPreview}
+                          alt="Preview"
+                          className="h-24 w-24 object-contain border border-gray-200 rounded"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Active Status */}
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="is_active"
+                      checked={formData.is_active}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                    />
+                    <label className="ml-2 block text-sm text-gray-900">
+                      Active (visible on website)
+                    </label>
+                  </div>
+
+                  {/* Form Actions */}
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <button
+                      type="button"
+                      onClick={handleCloseForm}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="animate-spin" size={18} />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save size={18} />
+                          {editingId ? 'Update Initiative' : 'Create Initiative'}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AdminInitiatives;
