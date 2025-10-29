@@ -5,14 +5,15 @@ const Footer = () => (
   <footer className="bg-black border-t border-green-500/20 py-12 px-4">
     <div className="max-w-6xl mx-auto">
       {/* Top Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-        {/* Brand */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        {/* Brand Logo */}
         <div>
-          <div className="flex items-center space-x-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-              <span className="text-black font-bold text-sm">S</span>
-            </div>
-            <span className="text-white text-xl font-bold">SAALIK</span>
+          <div className="mb-4">
+            <img 
+              src="/path/to/your/logo.png" 
+              alt="SAALIK Logo" 
+              className="h-12 w-auto"
+            />
           </div>
           <p className="text-gray-400 text-sm">
             Delivering innovative technology solutions with excellence and integrity.
@@ -24,20 +25,6 @@ const Footer = () => (
           <h3 className="text-white font-bold mb-4">Quick Links</h3>
           <ul className="space-y-2">
             {['Home', 'Stories', 'Guide Booking', 'Contact'].map((link) => (
-              <li key={link}>
-                <a href="#" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
-                  {link}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Company */}
-        <div>
-          <h3 className="text-white font-bold mb-4">Company</h3>
-          <ul className="space-y-2">
-            {['About', 'Team'].map((link) => (
               <li key={link}>
                 <a href="#" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
                   {link}
