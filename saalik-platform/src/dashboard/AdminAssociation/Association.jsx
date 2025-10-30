@@ -13,16 +13,20 @@ const PartnerAdminDashboard = () => {
   const dispatch = useDispatch();
   const { partners, loading, error, success } = useSelector((state) => state.partner);
 
+  // Get API base URL for image display
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+  const UPLOADS_BASE_URL = API_BASE_URL.replace('/api/v1', '');
+
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentPartner, setCurrentPartner] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [partnerToDelete, setPartnerToDelete] = useState(null);
-  const [imageError, setImageError] = useState(false);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
-    logo_url: '',
     website: '',
     description: '',
     display_order: 0,
@@ -50,7 +54,6 @@ const PartnerAdminDashboard = () => {
   const resetForm = () => {
     setFormData({
       name: '',
-      logo_url: '',
       website: '',
       description: '',
       display_order: 0,
@@ -58,7 +61,8 @@ const PartnerAdminDashboard = () => {
     });
     setCurrentPartner(null);
     setEditMode(false);
-    setImageError(false);
+    setLogoPreview(null);
+    setLogoFile(null);
   };
 
   const handleOpenModal = (partner = null) => {
@@ -67,18 +71,23 @@ const PartnerAdminDashboard = () => {
       setCurrentPartner(partner);
       setFormData({
         name: partner.name || '',
-        logo_url: partner.logo_url || '',
         website: partner.website || '',
         description: partner.description || '',
         display_order: partner.display_order || 0,
         is_active: partner.is_active
       });
+      // Set existing logo as preview
+      if (partner.logo_url) {
+        const fullUrl = partner.logo_url.startsWith('http') 
+          ? partner.logo_url 
+          : `${UPLOADS_BASE_URL}${partner.logo_url}`;
+        setLogoPreview(fullUrl);
+      }
     } else {
       setEditMode(false);
       resetForm();
     }
     setShowModal(true);
-    setImageError(false);
   };
 
   const handleCloseModal = () => {
@@ -92,11 +101,38 @@ const PartnerAdminDashboard = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
-    // Reset image error when URL changes
-    if (name === 'logo_url') {
-      setImageError(false);
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        alert('Please upload a valid image file (JPG, PNG, GIF, or WEBP)');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      setLogoFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
   };
 
   const handleSubmit = () => {
@@ -105,11 +141,24 @@ const PartnerAdminDashboard = () => {
       return;
     }
 
+    // Create FormData object for file upload
+    const submitData = {
+      name: formData.name,
+      website: formData.website,
+      description: formData.description,
+      display_order: formData.display_order,
+      is_active: formData.is_active,
+    };
+
+    // Add logo file if selected
+    if (logoFile) {
+      submitData.logo = logoFile;
+    }
+
     if (editMode && currentPartner) {
-      // ✅ FIXED: Changed 'partnerData' to 'data'
-      dispatch(updatePartner({ id: currentPartner.id, data: formData }));
+      dispatch(updatePartner({ id: currentPartner.id, data: submitData }));
     } else {
-      dispatch(createPartner(formData));
+      dispatch(createPartner(submitData));
     }
   };
 
@@ -129,6 +178,15 @@ const PartnerAdminDashboard = () => {
   const handleDeleteCancel = () => {
     setShowDeleteConfirm(false);
     setPartnerToDelete(null);
+  };
+
+  // Helper to get full logo URL
+  const getLogoUrl = (logoUrl) => {
+    if (!logoUrl) return null;
+    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+      return logoUrl;
+    }
+    return `${UPLOADS_BASE_URL}${logoUrl}`;
   };
 
   return (
@@ -204,60 +262,73 @@ const PartnerAdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {partners.map((partner) => (
-                    <tr key={partner.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {partner.display_order}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {partner.logo_url ? (
-                          <img src={partner.logo_url} alt={partner.name} className="h-10 w-10 rounded object-cover" />
-                        ) : (
-                          <div className="h-10 w-10 rounded bg-gray-200 flex items-center justify-center">
+                  {partners.map((partner) => {
+                    const logoUrl = getLogoUrl(partner.logo_url);
+                    return (
+                      <tr key={partner.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {partner.display_order}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {logoUrl ? (
+                            <img 
+                              src={logoUrl} 
+                              alt={partner.name} 
+                              className="h-10 w-10 rounded object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextElementSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className="h-10 w-10 rounded bg-gray-200 items-center justify-center"
+                            style={{ display: logoUrl ? 'none' : 'flex' }}
+                          >
                             <span className="text-gray-500 text-xs">No Logo</span>
                           </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{partner.name}</div>
-                        {partner.description && (
-                          <div className="text-sm text-gray-500 truncate max-w-xs">{partner.description}</div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {partner.website ? (
-                          <a href={partner.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm">
-                            Visit Site
-                          </a>
-                        ) : (
-                          <span className="text-gray-400 text-sm">N/A</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          partner.is_active 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {partner.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => handleOpenModal(partner)}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(partner)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900">{partner.name}</div>
+                          {partner.description && (
+                            <div className="text-sm text-gray-500 truncate max-w-xs">{partner.description}</div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {partner.website ? (
+                            <a href={partner.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm">
+                              Visit Site
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-sm">N/A</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            partner.is_active 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {partner.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleOpenModal(partner)}
+                            className="text-blue-600 hover:text-blue-900 mr-4"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(partner)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -295,44 +366,72 @@ const PartnerAdminDashboard = () => {
                     />
                   </div>
 
-                  {/* Logo URL with Preview */}
+                  {/* Logo File Upload with Preview */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
-                    <input
-                      type="url"
-                      name="logo_url"
-                      value={formData.logo_url}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
-                      placeholder="https://example.com/logo.png"
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Partner Logo
+                    </label>
                     
-                    {/* Live Logo Preview */}
-                    {formData.logo_url && (
-                      <div className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <p className="text-xs font-medium text-gray-600 mb-2">Logo Preview:</p>
-                        <div className="flex items-center justify-center">
-                          {!imageError ? (
-                            <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500 flex items-center justify-center p-4">
-                              <img
-                                src={formData.logo_url}
-                                alt="Logo preview"
-                                className="w-full h-full object-contain"
-                                onError={() => setImageError(true)}
-                              />
+                    {/* Upload Area */}
+                    <div className="mt-2">
+                      {!logoPreview ? (
+                        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg className="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p className="mb-2 text-sm text-gray-500">
+                              <span className="font-semibold">Click to upload</span> or drag and drop
+                            </p>
+                            <p className="text-xs text-gray-500">PNG, JPG, GIF or WEBP (MAX. 5MB)</p>
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                            onChange={handleLogoChange}
+                          />
+                        </label>
+                      ) : (
+                        <div className="relative">
+                          {/* Logo Preview */}
+                          <div className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                            <div className="flex items-center justify-center">
+                              <div className="relative w-40 h-40 rounded-full bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500 flex items-center justify-center p-4">
+                                <img
+                                  src={logoPreview}
+                                  alt="Logo preview"
+                                  className="w-full h-full object-contain rounded-full"
+                                />
+                              </div>
                             </div>
-                          ) : (
-                            <div className="text-center py-4">
-                              <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <p className="text-sm text-red-600 mt-2">Failed to load image</p>
-                              <p className="text-xs text-gray-500 mt-1">Please check the URL</p>
+                            
+                            {/* Remove and Change Buttons */}
+                            <div className="flex gap-2 mt-4">
+                              <label className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-center">
+                                Change Logo
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                  onChange={handleLogoChange}
+                                />
+                              </label>
+                              <button
+                                type="button"
+                                onClick={handleRemoveLogo}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                              >
+                                Remove Logo
+                              </button>
                             </div>
-                          )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Upload a logo for your partner organization
+                    </p>
                   </div>
 
                   <div>

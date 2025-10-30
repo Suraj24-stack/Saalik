@@ -9,6 +9,11 @@ const PartnersSection = () => {
   // Get partners from Redux store
   const { partners, loading, error } = useSelector((state) => state.partner);
 
+  // Get API base URL and construct the uploads base URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+  // Remove '/api/v1' to get the base domain for static files
+  const UPLOADS_BASE_URL = API_BASE_URL.replace('/api/v1', '');
+
   // Fetch partners on component mount
   useEffect(() => {
     dispatch(fetchAllPartners());
@@ -18,6 +23,26 @@ const PartnersSection = () => {
   const activePartners = partners
     .filter(partner => partner.is_active === true || partner.is_active === 'true')
     .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+  // Helper function to get full logo URL
+  const getLogoUrl = (logoUrl) => {
+    if (!logoUrl) return null;
+    // If it's already a full URL (starts with http), return as is
+    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+      return logoUrl;
+    }
+    // Otherwise, prepend the base URL
+    return `${UPLOADS_BASE_URL}${logoUrl}`;
+  };
+
+  // Debug logging - remove after testing
+  useEffect(() => {
+    if (activePartners.length > 0) {
+      console.log('Active Partners:', activePartners);
+      console.log('Sample Logo URL:', activePartners[0]?.logo_url);
+      console.log('Full Logo URL:', getLogoUrl(activePartners[0]?.logo_url));
+    }
+  }, [activePartners]);
 
   return (
     <section className="relative py-20 md:py-28 px-4 overflow-hidden" style={{ backgroundColor: '#001410' }}>
@@ -35,7 +60,7 @@ const PartnersSection = () => {
         {/* Title */}
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-16 md:mb-20">
           <span className="text-white">IN </span>
-          <span className="text-green-400">ASSOCIATION</span>
+          <span className="text-green-400">COLLABORATION</span>
           <span className="text-white"> WITH</span>
         </h2>
 
@@ -91,99 +116,114 @@ const PartnersSection = () => {
         {/* Partners Grid */}
         {!loading && !error && activePartners.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-20 md:mb-28">
-            {activePartners.map((partner) => (
-              <div
-                key={partner.id}
-                className="flex flex-col items-center text-center group"
-                onMouseEnter={() => setHoveredPartner(partner.id)}
-                onMouseLeave={() => setHoveredPartner(null)}
-              >
-                {/* Logo Container */}
-                <div className="relative w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 mb-4 md:mb-6">
-                  {/* Glow Effect */}
-                  <div 
-                    className="absolute inset-0 bg-green-400/20 rounded-full blur-2xl scale-110 transition-opacity duration-300"
-                    style={{
-                      opacity: hoveredPartner === partner.id ? 1 : 0
-                    }}
-                  />
-                  
-                  {/* Logo Circle */}
-                  <div 
-                    className="relative w-full h-full rounded-full bg-gradient-to-br from-gray-900 to-black flex items-center justify-center transition-all duration-300 shadow-xl cursor-pointer"
-                    style={{
-                      border: hoveredPartner === partner.id 
-                        ? '2px solid #10b981' 
-                        : '2px solid rgba(16, 185, 129, 0.4)',
-                      boxShadow: hoveredPartner === partner.id 
-                        ? '0 0 30px rgba(16, 185, 129, 0.3)' 
-                        : '0 0 0 rgba(0, 0, 0, 0)'
-                    }}
-                    onClick={() => {
-                      if (partner.website) {
-                        window.open(partner.website, '_blank', 'noopener,noreferrer');
-                      }
-                    }}
-                  >
-                    {partner.logo_url ? (
-                      <img
-                        src={partner.logo_url}
-                        alt={partner.name}
-                        className="w-20 h-20 md:w-24 md:h-24 object-contain p-2"
-                        style={{
-                          filter: hoveredPartner === partner.id ? 'brightness(1.1)' : 'brightness(1)',
-                          transition: 'filter 0.3s ease'
-                        }}
-                      />
-                    ) : (
-                      <span className="text-5xl md:text-6xl opacity-50">🏛️</span>
-                    )}
-
-                    {/* Website Link Indicator on Hover */}
-                    {partner.website && hoveredPartner === partner.id && (
-                      <div 
-                        className="absolute inset-0 rounded-full flex items-center justify-center"
-                        style={{
-                          background: 'rgba(16, 185, 129, 0.15)',
-                          backdropFilter: 'blur(4px)'
-                        }}
-                      >
-                        <span 
-                          className="text-xs font-bold px-3 py-1 rounded-full"
+            {activePartners.map((partner) => {
+              const fullLogoUrl = getLogoUrl(partner.logo_url);
+              
+              return (
+                <div
+                  key={partner.id}
+                  className="flex flex-col items-center text-center group"
+                  onMouseEnter={() => setHoveredPartner(partner.id)}
+                  onMouseLeave={() => setHoveredPartner(null)}
+                >
+                  {/* Logo Container */}
+                  <div className="relative w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 mb-4 md:mb-6">
+                    {/* Glow Effect */}
+                    <div 
+                      className="absolute inset-0 bg-green-400/20 rounded-full blur-2xl scale-110 transition-opacity duration-300"
+                      style={{
+                        opacity: hoveredPartner === partner.id ? 1 : 0
+                      }}
+                    />
+                    
+                    {/* Logo Circle */}
+                    <div 
+                      className="relative w-full h-full rounded-full bg-gradient-to-br from-gray-900 to-black flex items-center justify-center transition-all duration-300 shadow-xl cursor-pointer"
+                      style={{
+                        border: hoveredPartner === partner.id 
+                          ? '2px solid #10b981' 
+                          : '2px solid rgba(16, 185, 129, 0.4)',
+                        boxShadow: hoveredPartner === partner.id 
+                          ? '0 0 30px rgba(16, 185, 129, 0.3)' 
+                          : '0 0 0 rgba(0, 0, 0, 0)'
+                      }}
+                      onClick={() => {
+                        if (partner.website) {
+                          window.open(partner.website, '_blank', 'noopener,noreferrer');
+                        }
+                      }}
+                    >
+                      {fullLogoUrl ? (
+                        <img
+                          src={fullLogoUrl}
+                          alt={partner.name}
+                          className="w-20 h-20 md:w-24 md:h-24 object-contain p-2"
                           style={{
-                            background: '#10b981',
-                            color: '#000'
+                            filter: hoveredPartner === partner.id ? 'brightness(1.1)' : 'brightness(1)',
+                            transition: 'filter 0.3s ease'
+                          }}
+                          onError={(e) => {
+                            console.error('Image failed to load:', fullLogoUrl);
+                            e.target.style.display = 'none';
+                            e.target.nextElementSibling.style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      
+                      {/* Fallback icon - shown if no logo or if image fails to load */}
+                      <span 
+                        className="text-5xl md:text-6xl opacity-50"
+                        style={{ display: fullLogoUrl ? 'none' : 'block' }}
+                      >
+                        🏛️
+                      </span>
+
+                      {/* Website Link Indicator on Hover */}
+                      {partner.website && hoveredPartner === partner.id && (
+                        <div 
+                          className="absolute inset-0 rounded-full flex items-center justify-center"
+                          style={{
+                            background: 'rgba(16, 185, 129, 0.15)',
+                            backdropFilter: 'blur(4px)'
                           }}
                         >
-                          Visit
-                        </span>
-                      </div>
-                    )}
+                          <span 
+                            className="text-xs font-bold px-3 py-1 rounded-full"
+                            style={{
+                              background: '#10b981',
+                              color: '#000'
+                            }}
+                          >
+                            Visit
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                
-                {/* Partner Name */}
-                <p className="text-green-400 text-sm md:text-base font-semibold leading-tight max-w-[180px]">
-                  {partner.name}
-                </p>
-
-                {/* Optional: Description on hover */}
-                {partner.description && hoveredPartner === partner.id && (
-                  <p 
-                    className="text-gray-400 text-xs mt-2 max-w-[180px] leading-relaxed"
-                    style={{
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      animation: 'fadeIn 0.3s ease-in'
-                    }}
-                  >
-                    {partner.description}
+                  
+                  {/* Partner Name */}
+                  <p className="text-green-400 text-sm md:text-base font-semibold leading-tight max-w-[180px]">
+                    {partner.name}
                   </p>
-                )}
-              </div>
-            ))}
+
+                  {/* Optional: Description on hover */}
+                  {partner.description && hoveredPartner === partner.id && (
+                    <p 
+                      className="text-gray-400 text-xs mt-2 max-w-[180px] leading-relaxed"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        animation: 'fadeIn 0.3s ease-in'
+                      }}
+                    >
+                      {partner.description}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
