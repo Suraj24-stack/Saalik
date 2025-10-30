@@ -6,7 +6,7 @@ const GuideBookingSection = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate("/GuideBookingForm");
+    navigate("/guide-booking");
   };
 
   // Get guide booking data from mock (you can replace this with API call later if needed)

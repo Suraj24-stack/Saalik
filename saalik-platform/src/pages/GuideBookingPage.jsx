@@ -149,10 +149,7 @@ const GuideBookingPage = () => {
         {/* Booking Form Section */}
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-wide">
-              <span className="text-white">JOIN THE </span>
-              <span className="text-green-400">WAITLIST</span>
-            </h2>
+           
             <p className="text-white/70 text-lg">
               Be among the first to experience authentic guided tours in Nepal
             </p>
