@@ -31,14 +31,7 @@ const StoriesPreview = ({ onViewAll, onStoryClick }) => {
               </p>
             </div>
 
-            <div className="flex justify-center lg:justify-start pt-4">
-              <button
-                onClick={onViewAll}
-                className="bg-green-500 hover:bg-green-400 text-white font-black text-base md:text-lg py-4 md:py-5 px-12 md:px-16 rounded-full transition-all duration-300 hover:scale-105 shadow-2xl shadow-green-500/40 tracking-wider uppercase"
-              >
-                LAUNCHING SOON
-              </button>
-            </div>
+            
           </div>
 
           {/* Right Side - Single Image */}
