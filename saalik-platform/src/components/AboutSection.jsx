@@ -11,17 +11,18 @@ const AboutSection = () => (
     </div>
 
     <div className="max-w-7xl mx-auto relative">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      {/* Changed to 5 columns grid - 3 for image, 2 for text */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-center">
         
-        {/* Left Side - Image */}
-        <div className="relative flex justify-center lg:justify-start">
-          <div className="relative w-full max-w-md lg:max-w-lg">
+        {/* Left Side - MUCH BIGGER Image (Takes 3 columns) */}
+        <div className="lg:col-span-3 relative flex justify-center lg:justify-start">
+          <div className="relative w-full">
             
             {mockData.aboutImage ? (
               <img
                 src={mockData.aboutImage}
                 alt="Deity Statue"
-                className="w-full h-auto object-contain"
+                className="w-full h-auto object-contain drop-shadow-2xl"
               />
             ) : (
               <div className="w-full aspect-square flex items-center justify-center">
@@ -32,8 +33,8 @@ const AboutSection = () => (
           </div>
         </div>
         
-        {/* Right Side - Text Content */}
-        <div className="space-y-6 lg:pl-8 py-6">
+        {/* Right Side - Text Content (Takes 2 columns) */}
+        <div className="lg:col-span-2 space-y-6 py-6">
           <h2 className="text-4xl md:text-5xl lg:text-6xl leading-tight tracking-wide" style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
             <span className="text-white">WHAT IS </span>
             <span className="text-green-400">SAALIK?</span>

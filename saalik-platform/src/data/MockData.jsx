@@ -2,13 +2,13 @@ export const mockData = {
 
 // Navbar Data
   navbar: {
-    logo: "/saaliklogo.png", // Place your logo in public folder
+    logo: "/saalikmainlogo.png", // Place your logo in public folder
     brandName: "SAALIK"
   },
 
  // SAALIK Group Logos
   saalikGroup: {
-    mainLogo: "/saaliklogo.png", // Circular logo with dancing figure
+    mainLogo: "/saalikmainlogo.png", // Circular logo with dancing figure
     designsLogo: "/logo.png", // SAALIK DESIGNS logo
   },
 

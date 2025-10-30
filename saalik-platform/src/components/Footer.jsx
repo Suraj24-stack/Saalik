@@ -1,5 +1,6 @@
 import React from "react";
 import { Facebook, Youtube, Instagram } from "lucide-react";
+import { mockData } from "../data/MockData";
 
 const Footer = () => (
   <footer className="bg-black border-t border-green-500/20 py-12 px-4">
@@ -10,9 +11,9 @@ const Footer = () => (
         <div>
           <div className="mb-4">
             <img 
-              src="/path/to/your/logo.png" 
-              alt="SAALIK Logo" 
-              className="h-12 w-auto"
+              src={mockData.navbar.logo} 
+              alt={`${mockData.navbar.brandName} Logo`}
+              className="h-12 w-auto object-contain"
             />
           </div>
           <p className="text-gray-400 text-sm">

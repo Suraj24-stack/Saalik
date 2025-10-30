@@ -37,54 +37,108 @@ const Navbar = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex justify-between items-center h-20">
-          <button onClick={() => handleNavigate("/")} className="focus:outline-none group">
-            <img src={mockData.navbar.logo} alt={`${mockData.navbar.brandName} Logo`} className="w-12 h-12 object-cover hover:scale-110 transition-transform duration-300" />
+          {/* Full Horizontal Logo */}
+          <button 
+            onClick={() => handleNavigate("/")} 
+            className="focus:outline-none group flex items-center"
+          >
+            <img 
+              src={mockData.navbar.logo} 
+              alt={`${mockData.navbar.brandName} Logo`} 
+              className="h-12 w-auto object-contain hover:scale-105 transition-transform duration-300"
+            />
           </button>
 
           <div className="flex items-center space-x-1">
             {!isMobile && (
               <>
-                <button onClick={() => handleNavigate("/")} className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${isActive("/") ? "text-green-400" : "text-white hover:text-green-400"}`}>
+                <button 
+                  onClick={() => handleNavigate("/")} 
+                  className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${
+                    isActive("/") ? "text-green-400" : "text-white hover:text-green-400"
+                  }`}
+                >
                   HOME
                 </button>
-                <button onClick={() => handleNavigate("/stories")} className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${isActive("/stories") ? "text-green-400" : "text-white hover:text-green-400"}`}>
+                <button 
+                  onClick={() => handleNavigate("/stories")} 
+                  className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${
+                    isActive("/stories") ? "text-green-400" : "text-white hover:text-green-400"
+                  }`}
+                >
                   STORIES
                 </button>
-                <button onClick={() => handleNavigate("/guide-booking")} className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${isActive("/guide-booking") ? "text-green-400" : "text-white hover:text-green-400"}`}>
+                <button 
+                  onClick={() => handleNavigate("/guide-booking")} 
+                  className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${
+                    isActive("/guide-booking") ? "text-green-400" : "text-white hover:text-green-400"
+                  }`}
+                >
                   GUIDE BOOKING
                 </button>
-                <button onClick={() => handleNavigate("/contact")} className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${isActive("/contact") ? "text-green-400" : "text-white hover:text-green-400"}`}>
+                <button 
+                  onClick={() => handleNavigate("/contact")} 
+                  className={`px-4 py-2 text-sm font-semibold tracking-wider uppercase transition-colors ${
+                    isActive("/contact") ? "text-green-400" : "text-white hover:text-green-400"
+                  }`}
+                >
                   CONTACT
                 </button>
               </>
             )}
 
-            <button className="text-green-400 hover:text-green-300 transition-colors p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
+            <button 
+              className="text-green-400 hover:text-green-300 transition-colors p-2" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+              aria-label="Toggle menu"
+            >
               {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMobile && mobileMenuOpen && (
         <div className="bg-black/98 border-t border-green-500/20 backdrop-blur-sm">
           <div className="px-4 py-6 space-y-1 flex flex-col">
-            <button onClick={() => handleNavigate("/")} className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${isActive("/") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"}`}>
+            <button 
+              onClick={() => handleNavigate("/")} 
+              className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${
+                isActive("/") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"
+              }`}
+            >
               HOME
             </button>
-            <button onClick={() => handleNavigate("/stories")} className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${isActive("/stories") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"}`}>
+            <button 
+              onClick={() => handleNavigate("/stories")} 
+              className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${
+                isActive("/stories") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"
+              }`}
+            >
               STORIES
             </button>
-            <button onClick={() => handleNavigate("/guide-booking")} className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${isActive("/guide-booking") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"}`}>
+            <button 
+              onClick={() => handleNavigate("/guide-booking")} 
+              className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${
+                isActive("/guide-booking") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"
+              }`}
+            >
               GUIDE BOOKING
             </button>
-            <button onClick={() => handleNavigate("/contact")} className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${isActive("/contact") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"}`}>
+            <button 
+              onClick={() => handleNavigate("/contact")} 
+              className={`py-3 px-4 rounded-lg text-left font-semibold tracking-wider uppercase transition-colors ${
+                isActive("/contact") ? "text-green-400 bg-green-500/10" : "text-white hover:text-green-400 hover:bg-green-500/10"
+              }`}
+            >
               CONTACT
             </button>
           </div>
         </div>
       )}
 
+      {/* Desktop Mega Menu */}
       {!isMobile && mobileMenuOpen && (
         <div className="bg-black/98 border-t border-green-500/20 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,27 +147,72 @@ const Navbar = () => {
               <div>
                 <h3 className="text-green-400 font-bold text-lg mb-3 uppercase tracking-wider">Quick Links</h3>
                 <div className="space-y-2">
-                  <button onClick={() => handleNavigate("/")} className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Home</button>
-                  <button onClick={() => handleNavigate("/stories")} className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Stories</button>
-                  <button onClick={() => handleNavigate("/guide-booking")} className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Guide Booking</button>
+                  <button 
+                    onClick={() => handleNavigate("/")} 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Home
+                  </button>
+                  <button 
+                    onClick={() => handleNavigate("/stories")} 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Stories
+                  </button>
+                  <button 
+                    onClick={() => handleNavigate("/guide-booking")} 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Guide Booking
+                  </button>
                 </div>
               </div>
 
               <div>
                 <h3 className="text-green-400 font-bold text-lg mb-3 uppercase tracking-wider">Connect</h3>
                 <div className="space-y-2">
-                  <button onClick={() => handleNavigate("/contact")} className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Contact Us</button>
-                  <a href="mailto:saalik130@gmail.com" className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Email Us</a>
-                  <a href="tel:+9779840836892" className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Call Us</a>
+                  <button 
+                    onClick={() => handleNavigate("/contact")} 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Contact Us
+                  </button>
+                  <a 
+                    href="mailto:saalik130@gmail.com" 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Email Us
+                  </a>
+                  <a 
+                    href="tel:+9779840836892" 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Call Us
+                  </a>
                 </div>
               </div>
 
               <div>
                 <h3 className="text-green-400 font-bold text-lg mb-3 uppercase tracking-wider">Explore</h3>
                 <div className="space-y-2">
-                  <button onClick={() => handleNavigate("/login")} className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Login</button>
-                  <button onClick={() => handleNavigate("/stories")} className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Discover Stories</button>
-                  <button onClick={() => handleNavigate("/guide-booking")} className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider">Find a Guide</button>
+                  <button 
+                    onClick={() => handleNavigate("/login")} 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Login
+                  </button>
+                  <button 
+                    onClick={() => handleNavigate("/stories")} 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Discover Stories
+                  </button>
+                  <button 
+                    onClick={() => handleNavigate("/guide-booking")} 
+                    className="block text-white hover:text-green-400 transition-colors text-sm uppercase tracking-wider"
+                  >
+                    Find a Guide
+                  </button>
                 </div>
               </div>
             </div>

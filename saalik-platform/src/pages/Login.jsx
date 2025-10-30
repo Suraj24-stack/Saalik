@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { mockData } from "../data/MockData";
 
 import {
   LoginUser,
@@ -182,25 +183,32 @@ export default function Login() {
 
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <main className="min-h-screen bg-black">
         <Navbar />
-        <div className="pt-20 mt-10 pb-12 px-4 sm:px-6 lg:px-8">
+        
+        {/* Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 right-0 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-0 w-96 h-96 bg-green-500/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative pt-32 pb-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-md mx-auto">
             {/* Back Link */}
             <Link
               to="/"
-              className="inline-flex items-center text-emerald-400 hover:text-emerald-300 mb-8 transition-all duration-200 hover:translate-x-1 group"
+              className="inline-flex items-center text-green-400 hover:text-green-300 mb-8 transition-all duration-200 group"
             >
               <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
-              Back to Home
+              <span className="font-medium">Back to Home</span>
             </Link>
 
             {/* Success Message */}
             {displaySuccessMessage && (
-              <div className="bg-emerald-900/30 border border-emerald-500/50 rounded-xl p-4 mb-6 flex items-start animate-fadeIn backdrop-blur-sm">
-                <CheckCircle className="w-5 h-5 text-emerald-400 mt-0.5 mr-3 flex-shrink-0" />
+              <div className="bg-green-500/10 border border-green-500/50 rounded-xl p-4 mb-6 flex items-start animate-fadeIn backdrop-blur-sm">
+                <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 mr-3 flex-shrink-0" />
                 <div>
-                  <p className="text-emerald-300 text-sm font-medium">
+                  <p className="text-green-300 text-sm font-medium">
                     {displaySuccessMessage}
                   </p>
                 </div>
@@ -208,18 +216,24 @@ export default function Login() {
             )}
 
             {/* Login Card */}
-            <div className="bg-gradient-to-br from-gray-800/90 via-gray-900/90 to-black/90 backdrop-blur-sm rounded-3xl shadow-2xl border-2 border-emerald-500/30 p-8 space-y-8">
-              {/* Header */}
-              <div className="text-center space-y-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/50">
-                  <LogIn className="w-10 h-10 text-white" />
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-500/20 p-8 md:p-10">
+              {/* Logo & Header */}
+              <div className="text-center space-y-6 mb-8">
+                <div className="flex justify-center">
+                  <img 
+                    src={mockData.navbar.logo} 
+                    alt={`${mockData.navbar.brandName} Logo`}
+                    className="h-16 w-auto object-contain"
+                  />
                 </div>
+                
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">
-                    Welcome Back
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
+                    <span className="text-white">WELCOME </span>
+                    <span className="text-green-400">BACK</span>
                   </h1>
-                  <p className="text-gray-400 leading-relaxed">
-                    Sign in to your account to continue your study abroad journey
+                  <p className="text-gray-400">
+                    Sign in to access your dashboard
                   </p>
                 </div>
               </div>
@@ -227,12 +241,12 @@ export default function Login() {
               {/* Error Message */}
               {error && (
                 <div
-                  className={`rounded-xl p-4 animate-fadeIn border backdrop-blur-sm ${
+                  className={`rounded-xl p-4 animate-fadeIn border backdrop-blur-sm mb-6 ${
                     isEmailVerificationError
-                      ? "bg-orange-900/30 border-orange-500/50"
+                      ? "bg-orange-500/10 border-orange-500/50"
                       : isAccountStatusError
-                      ? "bg-yellow-900/30 border-yellow-500/50"
-                      : "bg-red-900/30 border-red-500/50"
+                      ? "bg-yellow-500/10 border-yellow-500/50"
+                      : "bg-red-500/10 border-red-500/50"
                   }`}
                 >
                   <div className="flex items-start space-x-3">
@@ -245,7 +259,7 @@ export default function Login() {
                     )}
                     <div className="flex-1">
                       <p
-                        className={`text-sm font-medium ${
+                        className={`text-sm font-semibold mb-1 ${
                           isEmailVerificationError
                             ? "text-orange-300"
                             : isAccountStatusError
@@ -260,7 +274,7 @@ export default function Login() {
                           : "Login Failed"}
                       </p>
                       <p
-                        className={`text-sm mt-1 ${
+                        className={`text-sm ${
                           isEmailVerificationError
                             ? "text-orange-400"
                             : isAccountStatusError
@@ -276,11 +290,11 @@ export default function Login() {
               )}
 
               {/* Login Form */}
-              <form id="loginForm" onSubmit={handleSubmit} className="space-y-6">
+              <form id="loginForm" onSubmit={handleSubmit} className="space-y-5">
                 {/* Email */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-emerald-400">
-                    Email Address *
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Email Address <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
@@ -290,16 +304,16 @@ export default function Login() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full pl-12 pr-4 py-4 border-2 border-emerald-500/30 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-900/50 hover:bg-gray-900/70 text-white placeholder-gray-500 transition-all"
+                      className="w-full pl-12 pr-4 py-3 border border-green-500/30 rounded-lg focus:ring-2 focus:ring-green-400/50 focus:border-green-400 bg-black/50 text-white placeholder-gray-500 transition-all"
                       placeholder="Enter your email"
                     />
                   </div>
                 </div>
 
                 {/* Password */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-emerald-400">
-                    Password *
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Password <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
@@ -309,13 +323,13 @@ export default function Login() {
                       value={formData.password}
                       onChange={handleChange}
                       required
-                      className="w-full pl-12 pr-14 py-4 border-2 border-emerald-500/30 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-900/50 hover:bg-gray-900/70 text-white placeholder-gray-500 transition-all"
+                      className="w-full pl-12 pr-14 py-3 border border-green-500/30 rounded-lg focus:ring-2 focus:ring-green-400/50 focus:border-green-400 bg-black/50 text-white placeholder-gray-500 transition-all"
                       placeholder="Enter your password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-emerald-400 p-1 transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-green-400 transition-colors"
                     >
                       {showPassword ? (
                         <EyeOff className="w-5 h-5" />
@@ -327,21 +341,21 @@ export default function Login() {
                 </div>
 
                 {/* Remember & Forgot */}
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center cursor-pointer">
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 text-emerald-600 border-gray-600 rounded focus:ring-emerald-500 bg-gray-800"
+                      className="w-4 h-4 text-green-600 border-gray-600 rounded focus:ring-green-500 bg-gray-800"
                     />
-                    <span className="ml-3 text-sm text-gray-300 font-medium">
+                    <span className="ml-2 text-gray-300 group-hover:text-white transition-colors">
                       Remember me
                     </span>
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                    className="text-green-400 hover:text-green-300 font-medium transition-colors"
                   >
                     Forgot password?
                   </Link>
@@ -351,10 +365,10 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={isLoading || !isFormValid}
-                  className={`w-full font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-2 shadow-lg transition-all ${
+                  className={`w-full font-bold py-3.5 rounded-lg flex items-center justify-center space-x-2 transition-all ${
                     isLoading || !isFormValid
                       ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                      : "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 shadow-emerald-500/50"
+                      : "bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
                   }`}
                 >
                   {isLoading ? (
@@ -371,12 +385,22 @@ export default function Login() {
                 </button>
               </form>
 
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-700"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-gray-900/50 text-gray-400">or</span>
+                </div>
+              </div>
+
               {/* Demo Credentials Toggle */}
               <div className="text-center">
                 <button
                   type="button"
                   onClick={() => setShowDemoCredentials(!showDemoCredentials)}
-                  className="text-sm text-gray-400 hover:text-emerald-400 transition-colors"
+                  className="text-sm text-gray-400 hover:text-green-400 transition-colors font-medium"
                 >
                   {showDemoCredentials ? "Hide" : "Show"} Demo Credentials
                 </button>
@@ -384,31 +408,41 @@ export default function Login() {
 
               {/* Demo Credentials */}
               {showDemoCredentials && (
-                <div className="space-y-3 animate-fadeIn">
+                <div className="mt-4 space-y-3 animate-fadeIn">
                   {demoCredentials.map((cred, index) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => fillDemoCredentials(cred)}
-                      className="w-full p-4 bg-gray-800/50 hover:bg-gray-700/50 border border-emerald-500/20 rounded-xl transition-all text-left group"
+                      className="w-full p-4 bg-black/30 hover:bg-black/50 border border-green-500/20 hover:border-green-500/40 rounded-lg transition-all text-left group"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
-                          <cred.icon className="w-5 h-5 text-emerald-400" />
+                        <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+                          <cred.icon className="w-5 h-5 text-green-400" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-white font-medium">{cred.type}</p>
+                          <p className="text-white font-semibold">{cred.type}</p>
                           <p className="text-xs text-gray-400">{cred.description}</p>
                         </div>
                         <div className="text-right text-xs text-gray-500">
-                          <div>{cred.email}</div>
-                          <div className="mt-1">{cred.password}</div>
+                          <div className="font-mono">{cred.email}</div>
+                          <div className="mt-1 font-mono">{cred.password}</div>
                         </div>
                       </div>
                     </button>
                   ))}
                 </div>
               )}
+
+              {/* Sign Up Link */}
+              <div className="mt-6 text-center">
+                <p className="text-gray-400 text-sm">
+                  Don't have an account?{' '}
+                  <Link to="/register" className="text-green-400 hover:text-green-300 font-semibold transition-colors">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
             </div>
           </div>
         </div>
