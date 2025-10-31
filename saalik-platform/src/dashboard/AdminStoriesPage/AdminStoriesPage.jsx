@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllStories,
@@ -9,10 +9,16 @@ import {
   clearError,
 } from "../../../store/slices/storySlice";
 import { Search, Plus, Edit2, Trash2, Eye, Calendar, MapPin, X, Image, FileText } from "lucide-react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import axios from 'axios';
 
 const AdminStoriesPage = () => {
   const dispatch = useDispatch();
   const { stories, loading, error, success } = useSelector((state) => state.story);
+  const quillRef = useRef(null);
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
   const [formData, setFormData] = useState({
     title: "",
@@ -48,6 +54,85 @@ const AdminStoriesPage = () => {
       setTimeout(() => dispatch(clearError()), 5000);
     }
   }, [error, dispatch]);
+
+  // Custom image handler for Quill editor
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.post(
+            `${API_BASE_URL}/stories/upload-image`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+
+          if (response.data.success) {
+            const imageUrl = response.data.url;
+            const quill = quillRef.current.getEditor();
+            const range = quill.getSelection();
+            quill.insertEmbed(range.index, 'image', imageUrl);
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image. Please try again.');
+        }
+      }
+    };
+  };
+
+  // Quill modules configuration
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'font': [] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'script': 'sub' }, { 'script': 'super' }],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'indent': '-1' }, { 'indent': '+1' }],
+        [{ 'direction': 'rtl' }],
+        [{ 'align': [] }],
+        ['link', 'image', 'video'],
+        ['blockquote', 'code-block'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    },
+    clipboard: {
+      matchVisual: false
+    }
+  }), []);
+
+  // Quill formats
+  const formats = [
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline', 'strike',
+    'color', 'background',
+    'script',
+    'list', 'bullet', 'indent',
+    'direction', 'align',
+    'link', 'image', 'video',
+    'blockquote', 'code-block'
+  ];
 
   const resetForm = () => {
     setFormData({
@@ -297,8 +382,8 @@ const AdminStoriesPage = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-slate-700 shadow-2xl">
-            <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-6 flex justify-between items-center">
+          <div className="bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-slate-700 shadow-2xl">
+            <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-6 flex justify-between items-center z-10">
               <h2 className="text-2xl font-bold">
                 {editingId ? "Edit Story" : "Create New Story"}
               </h2>
@@ -328,10 +413,10 @@ const AdminStoriesPage = () => {
                 />
               </div>
 
-              {/* Image Upload */}
+              {/* Featured Image Upload */}
               <div>
                 <label className="block text-sm font-medium mb-2 text-slate-300">
-                  Featured Image
+                  Featured Image (Cover Photo)
                 </label>
                 <div className="flex items-center gap-4">
                   <input
@@ -339,14 +424,14 @@ const AdminStoriesPage = () => {
                     accept="image/*"
                     onChange={handleImageChange}
                     className="hidden"
-                    id="image-upload"
+                    id="featured-image-upload"
                   />
                   <label
-                    htmlFor="image-upload"
+                    htmlFor="featured-image-upload"
                     className="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700 transition-colors flex items-center gap-2"
                   >
                     <Image className="w-5 h-5" />
-                    <span>Choose Image</span>
+                    <span>Choose Featured Image</span>
                   </label>
                   {imagePreview && (
                     <img
@@ -356,6 +441,7 @@ const AdminStoriesPage = () => {
                     />
                   )}
                 </div>
+                <p className="text-xs text-slate-400 mt-1">This image will appear as the cover/thumbnail</p>
               </div>
 
               {/* Image Alt Text */}
@@ -368,7 +454,7 @@ const AdminStoriesPage = () => {
                   value={formData.image_alt}
                   onChange={(e) => setFormData({ ...formData, image_alt: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  placeholder="Describe the image for accessibility"
+                  placeholder="Describe the featured image for accessibility"
                 />
               </div>
 
@@ -382,22 +468,31 @@ const AdminStoriesPage = () => {
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                   rows={3}
-                  placeholder="Brief summary of the story"
+                  placeholder="Brief summary of the story (shown in previews)"
                 />
               </div>
 
-              {/* Content */}
+              {/* Rich Text Content Editor */}
               <div>
                 <label className="block text-sm font-medium mb-2 text-slate-300">
-                  Content *
+                  Content * 
+                  <span className="text-xs text-slate-400 ml-2">(Use the toolbar to format text, add images, and links)</span>
                 </label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  rows={8}
-                  required
-                />
+                <div className="bg-white rounded-lg">
+                  <ReactQuill
+                    ref={quillRef}
+                    theme="snow"
+                    value={formData.content}
+                    onChange={(content) => setFormData({ ...formData, content })}
+                    modules={modules}
+                    formats={formats}
+                    placeholder="Write your story here... Click the image icon in the toolbar to insert images inline."
+                    className="min-h-[400px]"
+                  />
+                </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  💡 Tip: Click the image icon (📷) in the toolbar to upload and insert images directly into your story content
+                </p>
               </div>
 
               {/* Location & Date */}
@@ -411,6 +506,7 @@ const AdminStoriesPage = () => {
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                    placeholder="e.g., Kathmandu, Nepal"
                   />
                 </div>
 
@@ -437,12 +533,12 @@ const AdminStoriesPage = () => {
                   className="w-5 h-5 rounded bg-slate-700 border-slate-600 text-blue-500 focus:ring-blue-500 focus:ring-2"
                 />
                 <label htmlFor="is_published" className="text-sm font-medium text-slate-300 cursor-pointer">
-                  Publish this story
+                  Publish this story (make it visible to public)
                 </label>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-4 border-t border-slate-700">
                 <button
                   type="submit"
                   disabled={loading}
@@ -465,6 +561,62 @@ const AdminStoriesPage = () => {
           </div>
         </div>
       )}
+
+      {/* Custom Styles for Quill Editor */}
+      <style>{`
+        .ql-toolbar {
+          background: #1e293b !important;
+          border: 1px solid #475569 !important;
+          border-radius: 0.5rem 0.5rem 0 0 !important;
+        }
+        .ql-container {
+          background: white !important;
+          border: 1px solid #475569 !important;
+          border-top: none !important;
+          border-radius: 0 0 0.5rem 0.5rem !important;
+          min-height: 400px;
+        }
+        .ql-editor {
+          min-height: 400px;
+          font-size: 16px;
+          color: #1e293b;
+        }
+        .ql-editor.ql-blank::before {
+          color: #94a3b8;
+          font-style: normal;
+        }
+        .ql-toolbar button {
+          color: #e2e8f0 !important;
+        }
+        .ql-toolbar button:hover {
+          color: #60a5fa !important;
+        }
+        .ql-toolbar .ql-stroke {
+          stroke: #e2e8f0 !important;
+        }
+        .ql-toolbar button:hover .ql-stroke {
+          stroke: #60a5fa !important;
+        }
+        .ql-toolbar .ql-fill {
+          fill: #e2e8f0 !important;
+        }
+        .ql-toolbar button:hover .ql-fill {
+          fill: #60a5fa !important;
+        }
+        .ql-toolbar .ql-picker-label {
+          color: #e2e8f0 !important;
+        }
+        .ql-toolbar .ql-picker-label:hover {
+          color: #60a5fa !important;
+        }
+        .ql-snow .ql-picker-options {
+          background: #1e293b !important;
+          border: 1px solid #475569 !important;
+        }
+        .ql-snow .ql-picker-item:hover {
+          color: #60a5fa !important;
+        }
+      `}</style>
     </div>
   );
 };

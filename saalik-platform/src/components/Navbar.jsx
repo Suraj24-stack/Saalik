@@ -31,7 +31,7 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full bg-black/95 backdrop-blur-sm z-50 border-b border-green-500/10 relative overflow-hidden">
+    <nav className="fixed top-0 w-full bg-black/100 backdrop-blur-sm z-50 border-b border-green-500/10 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-full bg-green-500/10 blur-3xl pointer-events-none"></div>
       <div className="absolute top-0 right-20 w-64 h-full bg-green-400/5 blur-2xl pointer-events-none"></div>
 
