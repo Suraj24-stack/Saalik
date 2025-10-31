@@ -4,9 +4,8 @@ import AboutSection from "../components/AboutSection";
 import StoriesPreview from "../components/StoriesPreview";
 import GuideBookingSection from "./GuideBookingSection";
 import PartnersSection from "../components/PartnersSection";
-
 import InitiativesCarousel from "../components/InitiativesCarousel";
-import { WaitlistModal, SuggestStoryModal } from "../components/Modal"; // ✅ Correct import
+import { WaitlistModal, SuggestStoryModal } from "../components/Modal";
 import GroupSection from "../components/OurGroups";
 
 const HomePage = ({ setCurrentPage, setSelectedStory }) => {
@@ -14,25 +13,25 @@ const HomePage = ({ setCurrentPage, setSelectedStory }) => {
   const [showSuggestStory, setShowSuggestStory] = useState(false);
 
   return (
-    <div className="bg-black text-white">
-      <HeroCarousel />
-      <AboutSection />
+    <div className="bg-black text-white overflow-x-hidden w-full">
+      {/* Center content with 5% gap on left and right → width 90% */}
+      <div className="w-[90%] mx-auto">
+        <HeroCarousel />
+        <AboutSection />
+        <StoriesPreview
+          onViewAll={() => setCurrentPage("stories")}
+          onStoryClick={(id) => {
+            setSelectedStory(id);
+            setCurrentPage("story-detail");
+          }}
+        />
+        <GuideBookingSection onJoinWaitlist={() => setShowWaitlist(true)} />
+        <PartnersSection />
+        <GroupSection />
+        <InitiativesCarousel />
+      </div>
 
-      <StoriesPreview
-        onViewAll={() => setCurrentPage("stories")}
-        onStoryClick={(id) => {
-          setSelectedStory(id);
-          setCurrentPage("story-detail");
-        }}
-      />
-
-      <GuideBookingSection onJoinWaitlist={() => setShowWaitlist(true)} />
-
-      <PartnersSection />
-      <GroupSection />
-      <InitiativesCarousel />
-
-      {/* ✅ Only include modals (no <Modal />) */}
+      {/* Modals */}
       <WaitlistModal
         isOpen={showWaitlist}
         onClose={() => setShowWaitlist(false)}
