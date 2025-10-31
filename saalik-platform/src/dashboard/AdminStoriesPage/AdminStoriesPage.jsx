@@ -9,9 +9,24 @@ import {
   clearError,
 } from "../../../store/slices/storySlice";
 import { Search, Plus, Edit2, Trash2, Eye, Calendar, MapPin, X, Image, FileText } from "lucide-react";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+
 import axios from 'axios';
+import { useQuill } from "react-quilljs";
+import "quill/dist/quill.snow.css";
+
+const { quill, quillRef } = useQuill({ theme: "snow" });
+
+useEffect(() => {
+  if (quill) {
+    quill.root.innerHTML = formData.content || "";
+    quill.on("text-change", () => {
+      setFormData((prev) => ({
+        ...prev,
+        content: quill.root.innerHTML,
+      }));
+    });
+  }
+}, [quill]);
 
 const AdminStoriesPage = () => {
   const dispatch = useDispatch();
