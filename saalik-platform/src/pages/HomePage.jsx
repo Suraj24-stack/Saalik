@@ -4,8 +4,10 @@ import AboutSection from "../components/AboutSection";
 import StoriesPreview from "../components/StoriesPreview";
 import GuideBookingSection from "./GuideBookingSection";
 import PartnersSection from "../components/PartnersSection";
+
 import InitiativesCarousel from "../components/InitiativesCarousel";
 import { WaitlistModal, SuggestStoryModal } from "../components/Modal"; // ✅ Correct import
+import GroupSection from "../components/OurGroups";
 
 const HomePage = ({ setCurrentPage, setSelectedStory }) => {
   const [showWaitlist, setShowWaitlist] = useState(false);
@@ -25,7 +27,9 @@ const HomePage = ({ setCurrentPage, setSelectedStory }) => {
       />
 
       <GuideBookingSection onJoinWaitlist={() => setShowWaitlist(true)} />
+
       <PartnersSection />
+      <GroupSection />
       <InitiativesCarousel />
 
       {/* ✅ Only include modals (no <Modal />) */}
