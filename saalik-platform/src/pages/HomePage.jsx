@@ -14,8 +14,8 @@ const HomePage = ({ setCurrentPage, setSelectedStory }) => {
 
   return (
     <div className="bg-black text-white overflow-x-hidden w-full">
-      {/* Center content with 5% gap on left and right → width 90% */}
-      <div className="w-[90%] mx-auto">
+      {/* Asymmetric padding: 5% left, 2.5% right */}
+      <div style={{ paddingLeft: "5%", paddingRight: "2.5%" }}>
         <HeroCarousel />
         <AboutSection />
         <StoriesPreview
