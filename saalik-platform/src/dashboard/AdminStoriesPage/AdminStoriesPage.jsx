@@ -1,226 +1,165 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+// AdminStoriesPage.jsx - COMPLETE FINAL VERSION
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import EditorComponent, { serialize, deserialize } from "../../components/EditorComponent";
 import {
   fetchAllStories,
   createStory,
   updateStory,
   deleteStory,
-  clearSuccess,
+  publishStory,
+  unpublishStory,
+  selectAllStories,
+  selectStoryLoading,
+  selectStoryError,
+  selectStorySuccess,
+  selectStorySuccessMessage,
   clearError,
+  clearSuccess,
 } from "../../../store/slices/storySlice";
-import { Search, Plus, Edit2, Trash2, Eye, Calendar, MapPin, X, Image, FileText } from "lucide-react";
-
-import axios from 'axios';
-import { useQuill } from "react-quilljs";
-import "quill/dist/quill.snow.css";
-
-const { quill, quillRef } = useQuill({ theme: "snow" });
-
-useEffect(() => {
-  if (quill) {
-    quill.root.innerHTML = formData.content || "";
-    quill.on("text-change", () => {
-      setFormData((prev) => ({
-        ...prev,
-        content: quill.root.innerHTML,
-      }));
-    });
-  }
-}, [quill]);
 
 const AdminStoriesPage = () => {
   const dispatch = useDispatch();
-  const { stories, loading, error, success } = useSelector((state) => state.story);
-  const quillRef = useRef(null);
+  const navigate = useNavigate();
+  
+  // Redux State
+  const stories = useSelector(selectAllStories);
+  const loading = useSelector(selectStoryLoading);
+  const error = useSelector(selectStoryError);
+  const success = useSelector(selectStorySuccess);
+  const successMessage = useSelector(selectStorySuccessMessage);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  // Local State
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("created_at");
+  const [sortOrder, setSortOrder] = useState("desc");
 
-  const [formData, setFormData] = useState({
+  // Form State
+  const [form, setForm] = useState({
     title: "",
-    featured_image: null,
-    image_alt: "",
-    summary: "",
-    content: "",
+    slug: "",
     location: "",
-    published_at: "",
+    summary: "",
+    image_alt: "",
     is_published: false,
+    featured_image: null,
   });
 
-  const [editingId, setEditingId] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterPublished, setFilterPublished] = useState("all");
+  // Editor State
+  const [editorContent, setEditorContent] = useState([
+    { type: "paragraph", children: [{ text: "" }] }
+  ]);
+
   const [imagePreview, setImagePreview] = useState(null);
 
+  // Check authentication on mount
   useEffect(() => {
-    dispatch(fetchAllStories());
-  }, [dispatch]);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("Please login to access this page");
+      navigate('/login');
+      return;
+    }
+  }, [navigate]);
 
+  // Fetch stories on mount
+  useEffect(() => {
+    dispatch(fetchAllStories({ sortBy, order: sortOrder }));
+  }, [dispatch, sortBy, sortOrder]);
+
+  // Handle success/error messages
   useEffect(() => {
     if (success) {
-      resetForm();
-      setShowModal(false);
+      alert(successMessage || "Operation successful!");
       dispatch(clearSuccess());
+      resetForm();
+      setShowForm(false);
     }
-  }, [success, dispatch]);
+  }, [success, successMessage, dispatch]);
 
   useEffect(() => {
     if (error) {
-      setTimeout(() => dispatch(clearError()), 5000);
-    }
-  }, [error, dispatch]);
-
-  // Custom image handler for Quill editor
-  const imageHandler = () => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
-
-    input.onchange = async () => {
-      const file = input.files[0];
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-
-        try {
-          const token = localStorage.getItem('token');
-          const response = await axios.post(
-            `${API_BASE_URL}/stories/upload-image`,
-            formData,
-            {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`
-              }
-            }
-          );
-
-          if (response.data.success) {
-            const imageUrl = response.data.url;
-            const quill = quillRef.current.getEditor();
-            const range = quill.getSelection();
-            quill.insertEmbed(range.index, 'image', imageUrl);
-          }
-        } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Failed to upload image. Please try again.');
-        }
+      if (error.includes('403') || error.toLowerCase().includes('forbidden') || error.toLowerCase().includes('not authorized')) {
+        alert("Permission denied. Please make sure you're logged in as admin or super_admin.");
+        // Optionally redirect to login
+        // navigate('/login');
+      } else if (error.includes('401') || error.toLowerCase().includes('unauthorized')) {
+        alert("Session expired. Please login again.");
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else {
+        alert("Error: " + error);
       }
-    };
-  };
-
-  // Quill modules configuration
-  const modules = useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-        [{ 'font': [] }],
-        [{ 'size': ['small', false, 'large', 'huge'] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'color': [] }, { 'background': [] }],
-        [{ 'script': 'sub' }, { 'script': 'super' }],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        [{ 'indent': '-1' }, { 'indent': '+1' }],
-        [{ 'direction': 'rtl' }],
-        [{ 'align': [] }],
-        ['link', 'image', 'video'],
-        ['blockquote', 'code-block'],
-        ['clean']
-      ],
-      handlers: {
-        image: imageHandler
-      }
-    },
-    clipboard: {
-      matchVisual: false
+      dispatch(clearError());
     }
-  }), []);
+  }, [error, dispatch, navigate]);
 
-  // Quill formats
-  const formats = [
-    'header', 'font', 'size',
-    'bold', 'italic', 'underline', 'strike',
-    'color', 'background',
-    'script',
-    'list', 'bullet', 'indent',
-    'direction', 'align',
-    'link', 'image', 'video',
-    'blockquote', 'code-block'
-  ];
-
-  const resetForm = () => {
-    setFormData({
-      title: "",
-      featured_image: null,
-      image_alt: "",
-      summary: "",
-      content: "",
-      location: "",
-      published_at: "",
-      is_published: false,
-    });
-    setEditingId(null);
-    setImagePreview(null);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const form = new FormData();
-    
-    // Add fields to FormData, but skip featured_image if it's null
-    Object.entries(formData).forEach(([key, value]) => {
-      // Skip null values and empty strings
-      if (value === null || value === "") {
-        return;
-      }
-      
-      // Special handling for featured_image - only add if it's a File object
-      if (key === "featured_image") {
-        if (value instanceof File) {
-          form.append(key, value);
-        }
-        return;
-      }
-      
-      // Add all other fields
-      form.append(key, value);
-    });
-
-    if (editingId) {
-      dispatch(updateStory({ id: editingId, storyData: form }));
-    } else {
-      dispatch(createStory(form));
+  // Auto-generate slug from title
+  useEffect(() => {
+    if (!editingId && form.title) {
+      const slug = form.title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+      setForm(prev => ({ ...prev, slug }));
     }
-  };
+  }, [form.title, editingId]);
 
-  const handleEdit = (story) => {
-    setEditingId(story.id);
-    setFormData({
-      title: story.title,
-      featured_image: null,
-      image_alt: story.image_alt || "",
-      summary: story.summary || "",
-      content: story.content,
-      location: story.location || "",
-      published_at: story.published_at ? story.published_at.split('T')[0] : "",
-      is_published: story.is_published,
-    });
-    setImagePreview(story.featured_image || null);
-    setShowModal(true);
-  };
+  // Filter and search stories
+  const filteredStories = useMemo(() => {
+    let filtered = [...stories];
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this story? This action cannot be undone.")) {
-      dispatch(deleteStory(id));
+    if (filterStatus === "published") {
+      filtered = filtered.filter(s => s.is_published);
+    } else if (filterStatus === "draft") {
+      filtered = filtered.filter(s => !s.is_published);
     }
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        s =>
+          s.title?.toLowerCase().includes(query) ||
+          s.location?.toLowerCase().includes(query) ||
+          s.summary?.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [stories, filterStatus, searchQuery]);
+
+  // Form Handlers
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
-      setFormData({ ...formData, featured_image: file });
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size should be less than 5MB");
+        e.target.value = "";
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file");
+        e.target.value = "";
+        return;
+      }
+
+      setForm(prev => ({ ...prev, featured_image: file }));
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
@@ -229,409 +168,452 @@ const AdminStoriesPage = () => {
     }
   };
 
-  const filteredStories = stories.filter((story) => {
-    const matchesSearch = story.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (story.location && story.location.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesFilter = filterPublished === "all" ||
-                         (filterPublished === "published" && story.is_published) ||
-                         (filterPublished === "draft" && !story.is_published);
-    return matchesSearch && matchesFilter;
-  });
+  const resetForm = () => {
+    setForm({
+      title: "",
+      slug: "",
+      location: "",
+      summary: "",
+      image_alt: "",
+      is_published: false,
+      featured_image: null,
+    });
+    setEditorContent([{ type: "paragraph", children: [{ text: "" }] }]);
+    setImagePreview(null);
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Check authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("You must be logged in to create stories");
+      navigate('/login');
+      return;
+    }
+
+    if (!form.title.trim()) {
+      alert("Title is required");
+      return;
+    }
+
+    if (!form.slug.trim()) {
+      alert("Slug is required");
+      return;
+    }
+
+    const contentHtml = serialize(editorContent);
+
+    if (!contentHtml || contentHtml.trim() === "" || contentHtml === "<p></p>") {
+      alert("Content cannot be empty");
+      return;
+    }
+
+    const storyData = {
+      title: form.title.trim(),
+      slug: form.slug.trim(),
+      location: form.location.trim() || null,
+      summary: form.summary.trim() || null,
+      image_alt: form.image_alt.trim() || null,
+      content: contentHtml,
+      is_published: form.is_published,
+    };
+
+    if (form.featured_image instanceof File) {
+      storyData.featured_image = form.featured_image;
+    }
+
+    if (editingId) {
+      await dispatch(updateStory({ id: editingId, storyData }));
+    } else {
+      await dispatch(createStory(storyData));
+    }
+  };
+
+  const handleEdit = (story) => {
+    setEditingId(story.id);
+    setForm({
+      title: story.title || "",
+      slug: story.slug || "",
+      location: story.location || "",
+      summary: story.summary || "",
+      image_alt: story.image_alt || "",
+      is_published: story.is_published || false,
+      featured_image: null,
+    });
+
+    const deserializedContent = deserialize(story.content || "");
+    setEditorContent(deserializedContent);
+
+    if (story.featured_image) {
+      setImagePreview(story.featured_image);
+    }
+
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this story? This action cannot be undone.")) {
+      await dispatch(deleteStory(id));
+    }
+  };
+
+  const handlePublishToggle = async (story) => {
+    if (story.is_published) {
+      await dispatch(unpublishStory(story.id));
+    } else {
+      await dispatch(publishStory(story.id));
+    }
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    setShowForm(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Stories Management
-          </h1>
-          <p className="text-slate-400">Create, edit, and manage your stories</p>
-        </div>
-
-        {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6 bg-slate-800/50 p-4 rounded-xl backdrop-blur-sm border border-slate-700/50">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search stories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400"
-            />
-          </div>
-          
-          <select
-            value={filterPublished}
-            onChange={(e) => setFilterPublished(e.target.value)}
-            className="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-          >
-            <option value="all">All Stories</option>
-            <option value="published">Published</option>
-            <option value="draft">Drafts</option>
-          </select>
-
-          <button
-            onClick={() => {
-              resetForm();
-              setShowModal(true);
-            }}
-            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
-          >
-            <Plus className="w-5 h-5" />
-            <span>New Story</span>
-          </button>
-        </div>
-
-        {/* Messages */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 flex items-center gap-2">
-            <X className="w-5 h-5" />
-            <span>{error}</span>
-          </div>
-        )}
-        {success && (
-          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/50 rounded-lg text-green-400">
-            Operation successful!
-          </div>
-        )}
-
-        {/* Stories Grid */}
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredStories.map((story) => (
-              <div
-                key={story.id}
-                className="bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-slate-700/50 hover:border-slate-600 transition-all hover:shadow-xl group"
-              >
-                <div className="relative h-48 bg-slate-700 overflow-hidden">
-                  {story.featured_image ? (
-                    <img
-                      src={story.featured_image}
-                      alt={story.image_alt || story.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Image className="w-16 h-16 text-slate-600" />
-                    </div>
-                  )}
-                  <div className="absolute top-3 right-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        story.is_published
-                          ? "bg-green-500/20 text-green-400 border border-green-500/50"
-                          : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/50"
-                      }`}
-                    >
-                      {story.is_published ? "Published" : "Draft"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <h3 className="text-xl font-semibold mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
-                    {story.title}
-                  </h3>
-                  
-                  {story.summary && (
-                    <p className="text-slate-400 text-sm mb-3 line-clamp-2">
-                      {story.summary}
-                    </p>
-                  )}
-
-                  <div className="flex flex-wrap gap-3 mb-4 text-xs text-slate-400">
-                    {story.location && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        <span>{story.location}</span>
-                      </div>
-                    )}
-                    {story.published_at && (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{new Date(story.published_at).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      <span>{story.views || 0} views</span>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(story)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all border border-blue-500/30"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      <span>Edit</span>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(story.id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all border border-red-500/30"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span>Delete</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {filteredStories.length === 0 && !loading && (
-          <div className="text-center py-16">
-            <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400 text-lg">No stories found</p>
-          </div>
-        )}
+    <div className="max-w-7xl mx-auto p-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-4 border-b-2 border-gray-200 gap-4">
+        <h1 className="text-3xl font-bold text-white">📚 Manage Stories</h1>
+        <button
+          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto justify-center"
+          onClick={() => {
+            resetForm();
+            setShowForm(!showForm);
+          }}
+        >
+          {showForm ? "📋 View All Stories" : "➕ Create New Story"}
+        </button>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-slate-700 shadow-2xl">
-            <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-6 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-bold">
-                {editingId ? "Edit Story" : "Create New Story"}
-              </h2>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  resetForm();
-                }}
-                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+      {/* Form Section */}
+      {showForm && (
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b-2 border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {editingId ? "✏️ Edit Story" : "➕ Create New Story"}
+            </h2>
+            {editingId && (
+              <button 
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
+                onClick={handleCancel}
               >
-                <X className="w-6 h-6" />
+                Cancel
               </button>
+            )}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title and Slug */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  placeholder="Enter story title"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400 bg-white"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="slug" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Slug <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="slug"
+                  name="slug"
+                  value={form.slug}
+                  onChange={handleChange}
+                  placeholder="story-url-slug"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400 bg-white"
+                />
+              </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-300">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  required
-                />
-              </div>
+            {/* Location */}
+            <div>
+              <label htmlFor="location" className="block text-sm font-semibold text-gray-700 mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                placeholder="e.g., Kathmandu, Pokhara"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400 bg-white"
+              />
+            </div>
 
-              {/* Featured Image Upload */}
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-300">
-                  Featured Image (Cover Photo)
-                </label>
-                <div className="flex items-center gap-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="featured-image-upload"
+            {/* Summary */}
+            <div>
+              <label htmlFor="summary" className="block text-sm font-semibold text-gray-700 mb-2">
+                Summary
+              </label>
+              <textarea
+                id="summary"
+                name="summary"
+                value={form.summary}
+                onChange={handleChange}
+                placeholder="Brief summary of the story (optional)"
+                rows="3"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-y text-gray-900 placeholder-gray-400 bg-white"
+              />
+            </div>
+
+            {/* Featured Image */}
+            <div>
+              <label htmlFor="featured_image" className="block text-sm font-semibold text-gray-700 mb-2">
+                Featured Image
+              </label>
+              <input
+                type="file"
+                id="featured_image"
+                name="featured_image"
+                onChange={handleImageChange}
+                accept="image/*"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              {imagePreview && (
+                <div className="mt-4 relative inline-block">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="max-w-xs max-h-48 rounded-lg shadow-md object-cover"
                   />
-                  <label
-                    htmlFor="featured-image-upload"
-                    className="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700 transition-colors flex items-center gap-2"
+                  <button
+                    type="button"
+                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-semibold transition-colors"
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, featured_image: null }));
+                      setImagePreview(null);
+                    }}
                   >
-                    <Image className="w-5 h-5" />
-                    <span>Choose Featured Image</span>
-                  </label>
-                  {imagePreview && (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="h-16 w-16 object-cover rounded-lg border border-slate-600"
-                    />
-                  )}
+                    ✕ Remove
+                  </button>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">This image will appear as the cover/thumbnail</p>
-              </div>
+              )}
+            </div>
 
-              {/* Image Alt Text */}
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-300">
-                  Image Alt Text
-                </label>
-                <input
-                  type="text"
-                  value={formData.image_alt}
-                  onChange={(e) => setFormData({ ...formData, image_alt: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  placeholder="Describe the featured image for accessibility"
-                />
-              </div>
+            {/* Image Alt Text */}
+            <div>
+              <label htmlFor="image_alt" className="block text-sm font-semibold text-gray-700 mb-2">
+                Image Alt Text
+              </label>
+              <input
+                type="text"
+                id="image_alt"
+                name="image_alt"
+                value={form.image_alt}
+                onChange={handleChange}
+                placeholder="Describe the featured image for accessibility"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400 bg-white"
+              />
+            </div>
 
-              {/* Summary */}
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-300">
-                  Summary
-                </label>
-                <textarea
-                  value={formData.summary}
-                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  rows={3}
-                  placeholder="Brief summary of the story (shown in previews)"
-                />
-              </div>
+            {/* Content Editor */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Content <span className="text-red-500">*</span>
+              </label>
+              <EditorComponent value={editorContent} setValue={setEditorContent} />
+            </div>
 
-              {/* Rich Text Content Editor */}
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-300">
-                  Content * 
-                  <span className="text-xs text-slate-400 ml-2">(Use the toolbar to format text, add images, and links)</span>
-                </label>
-                <div className="bg-white rounded-lg">
-                  <ReactQuill
-                    ref={quillRef}
-                    theme="snow"
-                    value={formData.content}
-                    onChange={(content) => setFormData({ ...formData, content })}
-                    modules={modules}
-                    formats={formats}
-                    placeholder="Write your story here... Click the image icon in the toolbar to insert images inline."
-                    className="min-h-[400px]"
-                  />
-                </div>
-                <p className="text-xs text-slate-400 mt-2">
-                  💡 Tip: Click the image icon (📷) in the toolbar to upload and insert images directly into your story content
-                </p>
-              </div>
-
-              {/* Location & Date */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-slate-300">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                    placeholder="e.g., Kathmandu, Nepal"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-slate-300">
-                    Published Date
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.published_at}
-                    onChange={(e) => setFormData({ ...formData, published_at: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                  />
-                </div>
-              </div>
-
-              {/* Published Status */}
-              <div className="flex items-center gap-3">
+            {/* Publish Checkbox */}
+            <div className="flex items-center">
+              <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  id="is_published"
-                  checked={formData.is_published}
-                  onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                  className="w-5 h-5 rounded bg-slate-700 border-slate-600 text-blue-500 focus:ring-blue-500 focus:ring-2"
+                  name="is_published"
+                  checked={form.is_published}
+                  onChange={handleChange}
+                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 />
-                <label htmlFor="is_published" className="text-sm font-medium text-slate-300 cursor-pointer">
-                  Publish this story (make it visible to public)
-                </label>
-              </div>
+                <span className="text-sm font-medium text-gray-900">Publish immediately</span>
+              </label>
+            </div>
 
-              {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-slate-700">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                >
-                  {loading ? "Saving..." : editingId ? "Update Story" : "Create Story"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
-                  className="px-6 py-3 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
+            {/* Form Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <button 
+                type="submit" 
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                disabled={loading}
+              >
+                {loading ? "⏳ Saving..." : editingId ? "💾 Update Story" : "✅ Create Story"}
+              </button>
+              {showForm && !editingId && (
+                <button 
+                  type="button" 
+                  className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
+                  onClick={handleCancel}
                 >
                   Cancel
                 </button>
-              </div>
-            </form>
-          </div>
+              )}
+            </div>
+          </form>
         </div>
       )}
 
-      {/* Custom Styles for Quill Editor */}
-      <style>{`
-        .ql-toolbar {
-          background: #1e293b !important;
-          border: 1px solid #475569 !important;
-          border-radius: 0.5rem 0.5rem 0 0 !important;
-        }
-        .ql-container {
-          background: white !important;
-          border: 1px solid #475569 !important;
-          border-top: none !important;
-          border-radius: 0 0 0.5rem 0.5rem !important;
-          min-height: 400px;
-        }
-        .ql-editor {
-          min-height: 400px;
-          font-size: 16px;
-          color: #1e293b;
-        }
-        .ql-editor.ql-blank::before {
-          color: #94a3b8;
-          font-style: normal;
-        }
-        .ql-toolbar button {
-          color: #e2e8f0 !important;
-        }
-        .ql-toolbar button:hover {
-          color: #60a5fa !important;
-        }
-        .ql-toolbar .ql-stroke {
-          stroke: #e2e8f0 !important;
-        }
-        .ql-toolbar button:hover .ql-stroke {
-          stroke: #60a5fa !important;
-        }
-        .ql-toolbar .ql-fill {
-          fill: #e2e8f0 !important;
-        }
-        .ql-toolbar button:hover .ql-fill {
-          fill: #60a5fa !important;
-        }
-        .ql-toolbar .ql-picker-label {
-          color: #e2e8f0 !important;
-        }
-        .ql-toolbar .ql-picker-label:hover {
-          color: #60a5fa !important;
-        }
-        .ql-snow .ql-picker-options {
-          background: #1e293b !important;
-          border: 1px solid #475569 !important;
-        }
-        .ql-snow .ql-picker-item:hover {
-          color: #60a5fa !important;
-        }
-      `}</style>
+      {/* Stories List Section */}
+      {!showForm && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          {/* List Controls */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            {/* Search Box */}
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="🔍 Search stories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400 bg-white"
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <select 
+                value={filterStatus} 
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 cursor-pointer"
+              >
+                <option value="all">All Stories ({stories.length})</option>
+                <option value="published">Published ({stories.filter(s => s.is_published).length})</option>
+                <option value="draft">Drafts ({stories.filter(s => !s.is_published).length})</option>
+              </select>
+
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split("-");
+                  setSortBy(field);
+                  setSortOrder(order);
+                  dispatch(fetchAllStories({ sortBy: field, order }));
+                }}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 cursor-pointer"
+              >
+                <option value="created_at-desc">Newest First</option>
+                <option value="created_at-asc">Oldest First</option>
+                <option value="title-asc">Title (A-Z)</option>
+                <option value="title-desc">Title (Z-A)</option>
+                <option value="views-desc">Most Viewed</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Stories Grid */}
+          {loading && stories.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-600">
+              <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+              <p className="text-lg">Loading stories...</p>
+            </div>
+          ) : filteredStories.length === 0 ? (
+            <div className="text-center py-20 text-gray-600">
+              <p className="text-xl mb-4">📭 No stories found</p>
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery("")}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredStories.map((story) => (
+                <div 
+                  key={story.id} 
+                  className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                >
+                  {story.featured_image && (
+                    <div className="h-48 overflow-hidden">
+                      <img 
+                        src={story.featured_image} 
+                        alt={story.image_alt || story.title}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-5">
+                    <div className="flex justify-between items-start gap-3 mb-3">
+                      <h3 className="text-lg font-bold text-gray-900 flex-1 line-clamp-2">
+                        {story.title}
+                      </h3>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                        story.is_published 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {story.is_published ? "✓ Published" : "📝 Draft"}
+                      </span>
+                    </div>
+
+                    {story.location && (
+                      <p className="text-sm text-gray-600 mb-2">📍 {story.location}</p>
+                    )}
+
+                    {story.summary && (
+                      <p className="text-sm text-gray-700 mb-3 line-clamp-3 leading-relaxed">
+                        {story.summary}
+                      </p>
+                    )}
+
+                    <div className="flex gap-4 mb-4 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                      <span>👁️ {story.views || 0} views</span>
+                      <span>📅 {new Date(story.created_at).toLocaleDateString()}</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                        onClick={() => handleEdit(story)}
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 ${
+                          story.is_published
+                            ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                            : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                        onClick={() => handlePublishToggle(story)}
+                        disabled={loading}
+                      >
+                        {story.is_published ? "📤 Unpublish" : "📢 Publish"}
+                      </button>
+                      <button
+                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                        onClick={() => handleDelete(story.id)}
+                        disabled={loading}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
