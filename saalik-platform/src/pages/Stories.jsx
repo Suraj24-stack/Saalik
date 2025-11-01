@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllStories } from '../../store/slices/storySlice';
 import { Search, Plus, Minus } from 'lucide-react';
+import SuggestStoryModal from './SuggestStoryModal';
 
 const StoriesPage = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [zoom, setZoom] = useState(1);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
@@ -283,32 +285,41 @@ const StoriesPage = () => {
           justifyContent: 'center',
           marginTop: '40px'
         }}>
-          <button style={{
-            background: '#2ecc71',
-            color: '#000',
-            border: 'none',
-            padding: '18px 60px',
-            borderRadius: '50px',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            letterSpacing: '3px',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            textTransform: 'uppercase',
-            boxShadow: '0 10px 30px rgba(46, 204, 113, 0.5)'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'scale(1.05)';
-            e.target.style.boxShadow = '0 15px 40px rgba(46, 204, 113, 0.7)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'scale(1)';
-            e.target.style.boxShadow = '0 10px 30px rgba(46, 204, 113, 0.5)';
-          }}>
+          <button 
+            onClick={() => setShowSuggestModal(true)}
+            style={{
+              background: '#2ecc71',
+              color: '#000',
+              border: 'none',
+              padding: '18px 60px',
+              borderRadius: '50px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              letterSpacing: '3px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              textTransform: 'uppercase',
+              boxShadow: '0 10px 30px rgba(46, 204, 113, 0.5)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'scale(1.05)';
+              e.target.style.boxShadow = '0 15px 40px rgba(46, 204, 113, 0.7)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1)';
+              e.target.style.boxShadow = '0 10px 30px rgba(46, 204, 113, 0.5)';
+            }}
+          >
             SUGGEST STORIES
           </button>
         </div>
       </div>
+
+      {/* Suggest Story Modal */}
+      <SuggestStoryModal 
+        isOpen={showSuggestModal} 
+        onClose={() => setShowSuggestModal(false)} 
+      />
 
       <style>{`
         @keyframes fadeIn {

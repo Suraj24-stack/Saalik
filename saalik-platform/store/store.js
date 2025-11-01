@@ -1,4 +1,4 @@
-// store/store.js (or store/index.js)
+// store/store.js (or store/index.js) - CORRECTED VERSION
 import { configureStore } from "@reduxjs/toolkit";
 
 // Import slices
@@ -15,16 +15,14 @@ import contact from "./slices/contactSlice";
 export const store = configureStore({
   reducer: {
     auth: authSlice,
-    user: userSlice, // Fixed: removed duplicate
-    story:storySlice,
-    storysuggestion:storysuggestion,
+    user: userSlice,
+    story: storySlice,
+    storySuggestion: storysuggestion,  // ✅ FIXED: Changed from 'storysuggestion' to 'storySuggestion'
     initiative: initiative,
     partner: partner,
     waitlist: waitlist,
     setting: setting,
     contact: contact,
-   
-    // host: hostReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
